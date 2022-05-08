@@ -23,7 +23,7 @@ const Index: React.FC = () => {
 
   useEffect((): any => {
     // connect to socket server
-    const socket = io("http://localhost:3000", {
+    const socket = io(process.env.NEXT_PUBLIC_DOMAIN || "http://localhost:3000", {
       path: "/api/socketio",
     });
 

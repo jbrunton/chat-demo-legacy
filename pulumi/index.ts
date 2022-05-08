@@ -22,8 +22,8 @@ const getDomainName = (): string => {
     case 'production': return 'chat-demo.jbrunton-do.com';
     case 'staging': return 'chat-demo.staging.jbrunton-do.com';
     case 'development': return stackName === 'dev'
-      ? 'chat-demo.dev.agileplanning.io'
-      : `${stackName}.chat-demo.dev.agileplanning.io`;
+      ? 'chat-demo.dev.jbrunton-do.com'
+      : `${stackName}.chat-demo.dev.jbrunton-do.com`;
   }
 };
 
@@ -38,8 +38,13 @@ const app: AppSpecService = {
     registry: "jbrunton",
     registryType: "DOCKER_HUB",
     repository: "chat-demo-app",
-    tag: "latest",
+    tag: "test",
   },
+  envs: [{
+    key: "NEXT_PUBLIC_DOMAIN",
+    scope: "RUN_TIME",
+    value: `https://${domainName}`,
+  }],
   instanceCount: 1,
   instanceSizeSlug: "basic-xxs",
   routes: [{

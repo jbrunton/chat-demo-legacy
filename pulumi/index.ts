@@ -38,7 +38,7 @@ const app: AppSpecService = {
     registry: "jbrunton",
     registryType: "DOCKER_HUB",
     repository: "chat-demo-app",
-    tag: "test",
+    tag: "latest",
   },
   envs: [{
     key: "NEXT_PUBLIC_DOMAIN",

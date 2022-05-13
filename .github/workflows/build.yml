@@ -18,3 +18,21 @@ jobs:
         run: echo "$DOCKER_ACCESS_TOKEN" | docker login -u "$DOCKER_USERNAME" --password-stdin
       - name: Build
         run: app/build.sh
+
+  deploy-staging:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: npm ci
+        working-directory: ./pulumi
+      - id: pulumi
+        uses: pulumi/actions@v3
+        with:
+          command: up
+          stack-name: staging
+          work-dir: pulumi
+          upsert: true
+        env:
+          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+          DIGITALOCEAN_TOKEN: ${{ secrets.DIGITALOCEAN_TOKEN }}

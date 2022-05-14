@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { List, Avatar, Input, Button, InputRef, Typography } from "antd";
-import SocketIOClient, { io } from "socket.io-client";
+import SocketIOClient, { io, Socket } from "socket.io-client";
+import { ClientToServerEvents, ServerToClientEvents } from "../types/sockets";
 
 interface IMsg {
   user?: string;
@@ -23,8 +24,11 @@ const Index: React.FC = () => {
 
   useEffect((): any => {
     // connect to socket server
-    const socket = io(process.env.NEXT_PUBLIC_DOMAIN || "http://localhost:3000", {
+    const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(process.env.NEXT_PUBLIC_DOMAIN || "http://localhost:3000", {
       path: "/api/socketio",
+      query: {
+        user,
+      },
     });
 
     // log socket connection
@@ -35,7 +39,7 @@ const Index: React.FC = () => {
     });
 
     // update chat on new message dispatched
-    socket.on("message", (message: IMsg) => {
+    socket.on("message", (message) => {
       chat.push(message);
       setChat([...chat]);
     });
@@ -78,9 +82,13 @@ const Index: React.FC = () => {
         renderItem={(item) => (
           <List.Item>
             {item.user ? (
-              <Typography.Text strong={true}> {item.user}:</Typography.Text>
-            ) : null}
-            {item.msg}
+              <span>
+                <Typography.Text strong={true}> {item.user}: </Typography.Text>
+                {item.msg}
+              </span>
+            ) : (
+              <span dangerouslySetInnerHTML={{ __html: item.msg }} />
+            )}
           </List.Item>
         )}
       />

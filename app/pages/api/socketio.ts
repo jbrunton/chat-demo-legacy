@@ -16,6 +16,11 @@ export default async (req: NextApiRequest, res: any) => {
     const io = new ServerIO(httpServer, {
       path: "/api/socketio",
     });
+    io.on("connection", (socket) => {
+      const user = socket.handshake.query.user as string;
+      console.log("user connected:", user);
+      socket.join(user);
+    });
     // append SocketIO server to Next.js socket server response
     res.socket.server.io = io;
   }

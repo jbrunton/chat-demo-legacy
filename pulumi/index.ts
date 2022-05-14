@@ -45,7 +45,7 @@ const app: AppSpecService = {
   environmentSlug: 'node-js',
   envs: [{
     key: "NEXT_PUBLIC_DOMAIN",
-    scope: "RUN_TIME",
+    scope: "BUILD_TIME",
     value: `https://${domainName}`,
   }],
   instanceCount: 1,

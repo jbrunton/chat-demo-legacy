@@ -36,7 +36,7 @@ const app: AppSpecService = {
   httpPort: 3000,
   github: {
     repo: "jbrunton/chat-demo",
-    branch: "deploy-from-github",
+    branch: "e72c0d0d244f5296cef9fb643849050f3ad8d9dd",
     deployOnPush: false,
   },
   buildCommand: "npm ci && npm run build",

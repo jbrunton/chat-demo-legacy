@@ -44,10 +44,11 @@ const app: AppSpecService = {
     scope: "RUN_TIME",
     value: `https://${domainName}`,
   }],
-  buildCommand: "npm ci && npm run build",
-  runCommand: "npm run start",
+  buildCommand: "cd app && npm ci && npm run build",
+  runCommand: "cd app && npm run start",
   instanceCount: 1,
   instanceSizeSlug: "basic-xxs",
+  environmentSlug: 'node-js',
   routes: [{
       path: "/",
   }],

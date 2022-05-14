@@ -34,17 +34,18 @@ pulumi.log.info(`environment config: environment=${environment}, domain=${domain
 const app: AppSpecService = {
   name: "app",
   httpPort: 3000,
-  image: {
-    registry: "jbrunton",
-    registryType: "DOCKER_HUB",
-    repository: "chat-demo-app",
-    tag: "latest",
+  github: {
+    repo: "jbrunton/chat-demo",
+    branch: "develop",
+    deployOnPush: false,
   },
   envs: [{
     key: "NEXT_PUBLIC_DOMAIN",
     scope: "RUN_TIME",
     value: `https://${domainName}`,
   }],
+  buildCommand: "npm ci && npm run build",
+  runCommand: "npm run start",
   instanceCount: 1,
   instanceSizeSlug: "basic-xxs",
   routes: [{

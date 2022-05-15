@@ -18,7 +18,7 @@ jobs:
         run: echo "$DOCKER_ACCESS_TOKEN" | docker login -u "$DOCKER_USERNAME" --password-stdin
       - name: Build Production
         if: github.ref_name == 'develop'
-        run: TAG=LATEST DOCKER_PUSH=true app/build.sh
+        run: TAG=latest DOCKER_PUSH=true app/build.sh
       - name: Build Development
         if: github.ref_name != 'develop'
         run: DOCKER_PUSH=true app/build.sh

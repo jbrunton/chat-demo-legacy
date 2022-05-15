@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - develop
+      - add-release-it
 
 jobs:
   
@@ -14,29 +15,22 @@ jobs:
       DOCKER_ACCESS_TOKEN: ${{ secrets.DOCKER_ACCESS_TOKEN }}
     steps:
       - uses: actions/checkout@v2
-      - name: Docker Login
-        run: echo "$DOCKER_ACCESS_TOKEN" | docker login -u "$DOCKER_USERNAME" --password-stdin
-      - name: Build Production
-        if: github.ref_name == 'develop'
-        run: TAG=latest DOCKER_PUSH=true app/build.sh
-      - name: Build Development
-        if: github.ref_name != 'develop'
-        run: DOCKER_PUSH=true app/build.sh
-
-  deploy-staging:
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
       - run: npm ci
-        working-directory: ./pulumi
-      - id: pulumi
-        uses: pulumi/actions@v3
-        with:
-          command: up
-          stack-name: staging
-          work-dir: pulumi
-          upsert: true
+        working-directory: app
+      - name: git config
+        run: |
+          git config user.name "jbrunton-ci-minion"
+          git config user.email "jbrunton-ci-minion@outlook.com"
+      - name: release
+        working-directory: app
+        run: npm run release
         env:
-          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
-          DIGITALOCEAN_TOKEN: ${{ secrets.DIGITALOCEAN_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # - name: Docker Login
+      #   run: echo "$DOCKER_ACCESS_TOKEN" | docker login -u "$DOCKER_USERNAME" --password-stdin
+      # - name: Build Production
+      #   if: github.ref_name == 'develop'
+      #   run: TAG=latest DOCKER_PUSH=true app/build.sh
+      # - name: Build Development
+      #   if: github.ref_name != 'develop'
+      #   run: DOCKER_PUSH=true app/build.sh

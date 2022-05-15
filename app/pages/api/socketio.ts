@@ -1,5 +1,5 @@
 import { NextApiRequest } from "next";
-import { Server as ServerIO } from "socket.io";
+import { Server as IOServer } from "socket.io";
 import { Server as NetServer } from "http";
 
 export const config = {
@@ -8,21 +8,23 @@ export const config = {
   },
 };
 
+const createIOServer = (httpServer: NetServer) => {
+  const io = new IOServer(httpServer, {
+    path: "/api/socketio",
+  });
+  io.on("connection", (socket) => {
+    const user = socket.handshake.query.user as string;  
+    io.emit("message", { msg: `${user} joined the chat. Welcome, ${user}!`});  
+  });
+  return io;
+};
+
 export default async (req: NextApiRequest, res: any) => {
   if (!res.socket.server.io) {
-    console.log("New Socket.io server...");
-    // adapt Next's net Server to http Server
+    console.log("Creating Socket.io server...");
     const httpServer: NetServer = res.socket.server as any;
-    const io = new ServerIO(httpServer, {
-      path: "/api/socketio",
-    });
-    io.on("connection", (socket) => {
-      const user = socket.handshake.query.user as string;
-      console.log("user connected:", user);
-      socket.join(user);
-    });
-    // append SocketIO server to Next.js socket server response
-    res.socket.server.io = io;
+    const ioServer = createIOServer(httpServer);
+    res.socket.server.io = ioServer;
   }
   res.end();
 };

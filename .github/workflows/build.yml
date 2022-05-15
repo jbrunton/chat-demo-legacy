@@ -25,7 +25,7 @@ jobs:
         working-directory: app
         run: npm run release
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.CI_MINION_PAT }}
       # - name: Docker Login
       #   run: echo "$DOCKER_ACCESS_TOKEN" | docker login -u "$DOCKER_USERNAME" --password-stdin
       # - name: Build Production

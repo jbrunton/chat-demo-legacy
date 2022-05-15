@@ -29,7 +29,9 @@ const getDomainName = (): string => {
 
 const domainName = getDomainName();
 
-pulumi.log.info(`environment config: environment=${environment}, domain=${domainName}`);
+const tag = process.env.TAG || "latest";
+
+pulumi.log.info(`environment config: environment=${environment}, domain=${domainName}, tag=${tag}`);
 
 const app: AppSpecService = {
   name: "app",
@@ -38,7 +40,7 @@ const app: AppSpecService = {
     registry: "jbrunton",
     registryType: "DOCKER_HUB",
     repository: "chat-demo-app",
-    tag: "latest",
+    tag,
   },
   envs: [{
     key: "NEXT_PUBLIC_DOMAIN",

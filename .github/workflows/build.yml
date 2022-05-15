@@ -14,13 +14,9 @@ jobs:
       DOCKER_ACCESS_TOKEN: ${{ secrets.DOCKER_ACCESS_TOKEN }}
     steps:
       - uses: actions/checkout@v2
-      - name: Docker Login
+      - name: docker Login
         run: echo "$DOCKER_ACCESS_TOKEN" | docker login -u "$DOCKER_USERNAME" --password-stdin
-      - name: Build Production
-        if: github.ref_name == 'develop'
-        run: TAG=latest DOCKER_PUSH=true app/build.sh
-      - name: Build Development
-        if: github.ref_name != 'develop'
+      - name: build
         run: DOCKER_PUSH=true app/build.sh
 
   deploy-staging:
@@ -30,13 +26,9 @@ jobs:
       - uses: actions/checkout@v2
       - run: npm ci
         working-directory: ./pulumi
-      - id: pulumi
-        uses: pulumi/actions@v3
-        with:
-          command: up
-          stack-name: staging
-          work-dir: pulumi
-          upsert: true
+      - run: npm install -g pulumi
+      - name: deploy
+        run: STACK_NAME=staging app/deploy.sh
         env:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
           DIGITALOCEAN_TOKEN: ${{ secrets.DIGITALOCEAN_TOKEN }}

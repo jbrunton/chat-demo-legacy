@@ -14,6 +14,8 @@ ARG GIT_COMMIT=unknown
 ARG GIT_BRANCH=unknown
 LABEL git.commit $GIT_COMMIT
 LABEL git.branch $GIT_BRANCH
+ENV GIT_COMMIT $GIT_COMMIT
+ENV GIT_BRANCH $GIT_BRANCH
 
 ENTRYPOINT [ "./entrypoint.sh" ]
 CMD ["npm", "run", "start"]

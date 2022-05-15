@@ -10,5 +10,10 @@ COPY . ./
 
 RUN NEXT_PUBLIC_DOMAIN=NEXT_PUBLIC_DOMAIN npm run build
 
+ARG GIT_COMMIT=unknown
+ARG GIT_BRANCH=unknown
+LABEL git.commit $GIT_COMMIT
+LABEL git.branch $GIT_BRANCH
+
 ENTRYPOINT [ "./entrypoint.sh" ]
 CMD ["npm", "run", "start"]

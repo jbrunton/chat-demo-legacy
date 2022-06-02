@@ -1,6 +1,6 @@
 /** @type {import('@types/semantic-release').Options} */
 const options = {
-  branches: ["semantic-release"],
+  branches: ["develop"],
   
   plugins: [
     [

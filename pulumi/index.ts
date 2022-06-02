@@ -29,7 +29,7 @@ const getDomainName = (): string => {
 
 const domainName = getDomainName();
 
-const tag = process.env.TAG || "latest";
+const tag = process.env.VERSION || "latest";
 
 pulumi.log.info(`environment config: environment=${environment}, domain=${domainName}, tag=${tag}`);
 

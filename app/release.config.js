@@ -1,7 +1,6 @@
 /** @type {import('@types/semantic-release').Options} */
 const options = {
   branches: ["develop"],
-  
   plugins: [
     [
       "@semantic-release/commit-analyzer",
@@ -33,16 +32,6 @@ const options = {
       "@semantic-release-plus/docker",
       {
         name: "jbrunton/chat-demo-app"
-      }
-    ],
-    [
-      "@semantic-release/git",
-      {
-        assets: [
-          "package.json",
-          "package-lock.json",
-        ],
-        message: "chore(release): release ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
       }
     ],
     ["@semantic-release/exec", {

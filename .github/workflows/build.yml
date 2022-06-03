@@ -31,6 +31,7 @@ jobs:
 
   deploy-staging:
     needs: build
+    if: ${{ needs.build.outputs.version }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2

@@ -10,8 +10,34 @@ on:
         default: dev
 
 jobs:
-
+  
   build-dev:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app
     steps:
-      run: echo "test"
+      - uses: actions/checkout@v2
+        with:
+          token: ${{ secrets.CI_MINION_PAT }}
+      - name: Docker Login
+        run: echo "$DOCKER_ACCESS_TOKEN" | docker login -u "$DOCKER_USERNAME" --password-stdin
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_ACCESS_TOKEN: ${{ secrets.DOCKER_ACCESS_TOKEN }}
+      - name: Build
+        run: DOCKER_PUSH=true ./build.sh
+
+  deploy-dev:
+    needs: build-dev
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: npm ci
+        working-directory: ./pulumi
+      - run: npm install -g pulumi
+      - name: deploy
+        run: STACK_NAME=${{ github.event.inputs.stack_name }} app/deploy.sh
+        env:
+          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+          DIGITALOCEAN_TOKEN: ${{ secrets.DIGITALOCEAN_TOKEN }}

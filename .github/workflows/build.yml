@@ -19,7 +19,7 @@ jobs:
         with:
           token: ${{ secrets.CI_MINION_PAT }}
       - name: Build
-        run: ./build.sh
+        run: TAG=latest ./build.sh
       - run: npm ci
       - name: Release
         id: release

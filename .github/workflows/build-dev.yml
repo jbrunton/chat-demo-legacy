@@ -1,0 +1,17 @@
+name: build-dev
+
+on:
+  workflow_dispatch:
+    inputs:
+      stack_name:
+        type: string
+        required: true
+        description: The Pulumi stack to deploy to
+        default: dev
+
+jobs:
+
+  build-dev:
+    runs-on: ubuntu-latest
+    steps:
+      run: echo "test"

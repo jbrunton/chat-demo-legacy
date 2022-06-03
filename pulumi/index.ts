@@ -1,4 +1,5 @@
 import * as pulumi from "@pulumi/pulumi";
+import * as crypto from "crypto";
 import * as digitalocean from "@pulumi/digitalocean";
 import { AppSpecService } from "@pulumi/digitalocean/types/input";
 
@@ -27,11 +28,28 @@ const getDomainName = (): string => {
   }
 };
 
+/**
+ * There's a bug in Pulumi provisioning for App Platform in which provisioning hangs if the spec
+ * hasn't changed. Hence, generate a unique ID each time we provision.
+ */
+const getSpecId = (): string => {
+  return `${appName}/${tag}/${crypto.randomBytes(4).toString('hex')}`;
+}
+
 const domainName = getDomainName();
 
 const tag = process.env.VERSION || "latest";
 
-pulumi.log.info(`environment config: environment=${environment}, domain=${domainName}, tag=${tag}`);
+const specId = getSpecId();
+
+const info = {
+  environment,
+  domain: domainName,
+  tag,
+  specId,
+};
+
+pulumi.log.info(`environment config: ${JSON.stringify(info, null, ' ')}`);
 
 const app: AppSpecService = {
   name: "app",
@@ -46,6 +64,14 @@ const app: AppSpecService = {
     key: "NEXT_PUBLIC_DOMAIN",
     scope: "RUN_TIME",
     value: `https://${domainName}`,
+  }, {
+    key: "TAG",
+    scope: "RUN_TIME",
+    value: tag,
+  }, {
+    key: "SPEC_ID",
+    scope: "RUN_TIME",
+    value: specId,
   }],
   instanceCount: 1,
   instanceSizeSlug: "basic-xxs",

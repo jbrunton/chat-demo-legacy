@@ -38,7 +38,7 @@ const getSpecId = (): string => {
 
 const domainName = getDomainName();
 
-const tag = process.env.VERSION || "latest";
+const tag = process.env.TAG || "latest";
 
 const specId = getSpecId();
 

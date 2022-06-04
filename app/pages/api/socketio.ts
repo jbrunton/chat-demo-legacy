@@ -1,7 +1,7 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { Server as IOServer } from "socket.io";
 import { Server as NetServer } from "http";
-import "types/net";
+import { SocketServer } from "types/sockets";
 
 export const config = {
   api: {
@@ -10,12 +10,15 @@ export const config = {
 };
 
 const createIOServer = (httpServer: NetServer) => {
-  const io = new IOServer(httpServer, {
+  const io: SocketServer = new IOServer(httpServer, {
     path: "/api/socketio",
   });
   io.on("connection", (socket) => {
     const user = socket.handshake.query.user as string;  
-    io.emit("message", { msg: `${user} joined the chat. Welcome, ${user}!`});  
+    io.emit("message", {
+      content: `${user} joined the chat. Welcome, ${user}!`,
+      timestamp: new Date().toISOString(),
+    });  
   });
   return io;
 };

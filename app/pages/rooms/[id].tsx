@@ -7,6 +7,20 @@ import { Message } from "types/messages";
 
 const user = "User_" + String(new Date().getTime()).substr(-3);
 
+const datesAreOnSameDay = (first: Date, second: Date) =>
+    first.getFullYear() === second.getFullYear() &&
+    first.getMonth() === second.getMonth() &&
+    first.getDate() === second.getDate();
+
+const formatTimestamp = (timestamp: string, now = new Date()) => {
+  const time = new Date(timestamp);
+  if (datesAreOnSameDay(time, now)) {
+    return time.toLocaleTimeString();
+  } else {
+    return `${time.toLocaleDateString()} ${time.toLocaleDateString()}`;
+  }
+};
+
 const Index: React.FC = () => {
   const inputRef = useRef<InputRef>(null);
 
@@ -14,7 +28,7 @@ const Index: React.FC = () => {
   const roomId: string = router.query.id as string;
 
   const [chat, setChat] = useState<Message[]>([]);
-  const [msg, setMsg] = useState<string>("");
+  const [content, setContent] = useState<string>("");
   const [connected, setConnected] = useState<boolean>(false);
   const [socketId, setSocketId] = useState<string>();
 
@@ -51,11 +65,12 @@ const Index: React.FC = () => {
   }, [roomId]);
 
   const sendMessage = async () => {
-    if (msg) {
+    if (content) {
       const message: Message = {
         user,
         userId: socketId,
-        msg,
+        content,
+        timestamp: new Date().toISOString(),
       };
 
       const resp = await fetch("/api/chat", {
@@ -66,7 +81,7 @@ const Index: React.FC = () => {
         body: JSON.stringify(message),
       });
 
-      if (resp.ok) setMsg("");
+      if (resp.ok) setContent("");
     }
 
     inputRef?.current?.focus();
@@ -78,24 +93,24 @@ const Index: React.FC = () => {
         itemLayout="horizontal"
         dataSource={chat}
         size="small"
-        renderItem={(item) => (
+        renderItem={(message) => (
           <List.Item>
-            {item.userId ? (
+            {message.userId ? (
               <span>
-                <Typography.Text strong={true}> {item.user}: </Typography.Text>
-                {item.msg}
+                <Typography.Text strong={true}> {message.user} ({formatTimestamp(message.timestamp)}): </Typography.Text>
+                {message.content}
               </span>
             ) : (
-              <span dangerouslySetInnerHTML={{ __html: item.msg }} />
+              <span dangerouslySetInnerHTML={{ __html: message.content }} />
             )}
           </List.Item>
         )}
       />
       <Input
         disabled={!connected}
-        value={msg}
+        value={content}
         ref={inputRef}
-        onChange={(e) => setMsg(e.target.value)}
+        onChange={(e) => setContent(e.target.value)}
         onKeyDown={(e) => {
           if (e.key === "Enter") {
             sendMessage();

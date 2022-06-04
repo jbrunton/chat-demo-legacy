@@ -1,12 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
 import { List, Avatar, Input, Button, InputRef, Typography } from "antd";
 import SocketIOClient, { io, Socket } from "socket.io-client";
-import { ClientToServerEvents, ServerToClientEvents } from "../types/sockets";
-
-interface IMsg {
-  user?: string;
-  msg: string;
-}
+import { useRouter } from 'next/router'
+import { ClientToServerEvents, ServerToClientEvents } from "types/sockets";
+import { Message } from "types/messages";
 
 // create random user
 const user = "User_" + String(new Date().getTime()).substr(-3);
@@ -15,12 +12,16 @@ const user = "User_" + String(new Date().getTime()).substr(-3);
 const Index: React.FC = () => {
   const inputRef = useRef<any>(null);
 
+  const router = useRouter()
+  const { id: roomId } = router.query
+
   // connected flag
   const [connected, setConnected] = useState<boolean>(false);
 
   // init chat and message
-  const [chat, setChat] = useState<IMsg[]>([]);
+  const [chat, setChat] = useState<Message[]>([]);
   const [msg, setMsg] = useState<string>("");
+  const [socketId, setSocketId] = useState<string>();
 
   useEffect((): any => {
     // connect to socket server
@@ -28,14 +29,14 @@ const Index: React.FC = () => {
       path: "/api/socketio",
       query: {
         user,
+        roomId
       },
     });
 
     // log socket connection
     socket.on("connect", () => {
       setConnected(true);
-      chat.push({ msg: `Welcome, ${user}!` });
-      setChat([...chat]);
+      setSocketId(socket.id);
     });
 
     // update chat on new message dispatched
@@ -51,8 +52,9 @@ const Index: React.FC = () => {
   const sendMessage = async () => {
     if (msg) {
       // build message obj
-      const message: IMsg = {
+      const message: Message = {
         user,
+        userId: socketId,
         msg,
       };
 
@@ -81,7 +83,7 @@ const Index: React.FC = () => {
         size="small"
         renderItem={(item) => (
           <List.Item>
-            {item.user ? (
+            {item.userId ? (
               <span>
                 <Typography.Text strong={true}> {item.user}: </Typography.Text>
                 {item.msg}

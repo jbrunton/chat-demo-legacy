@@ -1,3 +1,5 @@
+import { Message } from "./messages";
+
 export interface ServerToClientEvents {
   message: (message: Message) => void;
 }
@@ -8,9 +10,4 @@ export interface ClientToServerEvents {
 
 export interface InterServerEvents {
   // ping: () => void;
-}
-
-export interface Message {
-  user?: string;
-  msg: string;
 }

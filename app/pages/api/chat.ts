@@ -1,6 +1,6 @@
 import { NextApiRequest } from "next";
+import { Message } from "types/messages";
 
-type Message = { user?: string, msg: string };
 
 const helpResponse = `
 <p>Type to chat, or enter one of the following commands:</p>
@@ -25,8 +25,8 @@ export default (req: NextApiRequest, res: any) => {
 
     if (isCommand(message)) {
       const response = processCommand(message);
-      const user = message.user;
-      res?.socket?.server?.io.to(user).emit("message", { msg: response });
+      const userId = message.userId;
+      res?.socket?.server?.io.to(userId).emit("message", { msg: response });
     } else {
       res?.socket?.server?.io?.emit("message", message);
     }

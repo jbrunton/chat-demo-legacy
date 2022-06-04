@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { Message } from "types/messages";
-import "types/net";
+import "types/sockets";
 
 const helpResponse = `
 <p>Type to chat, or enter one of the following commands:</p>
@@ -9,10 +9,10 @@ const helpResponse = `
 
 const unrecognisedResponse = "Unrecognised command, type <b>/help</b> for further assistance";
 
-const isCommand = ({ msg }: Message) => msg.startsWith('/');
+const isCommand = ({ content }: Message) => content.startsWith('/');
 
-const processCommand = ({ msg }: Message) => {
-  const cmd = msg.slice(1).split(' ');
+const processCommand = ({ content }: Message) => {
+  const cmd = content.slice(1).split(' ');
   if (cmd[0] === 'help') {
     return helpResponse;
   }
@@ -32,7 +32,10 @@ const Chat = (req: NextApiRequest, res: NextApiResponse) => {
     if (isCommand(message)) {
       const response = processCommand(message);
       const userId = message.userId;
-      ioServer.to(userId).emit("message", { msg: response });
+      ioServer.to(userId).emit("message", {
+        content: response,
+        timestamp: new Date().toISOString(),
+      });
     } else {
       ioServer.emit("message", message);
     }

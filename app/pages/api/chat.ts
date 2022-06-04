@@ -1,6 +1,6 @@
-import { NextApiRequest } from "next";
+import { NextApiRequest, NextApiResponse } from "next";
 import { Message } from "types/messages";
-
+import "types/net";
 
 const helpResponse = `
 <p>Type to chat, or enter one of the following commands:</p>
@@ -19,16 +19,22 @@ const processCommand = ({ msg }: Message) => {
   return unrecognisedResponse;
 };
 
-const Chat = (req: NextApiRequest, res: any) => {
+const Chat = (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method === "POST") {
     const message = req.body;
+
+    if (!res.socket?.server.io) {
+      throw new Error("res.socket.server.io was undefined");
+    }
+
+    const ioServer = res.socket.server.io;
 
     if (isCommand(message)) {
       const response = processCommand(message);
       const userId = message.userId;
-      res?.socket?.server?.io.to(userId).emit("message", { msg: response });
+      ioServer.to(userId).emit("message", { msg: response });
     } else {
-      res?.socket?.server?.io?.emit("message", message);
+      ioServer.emit("message", message);
     }
 
     res.status(201).send(message);

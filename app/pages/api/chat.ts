@@ -19,7 +19,7 @@ const processCommand = ({ msg }: Message) => {
   return unrecognisedResponse;
 };
 
-export default (req: NextApiRequest, res: any) => {
+const Chat = (req: NextApiRequest, res: any) => {
   if (req.method === "POST") {
     const message = req.body;
 
@@ -34,3 +34,5 @@ export default (req: NextApiRequest, res: any) => {
     res.status(201).send(message);
   }
 };
+
+export default Chat;

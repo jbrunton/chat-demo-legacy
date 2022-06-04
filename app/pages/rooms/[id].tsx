@@ -1,16 +1,14 @@
 import React, { useState, useEffect, useRef } from "react";
-import { List, Input, Typography } from "antd";
+import { List, Input, Typography, InputRef } from "antd";
 import { io } from "socket.io-client";
 import { useRouter } from 'next/router'
 import { SocketClient } from "types/sockets";
 import { Message } from "types/messages";
 
-// create random user
 const user = "User_" + String(new Date().getTime()).substr(-3);
 
-// component
 const Index: React.FC = () => {
-  const inputRef = useRef<any>(null);
+  const inputRef = useRef<InputRef>(null);
 
   const router = useRouter()
   const roomId: string = router.query.id as string;

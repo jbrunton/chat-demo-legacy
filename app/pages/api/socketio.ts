@@ -1,6 +1,7 @@
-import { NextApiRequest } from "next";
+import { NextApiRequest, NextApiResponse } from "next";
 import { Server as IOServer } from "socket.io";
 import { Server as NetServer } from "http";
+import "types/net";
 
 export const config = {
   api: {
@@ -19,13 +20,16 @@ const createIOServer = (httpServer: NetServer) => {
   return io;
 };
 
-const Handler = async (_req: NextApiRequest, res: any) => {
+const Handler = async (_req: NextApiRequest, res: NextApiResponse) => {
+  if (!res.socket) {
+    throw new Error("res.socket is undefined");
+  }
+
   if (!res.socket.server.io) {
     console.log("Creating Socket.io server...");
-    const httpServer: NetServer = res.socket.server as any;
-    const ioServer = createIOServer(httpServer);
-    res.socket.server.io = ioServer;
+    res.socket.server.io = createIOServer(res.socket.server);
   }
+
   res.end();
 };
 

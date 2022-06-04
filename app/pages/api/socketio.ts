@@ -19,7 +19,7 @@ const createIOServer = (httpServer: NetServer) => {
   return io;
 };
 
-export default async (req: NextApiRequest, res: any) => {
+const Handler = async (_req: NextApiRequest, res: any) => {
   if (!res.socket.server.io) {
     console.log("Creating Socket.io server...");
     const httpServer: NetServer = res.socket.server as any;
@@ -28,3 +28,5 @@ export default async (req: NextApiRequest, res: any) => {
   }
   res.end();
 };
+
+export default Handler;

@@ -55,7 +55,7 @@ const Index: React.FC = () => {
     if (content) {
       const message: Message = {
         user,
-        userId: socketId,
+        senderId: socketId,
         content,
         timestamp: new Date().toISOString(),
       };
@@ -82,7 +82,7 @@ const Index: React.FC = () => {
         size="small"
         renderItem={(message) => (
           <List.Item extra={<span>{formatTime(new Date(message.timestamp))}</span>}>
-            {message.userId ? (
+            {message.senderId ? (
               <>
                 <Typography.Text strong={true}>{message.user}: </Typography.Text> 
                 <span>

@@ -12,6 +12,8 @@ docker build . \
   --build-arg "GIT_COMMIT=$GIT_COMMIT" \
   -t jbrunton/chat-demo-app:$TAG
 
+echo "::set-output name=tag::$TAG"
+
 if [ "$DOCKER_PUSH" = true ] ; then
   docker push jbrunton/chat-demo-app:$TAG
 fi

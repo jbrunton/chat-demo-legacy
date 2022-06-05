@@ -1,13 +1,8 @@
-name: build-dev
+name: deploy-dev
 
 on:
-  workflow_dispatch:
-    inputs:
-      stack_name:
-        type: string
-        required: true
-        description: The Pulumi stack to deploy to
-        default: dev
+  
+  pull_request:
 
 jobs:
   
@@ -16,6 +11,8 @@ jobs:
     defaults:
       run:
         working-directory: app
+    outputs:
+      tag: ${{ steps.release.outputs.tag }}
     steps:
       - uses: actions/checkout@v2
         with:
@@ -34,10 +31,14 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - run: npm ci
-        working-directory: ./pulumi
-      - run: npm install -g pulumi
-      - name: deploy
-        run: STACK_NAME=${{ github.event.inputs.stack_name }} app/deploy.sh
+        working-directory: pulumi
+      - uses: pulumi/actions@v3
+        with:
+          command: up
+          stack-name: ${{ github.head_ref }}
+          upsert: true
+          work-dir: pulumi
         env:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
           DIGITALOCEAN_TOKEN: ${{ secrets.DIGITALOCEAN_TOKEN }}
+          TAG: ${{ needs.build.outputs.tag }}

@@ -35,7 +35,7 @@ const options = {
       }
     ],
     ["@semantic-release/exec", {
-      successCmd: 'echo "::set-output name=VERSION::${nextRelease.version}"'
+      successCmd: 'echo "::set-output name=version::${nextRelease.version}"'
     }],
   ],
 };

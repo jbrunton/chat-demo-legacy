@@ -17,7 +17,6 @@ const getEnvironment = (): Environment => {
 }
 
 const environment = getEnvironment();
-const protect = environment === 'production';
 
 const getDomainName = (): string => {
   switch (environment) {
@@ -37,7 +36,8 @@ const getSpecId = (): string => {
   return `${appName}/${tag}/${crypto.randomBytes(4).toString('hex')}`;
 }
 
-const domainName = getDomainName();
+export const domainName = getDomainName();
+export const publicUrl = `https://${domainName}`;
 
 const tag = process.env.TAG || "latest";
 
@@ -64,7 +64,7 @@ const app: AppSpecService = {
   envs: [{
     key: "NEXT_PUBLIC_DOMAIN",
     scope: "RUN_TIME",
-    value: `https://${domainName}`,
+    value: publicUrl,
   }, {
     key: "TAG",
     scope: "RUN_TIME",
@@ -98,4 +98,6 @@ new digitalocean.App(appName, {
     // }],
     services: [app],
   },
-}, { protect });
+}, {
+  protect: environment === 'production'
+});

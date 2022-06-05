@@ -50,6 +50,7 @@ jobs:
         run: npx semantic-release
 
   deploy-staging:
+    environment: Staging
     needs: build
     if: ${{ needs.build.outputs.version }}
     runs-on: ubuntu-latest
@@ -60,6 +61,21 @@ jobs:
       - run: npm install -g pulumi
       - name: deploy
         run: STACK_NAME=staging VERSION=${{ needs.build.outputs.version }} app/deploy.sh
+        env:
+          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+          DIGITALOCEAN_TOKEN: ${{ secrets.DIGITALOCEAN_TOKEN }}
+
+  deploy-production:
+    environment: Production
+    needs: deploy-staging
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: npm ci
+        working-directory: ./pulumi
+      - run: npm install -g pulumi
+      - name: deploy
+        run: STACK_NAME=production VERSION=${{ needs.build.outputs.version }} app/deploy.sh
         env:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
           DIGITALOCEAN_TOKEN: ${{ secrets.DIGITALOCEAN_TOKEN }}

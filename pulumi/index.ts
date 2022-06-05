@@ -17,7 +17,6 @@ const getEnvironment = (): Environment => {
 }
 
 const environment = getEnvironment();
-const protect = environment === 'production';
 
 const getDomainName = (): string => {
   switch (environment) {
@@ -98,4 +97,6 @@ new digitalocean.App(appName, {
     // }],
     services: [app],
   },
-}, { protect });
+}, {
+  protect: environment === 'production'
+});

@@ -12,7 +12,7 @@ jobs:
       run:
         working-directory: app
     outputs:
-      tag: ${{ steps.release.outputs.tag }}
+      tag: ${{ steps.build.outputs.tag }}
     steps:
       - uses: actions/checkout@v2
         with:
@@ -23,6 +23,7 @@ jobs:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
           DOCKER_ACCESS_TOKEN: ${{ secrets.DOCKER_ACCESS_TOKEN }}
       - name: Build
+        id: build
         run: DOCKER_PUSH=true ./build.sh
 
   deploy-dev:
@@ -41,4 +42,4 @@ jobs:
         env:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
           DIGITALOCEAN_TOKEN: ${{ secrets.DIGITALOCEAN_TOKEN }}
-          TAG: ${{ needs.build.outputs.tag }}
+          TAG: ${{ needs.build-dev.outputs.tag }}

@@ -33,7 +33,7 @@ jobs:
       - uses: actions/checkout@v2
       - run: npm ci
         working-directory: pulumi
-      - uses: pulumi/actions@v3
+      - uses: jbrunton/pulumi-actions@v3
         with:
           command: up
           stack-name: ${{ github.head_ref }}

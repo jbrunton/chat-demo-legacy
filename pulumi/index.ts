@@ -37,6 +37,7 @@ const getSpecId = (): string => {
 }
 
 const domainName = getDomainName();
+export const publicUrl = `https://${domainName}`;
 
 const tag = process.env.TAG || "latest";
 
@@ -63,7 +64,7 @@ const app: AppSpecService = {
   envs: [{
     key: "NEXT_PUBLIC_DOMAIN",
     scope: "RUN_TIME",
-    value: `https://${domainName}`,
+    value: publicUrl,
   }, {
     key: "TAG",
     scope: "RUN_TIME",

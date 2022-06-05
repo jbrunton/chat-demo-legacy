@@ -4,22 +4,9 @@ import { io } from "socket.io-client";
 import { useRouter } from 'next/router'
 import { SocketClient } from "types/sockets";
 import { Message } from "types/messages";
+import { formatTime } from "presentation/format";
 
 const user = "User_" + String(new Date().getTime()).substr(-3);
-
-const datesAreOnSameDay = (first: Date, second: Date) =>
-    first.getFullYear() === second.getFullYear() &&
-    first.getMonth() === second.getMonth() &&
-    first.getDate() === second.getDate();
-
-const formatTimestamp = (timestamp: string, now = new Date()) => {
-  const time = new Date(timestamp);
-  if (datesAreOnSameDay(time, now)) {
-    return time.toLocaleTimeString();
-  } else {
-    return `${time.toLocaleDateString()} ${time.toLocaleDateString()}`;
-  }
-};
 
 const Index: React.FC = () => {
   const inputRef = useRef<InputRef>(null);
@@ -90,16 +77,18 @@ const Index: React.FC = () => {
   return (
     <>
       <List
-        itemLayout="horizontal"
+        itemLayout="vertical"
         dataSource={chat}
         size="small"
         renderItem={(message) => (
-          <List.Item>
+          <List.Item extra={<span>{formatTime(new Date(message.timestamp))}</span>}>
             {message.userId ? (
-              <span>
-                <Typography.Text strong={true}> {message.user} ({formatTimestamp(message.timestamp)}): </Typography.Text>
-                {message.content}
-              </span>
+              <>
+                <Typography.Text strong={true}>{message.user}: </Typography.Text> 
+                <span>
+                  {message.content}
+                </span>
+              </>
             ) : (
               <span dangerouslySetInnerHTML={{ __html: message.content }} />
             )}

@@ -1,3 +1,11 @@
+# ChatDemo
+
+This project is an exercise in developing good CI/CD practices and automation. It includes:
+
+* Automatic environment provisioning with Pulumi
+* CI including linting, unit tests, and eventually integration tests
+* Continuous delivery practices, including automatic deployments to staging and automatic (with approval) deployments to production
+
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
 ## Getting Started
@@ -5,9 +13,8 @@ This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next
 First, run the development server:
 
 ```bash
+cd app
 npm run dev
-# or
-yarn dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.

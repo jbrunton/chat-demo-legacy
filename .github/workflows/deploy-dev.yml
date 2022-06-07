@@ -14,7 +14,7 @@ jobs:
     outputs:
       tag: ${{ steps.build.outputs.tag }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           token: ${{ secrets.CI_MINION_PAT }}
       - name: Docker Login
@@ -30,7 +30,7 @@ jobs:
     needs: build-dev
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - run: npm ci
         working-directory: pulumi
       - uses: pulumi/actions@3d7b45a4777bd1ac9c972ccf66398885e004cc10 # TODO: update to v3 after next release

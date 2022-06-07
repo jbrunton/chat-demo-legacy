@@ -13,7 +13,7 @@ jobs:
       run:
         working-directory: app
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - run: npm ci
       - run: npm run lint
 
@@ -23,7 +23,7 @@ jobs:
       run:
         working-directory: app
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - run: npm ci
       - run: npm run test:unit
   
@@ -37,7 +37,7 @@ jobs:
     outputs:
       version: ${{ steps.release.outputs.version }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           token: ${{ secrets.CI_MINION_PAT }}
       - name: Build
@@ -57,7 +57,7 @@ jobs:
     if: ${{ needs.build.outputs.version }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - run: npm ci
         working-directory: ./pulumi
       - run: npm install -g pulumi
@@ -77,7 +77,7 @@ jobs:
     needs: [build, deploy-staging]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - run: npm ci
         working-directory: ./pulumi
       - run: npm install -g pulumi

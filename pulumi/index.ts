@@ -1,65 +1,14 @@
 import * as pulumi from "@pulumi/pulumi";
-import * as crypto from "crypto";
 import * as digitalocean from "@pulumi/digitalocean";
 import { AppSpecService } from "@pulumi/digitalocean/types/input";
-
-type Environment = "production" | "staging" | "development";
+import { getEnvironmentConfig } from "./lib/config";
 
 const stackName = pulumi.getStack();
-const appName = `chat-demo-${stackName}`.slice(0, 32);
-
-const getEnvironment = (): Environment => {
-  switch (stackName) {
-    case 'production': return 'production';
-    case 'staging': return 'staging';
-  }
-  return 'development';
-}
-
-const environment = getEnvironment();
-
-const getDevDomainName = (): string => {
-  if (stackName === 'dev') {
-    return 'chat-demo.dev.jbrunton-do.com';
-  }
-  
-  const subdomain = stackName.replace('/', '-').replace('.', '-');
-  return `${subdomain}.chat-demo.dev.jbrunton-do.com`;
-}
-
-const getDomainName = (): string => {
-  switch (environment) {
-    case 'production': return 'chat-demo.jbrunton-do.com';
-    case 'staging': return 'chat-demo.staging.jbrunton-do.com';
-    case 'development': return stackName === 'dev'
-      ? 'chat-demo.dev.jbrunton-do.com'
-      : `${stackName.replace('/', '-').replace('.', '-')}.chat-demo.dev.jbrunton-do.com`;
-  }
-};
-
-/**
- * There's a bug in Pulumi provisioning for App Platform in which provisioning hangs if the spec
- * hasn't changed. Hence, generate a unique ID each time we provision.
- */
-const getSpecId = (): string => {
-  return `${appName}/${tag}/${crypto.randomBytes(4).toString('hex')}`;
-}
-
-const domainName = getDomainName();
-export const publicUrl = `https://${domainName}`;
-
 const tag = process.env.TAG || "latest";
+const config = getEnvironmentConfig({ stackName, tag });
+export const publicUrl = config.publicUrl;
 
-const specId = getSpecId();
-
-const info = {
-  environment,
-  domain: domainName,
-  tag,
-  specId,
-};
-
-pulumi.log.info(`environment config: ${JSON.stringify(info, null, ' ')}`);
+pulumi.log.info(`environment config: ${JSON.stringify(config, null, ' ')}`);
 
 const app: AppSpecService = {
   name: "app",
@@ -81,7 +30,7 @@ const app: AppSpecService = {
   }, {
     key: "SPEC_ID",
     scope: "RUN_TIME",
-    value: specId,
+    value: config.specId,
   }],
   instanceCount: 1,
   instanceSizeSlug: "basic-xxs",
@@ -90,12 +39,12 @@ const app: AppSpecService = {
   }],
 };
 
-new digitalocean.App(appName, {
+new digitalocean.App(config.appName, {
   spec: {
-    name: appName,
+    name: config.appName,
     region: "lon",
     domainNames: [{
-        name: domainName,
+        name: config.domain,
         zone: "jbrunton-do.com",
         type: "PRIMARY"
     }],
@@ -108,5 +57,5 @@ new digitalocean.App(appName, {
     services: [app],
   },
 }, {
-  protect: environment === 'production'
+  protect: config.environment === 'production'
 });

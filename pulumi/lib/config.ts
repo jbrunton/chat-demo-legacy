@@ -26,8 +26,10 @@ export const getEnvironment = (stackName: string): Environment => {
   return 'development';
 }
 
+const cleanString = (s: string) => s.replace('/', '').replace('.', '');
+
 export const getAppName = (stackName: string): string => {
-  return `chat-demo-${stackName}`.slice(0, 32);
+  return `chat-demo-${cleanString(stackName)}`.slice(0, 32);
 }
 
 const getDevDomainName = (stackName: string): string => {
@@ -35,7 +37,7 @@ const getDevDomainName = (stackName: string): string => {
     return 'chat-demo.dev.jbrunton-do.com';
   }
   
-  const subdomain = stackName.replace('/', '-').replace('.', '-');
+  const subdomain = cleanString(stackName);
   return `${subdomain}.chat-demo.dev.jbrunton-do.com`;
 }
 

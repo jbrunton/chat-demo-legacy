@@ -29,26 +29,36 @@ describe("getAppName", () => {
   });
 
   it("truncates names greater than 32 chars long", () => {
-    const stackName = "deps-upgrade-some-lib-3.x";
-    expect(getAppName(stackName)).toEqual("chat-demo-deps-upgrade-some-lib-");
+    const stackName = "deps-some-long-name-lib-3.x";
+    expect(getAppName(stackName)).toEqual("chat-demo-deps-some-long-name-li");
+  });
+
+  it("removes illegal characters", () => {
+    const stackName = "deps-some-lib-3.x";
+    expect(getAppName(stackName)).toEqual("chat-demo-deps-some-lib-3x");
   });
 });
 
 describe("getDomainName", () => {
-  it ("returns production domain when the environment is production", () => {
+  it("returns production domain when the environment is production", () => {
     expect(getDomainName("production", "production")).toEqual("chat-demo.jbrunton-do.com")
   });
 
-  it ("returns staging domain when the environment is production", () => {
+  it("returns staging domain when the environment is production", () => {
     expect(getDomainName("staging", "staging")).toEqual("chat-demo.staging.jbrunton-do.com")
   });
 
-  it ("returns the dev domain when the stack name is dev", () => {
+  it("returns the dev domain when the stack name is dev", () => {
     expect(getDomainName("development", "dev")).toEqual("chat-demo.dev.jbrunton-do.com")
   });
 
-  it ("returns a dev subdomain for other stacks", () => {
+  it("returns a dev subdomain for other stacks", () => {
     expect(getDomainName("development", "my-stack")).toEqual("my-stack.chat-demo.dev.jbrunton-do.com")
+  });
+
+  it("removes confusing characters", () => {
+    expect(getDomainName("development", "deps-some-lib-3.x")).toEqual("deps-some-lib-3x.chat-demo.dev.jbrunton-do.com")
+    expect(getDomainName("development", "release/v1.2")).toEqual("releasev12.chat-demo.dev.jbrunton-do.com")
   });
 });
 

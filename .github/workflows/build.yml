@@ -69,7 +69,7 @@ jobs:
         env:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
           DIGITALOCEAN_TOKEN: ${{ secrets.DIGITALOCEAN_TOKEN }}
-          VERSION: ${{ needs.build.outputs.version }}
+          TAG: ${{ needs.build.outputs.version }}
 
 
   deploy-production:
@@ -89,4 +89,4 @@ jobs:
         env:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
           DIGITALOCEAN_TOKEN: ${{ secrets.DIGITALOCEAN_TOKEN }}
-          VERSION: ${{ needs.build.outputs.version }}
+          TAG: ${{ needs.build.outputs.version }}

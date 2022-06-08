@@ -3,10 +3,10 @@ import * as crypto from "crypto";
 import * as digitalocean from "@pulumi/digitalocean";
 import { AppSpecService } from "@pulumi/digitalocean/types/input";
 
-const stackName = pulumi.getStack();
-const appName = `chat-demo-${stackName}`;
-
 type Environment = "production" | "staging" | "development";
+
+const stackName = pulumi.getStack();
+const appName = `chat-demo-${stackName}`.slice(0, 32);
 
 const getEnvironment = (): Environment => {
   switch (stackName) {
@@ -18,13 +18,22 @@ const getEnvironment = (): Environment => {
 
 const environment = getEnvironment();
 
+const getDevDomainName = (): string => {
+  if (stackName === 'dev') {
+    return 'chat-demo.dev.jbrunton-do.com';
+  }
+  
+  const subdomain = stackName.replace('/', '-').replace('.', '-');
+  return `${subdomain}.chat-demo.dev.jbrunton-do.com`;
+}
+
 const getDomainName = (): string => {
   switch (environment) {
     case 'production': return 'chat-demo.jbrunton-do.com';
     case 'staging': return 'chat-demo.staging.jbrunton-do.com';
     case 'development': return stackName === 'dev'
       ? 'chat-demo.dev.jbrunton-do.com'
-      : `${stackName}.chat-demo.dev.jbrunton-do.com`;
+      : `${stackName.replace('/', '-').replace('.', '-')}.chat-demo.dev.jbrunton-do.com`;
   }
 };
 

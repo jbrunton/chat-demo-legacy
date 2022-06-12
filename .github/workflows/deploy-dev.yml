@@ -33,7 +33,7 @@ jobs:
       - uses: actions/checkout@v2
       - run: npm ci
         working-directory: pulumi
-      - uses: pulumi/actions@3d7b45a4777bd1ac9c972ccf66398885e004cc10 # TODO: update to v3 after next release
+      - uses: pulumi/actions@452977a00a5f5983d0cc0eef421653ea3f268b61 # TODO: update to v3 after next release
         with:
           command: up
           stack-name: ${{ github.head_ref }}

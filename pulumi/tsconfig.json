@@ -10,10 +10,21 @@
         "pretty": true,
         "noFallthroughCasesInSwitch": true,
         "noImplicitReturns": true,
-        "forceConsistentCasingInFileNames": true
+        "forceConsistentCasingInFileNames": true,
+        "baseUrl": ".",
+        "paths": {
+          "@entities/*": ["domain/entities/*"],
+          "@usecases/*": ["domain/usecases/*"],
+          "@app/*": ["app/*"],
+        }
     },
     "include": [
       "index.ts",
-      "lib/**/*.ts"
-    ]
+      "load-paths.ts",
+      "domain/**/*.ts",
+      "app/**/*.ts",
+    ],
+    "ts-node": {
+      "require": ["tsconfig-paths/register"]
+    }  
 }

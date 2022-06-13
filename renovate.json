@@ -3,6 +3,7 @@
     "config:base"
   ],
   "branchPrefix": "deps-",
+  "branchConcurrentLimit": 2,
   "packageRules": [
     {
       "matchPackagePatterns": [

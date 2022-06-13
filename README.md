@@ -2,11 +2,19 @@
 
 This project is an exercise in developing good CI/CD practices and automation. It includes:
 
-* Automatic environment provisioning with Pulumi
+* Infrastructure as Code with Pulumi, including automatic provisioning of dev environments for each PR (and automatic cleanup after merging)
 * CI including linting, unit tests, and eventually integration tests
 * Continuous delivery practices, including automatic deployments to staging and automatic (with approval) deployments to production
+* Automatic dependency updates (including automerging for minor version changes) with Renovate
 
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+
+## The demo application
+
+The project implements a very basic realtime chat app at [chat-demo.jbrunton-do.com](https://chat-demo.jbrunton-do.com/).
+
+* From the home screen you can create "rooms". Each room has a unique URL. Anyone connecting to the room can chat over websockets.
+* Over time, the app will also respond to commands prefixed with a `/`. Right now, the only command is `/help`.
 
 ## Getting Started
 

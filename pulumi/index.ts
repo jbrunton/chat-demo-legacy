@@ -1,7 +1,7 @@
 import './load-paths';
 import * as pulumi from "@pulumi/pulumi";
-import { getStackConfig } from "./app/digitalocean/get-stack-config";
-import { applyStackConfig} from "./app/digitalocean/apply-stack-config";
+import { getStackConfig } from "@app/digitalocean/get-stack-config";
+import { applyStackConfig} from "@app/digitalocean/apply-stack-config";
 import { getApplicationInputs } from '@app/get-application-inputs';
 
 const inputs = getApplicationInputs();

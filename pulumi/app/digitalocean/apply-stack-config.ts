@@ -1,16 +1,16 @@
 import { App, AppArgs } from "@pulumi/digitalocean";
 import { AppSpecService } from "@pulumi/digitalocean/types/input";
 import { ApplyStackConfig } from "@entities/stack";
-import { DOStackConfig } from "./get-stack-config";
+import { StackConfig } from "./get-stack-config";
 
-export const applyStackConfig: ApplyStackConfig<DOStackConfig> = (config: DOStackConfig) => {
+export const applyStackConfig: ApplyStackConfig<StackConfig> = (config: StackConfig) => {
   const appSpec = getAppSpec(config);
   new App(config.appName, appSpec, {
     protect: config.protect
   });
 }
 
-const getAppSpec = (config: DOStackConfig): AppArgs => {
+const getAppSpec = (config: StackConfig): AppArgs => {
   const serviceSpec = getServiceSpec(config);
   return {
     spec: {
@@ -26,7 +26,7 @@ const getAppSpec = (config: DOStackConfig): AppArgs => {
   };
 }
 
-const getServiceSpec = (config: DOStackConfig): AppSpecService => {
+const getServiceSpec = (config: StackConfig): AppSpecService => {
   const { tag, publicUrl, specId } = config;
   return {
     name: "app",
@@ -48,7 +48,7 @@ const getServiceSpec = (config: DOStackConfig): AppSpecService => {
     }, {
       key: "SPEC_ID",
       scope: "RUN_TIME",
-      value: config.specId,
+      value: specId,
     }],
     instanceCount: 1,
     instanceSizeSlug: "basic-xxs",

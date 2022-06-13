@@ -1,13 +1,13 @@
-import { ApplicationConfig, ApplicationInputs } from "@entities/application";
-import { getApplicationConfig } from "@usecases/get-application-config";
+import * as entities from "@entities";
+import * as usecases from "@usecases";
 import { randomString } from "./random";
 
-export type DOApplicationConfig = ApplicationConfig & {
+export type ApplicationConfig = entities.ApplicationConfig & {
   specId: string;
 }
 
-export const getDOApplicationConfig = (inputs: ApplicationInputs): DOApplicationConfig => {
-  const appConfig = getApplicationConfig(inputs);
+export const getApplicationConfig = (inputs: entities.ApplicationInputs): ApplicationConfig => {
+  const appConfig = usecases.getApplicationConfig(inputs);
   const specId = getSpecId(appConfig.appName, appConfig.tag);
   return {
     ...appConfig,

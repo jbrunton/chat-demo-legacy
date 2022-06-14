@@ -9,5 +9,6 @@ module.exports = {
     '^@usecases/(.*)$': '<rootDir>/domain/usecases/$1',
     '^@usecases$': '<rootDir>/domain/usecases',
     '^@app/(.*)$': '<rootDir>/app/$1',
+    '^@common/(.*)$': '<rootDir>/common/$1',
   },
 };

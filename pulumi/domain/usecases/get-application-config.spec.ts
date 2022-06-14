@@ -1,5 +1,7 @@
 import { getApplicationConfig } from "./get-application-config";
 
+jest.mock('@common/random');
+
 describe("getApplicationConfig", () => {
   it("returns the application configuration", () => {
     const inputs = {
@@ -64,7 +66,8 @@ describe("getApplicationConfig", () => {
   
     it("truncates names greater than 32 chars long", () => {
       const config = getApplicationConfig({ stackName: "deps-some-long-name-lib-3.x", tag });
-      expect(config.appName).toEqual("chat-demo-deps-some-long-name-li");
+      expect(config.appName).toEqual("chat-demo-deps-some-long-na-a1a1");
+      expect(config.appName.length).toEqual(32);
     });
   
     it("removes illegal characters", () => {

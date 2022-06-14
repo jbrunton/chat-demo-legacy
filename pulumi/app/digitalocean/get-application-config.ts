@@ -1,7 +1,7 @@
 import * as entities from "@entities";
 import { GetApplicationConfig } from "@entities";
 import * as usecases from "@usecases";
-import { randomString } from "./random";
+import { randomString } from "@common/random";
 
 export type ApplicationConfig = entities.ApplicationConfig & {
   specId: string;
@@ -21,5 +21,5 @@ export const getApplicationConfig: GetApplicationConfig<ApplicationConfig> = (in
  * hasn't changed. Hence, generate a unique ID each time we provision.
  */
 const getSpecId = (appName: string, tag: string): string => {
-  return `${appName}/${tag}/${randomString()}`;
+  return `${appName}/${tag}/${randomString(4)}`;
 }

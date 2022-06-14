@@ -10,11 +10,11 @@
     "test:unit": "jest"
   },
   "dependencies": {
-    "antd": "4.21.1",
+    "antd": "4.21.2",
     "date-fns": "2.28.0",
     "next": "12.1.6",
-    "react": "18.1.0",
-    "react-dom": "18.1.0",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
     "react-inject-env": "2.1.0",
     "socket.io": "4.5.1",
     "socket.io-client": "4.5.1"

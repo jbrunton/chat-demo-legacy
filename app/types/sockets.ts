@@ -17,8 +17,8 @@ export type SocketServer = IOServer<ClientToServerEvents, ServerToClientEvents>;
 
 declare module "net" {
   interface Socket {
-      server: NetServer & {
-        io?: SocketServer;
-      };
+    server: NetServer & {
+      io?: SocketServer;
+    };
   }
 }

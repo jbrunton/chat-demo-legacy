@@ -1,8 +1,8 @@
 import { format, isToday, isYesterday, isSameYear } from "date-fns";
 
-const timeFormat = 'HH:mm:ss';
-const dateFormat = 'd MMM';
-const yearFormat = 'yyyy';
+const timeFormat = "HH:mm:ss";
+const dateFormat = "d MMM";
+const yearFormat = "yyyy";
 
 export const formatTime = (time: Date) => {
   if (isToday(time)) {

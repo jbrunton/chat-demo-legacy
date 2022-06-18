@@ -14,11 +14,11 @@ const createIOServer = (httpServer: NetServer) => {
     path: "/api/socketio",
   });
   io.on("connection", (socket) => {
-    const user = socket.handshake.query.user as string;  
+    const user = socket.handshake.query.user as string;
     io.emit("message", {
       content: `${user} joined the chat. Welcome, ${user}!`,
       timestamp: new Date().toISOString(),
-    });  
+    });
   });
   return io;
 };

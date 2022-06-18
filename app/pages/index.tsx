@@ -1,7 +1,7 @@
-import { Button, Card } from 'antd'
-import type { NextPage } from 'next'
-import { useRouter } from 'next/router';
-import styles from '../styles/Home.module.css'
+import { Button, Card } from "antd";
+import type { NextPage } from "next";
+import { useRouter } from "next/router";
+import styles from "../styles/Home.module.css";
 
 const Home: NextPage = () => {
   const router = useRouter();
@@ -14,12 +14,14 @@ const Home: NextPage = () => {
   return (
     <div className={styles.container}>
       <main className={styles.main}>
-      <Card>
-        <Button type='primary' onClick={newRoom}>New Room</Button>
-      </Card>
+        <Card>
+          <Button type="primary" onClick={newRoom}>
+            New Room
+          </Button>
+        </Card>
       </main>
     </div>
-  )
-}
+  );
+};
 
-export default Home
+export default Home;

@@ -21,22 +21,31 @@ const options = {
       },
     ],
     "@semantic-release/release-notes-generator",
-    ["@semantic-release/npm", {
-      publish: false,
-    }],
-    ["@semantic-release/github", {
-      successComment: false,
-      releasedLabels: false,
-    }],
+    [
+      "@semantic-release/npm",
+      {
+        publish: false,
+      },
+    ],
+    [
+      "@semantic-release/github",
+      {
+        successComment: false,
+        releasedLabels: false,
+      },
+    ],
     [
       "@semantic-release-plus/docker",
       {
-        name: "jbrunton/chat-demo-app"
-      }
+        name: "jbrunton/chat-demo-app",
+      },
     ],
-    ["@semantic-release/exec", {
-      successCmd: 'echo "::set-output name=version::${nextRelease.version}"'
-    }],
+    [
+      "@semantic-release/exec",
+      {
+        successCmd: 'echo "::set-output name=version::${nextRelease.version}"',
+      },
+    ],
   ],
 };
 

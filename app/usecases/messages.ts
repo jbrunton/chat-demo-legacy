@@ -5,13 +5,14 @@ const helpResponse = `
 <b>/help</b>: list commands<br />
 `;
 
-const unrecognisedResponse = "Unrecognised command, type <b>/help</b> for further assistance";
+const unrecognisedResponse =
+  "Unrecognised command, type <b>/help</b> for further assistance";
 
-const isCommand = ({ content }: Message) => content.startsWith('/');
+const isCommand = ({ content }: Message) => content.startsWith("/");
 
 const processCommand = ({ content }: Message) => {
-  const cmd = content.slice(1).split(' ');
-  if (cmd[0] === 'help') {
+  const cmd = content.slice(1).split(" ");
+  if (cmd[0] === "help") {
     return helpResponse;
   }
   return unrecognisedResponse;

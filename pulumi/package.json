@@ -4,7 +4,7 @@
         "test:unit": "jest"
     },
     "devDependencies": {
-        "@pulumi/digitalocean": "4.13.0",
+        "@pulumi/digitalocean": "4.14.0",
         "@types/jest": "28.1.2",
         "@types/node": "16.11.41",
         "jest": "28.1.1",

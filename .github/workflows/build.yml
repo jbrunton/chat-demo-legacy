@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: app
+        working-directory: server
     steps:
       - uses: actions/checkout@v3
       - run: npm ci
@@ -21,7 +21,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: app
+        working-directory: server
     steps:
       - uses: actions/checkout@v3
       - run: npm ci
@@ -43,7 +43,7 @@ jobs:
     if: github.ref == 'refs/heads/develop'
     defaults:
       run:
-        working-directory: app
+        working-directory: server
     outputs:
       version: ${{ steps.release.outputs.version }}
     steps:

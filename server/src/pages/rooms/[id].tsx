@@ -2,9 +2,9 @@ import React, { useState, useEffect, useRef } from "react";
 import { List, Input, Typography, InputRef } from "antd";
 import { io } from "socket.io-client";
 import { useRouter } from "next/router";
-import { SocketClient } from "@common/sockets";
-import { Message } from "@domain/entities";
-import { formatTime } from "@common/format";
+import { SocketClient } from "@app/sockets";
+import { formatTime } from "@app/format";
+import { AppMessage } from "src/app/message";
 
 const user = "User_" + String(new Date().getTime()).substr(-3);
 
@@ -14,7 +14,7 @@ const Index: React.FC = () => {
   const router = useRouter();
   const roomId: string = router.query.id as string;
 
-  const [chat, setChat] = useState<Message[]>([]);
+  const [chat, setChat] = useState<AppMessage[]>([]);
   const [content, setContent] = useState<string>("");
   const [connected, setConnected] = useState<boolean>(false);
   const [socketId, setSocketId] = useState<string>();
@@ -24,7 +24,7 @@ const Index: React.FC = () => {
     setSocketId(socket.id);
   };
 
-  const onMessage = (message: Message) => {
+  const onMessage = (message: AppMessage) => {
     setChat((chat) => [...chat, message]);
   };
 
@@ -57,12 +57,12 @@ const Index: React.FC = () => {
 
   const sendMessage = async () => {
     if (content) {
-      const message: Message = {
+      const message: AppMessage = {
         user,
         senderId: socketId,
         roomId,
         content,
-        timestamp: new Date().toISOString(),
+        time: new Date().toISOString(),
       };
 
       const resp = await fetch("/api/chat", {
@@ -86,9 +86,7 @@ const Index: React.FC = () => {
         dataSource={chat}
         size="small"
         renderItem={(message) => (
-          <List.Item
-            extra={<span>{formatTime(new Date(message.timestamp))}</span>}
-          >
+          <List.Item extra={<span>{formatTime(new Date(message.time))}</span>}>
             {message.senderId ? (
               <>
                 <Typography.Text strong={true}>

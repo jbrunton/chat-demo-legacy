@@ -21,7 +21,8 @@ The project implements a very basic realtime chat app at [chat-demo.jbrunton-do.
 First, run the development server:
 
 ```bash
-cd app
+cd server
+npm install
 npm run dev
 ```
 

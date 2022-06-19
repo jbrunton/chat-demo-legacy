@@ -60,6 +60,7 @@ const Index: React.FC = () => {
       const message: Message = {
         user,
         senderId: socketId,
+        roomId,
         content,
         timestamp: new Date().toISOString(),
       };

@@ -13,10 +13,14 @@ const Chat = (req: NextApiRequest, res: NextApiResponse) => {
     const ioServer = res.socket.server.io;
 
     const response = generateResponse(message);
+    console.log({
+      message,
+      response,
+    });
     if (response.recipientId) {
       ioServer.to(response.recipientId).emit("message", response);
     } else {
-      ioServer.emit("message", response);
+      ioServer.to(response.roomId).emit("message", response);
     }
 
     res.status(201).send(message);

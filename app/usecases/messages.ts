@@ -25,6 +25,7 @@ export const generateResponse = (message: Message): Message => {
       content: response,
       recipientId: message.senderId,
       timestamp: message.timestamp,
+      roomId: message.roomId,
     };
   } else {
     return message;

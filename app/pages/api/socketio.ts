@@ -15,9 +15,12 @@ const createIOServer = (httpServer: NetServer) => {
   });
   io.on("connection", (socket) => {
     const user = socket.handshake.query.user as string;
-    io.emit("message", {
+    const roomId = socket.handshake.query.roomId as string;
+    socket.join(roomId);
+    io.to(roomId).emit("message", {
       content: `${user} joined the chat. Welcome, ${user}!`,
       timestamp: new Date().toISOString(),
+      roomId,
     });
   });
   return io;

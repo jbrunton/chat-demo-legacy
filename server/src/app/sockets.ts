@@ -1,14 +1,14 @@
 import { Socket } from "socket.io-client";
 import { Server as IOServer } from "socket.io";
 import { Server as NetServer } from "http";
-import { Message } from "@domain/entities";
+import { ClientMessage } from "./message";
 
 export interface ServerToClientEvents {
-  message: (message: Message) => void;
+  message: (message: ClientMessage) => void;
 }
 
 export interface ClientToServerEvents {
-  message: (message: Message) => void;
+  message: (message: ClientMessage) => void;
 }
 
 export type SocketClient = Socket<ServerToClientEvents, ClientToServerEvents>;

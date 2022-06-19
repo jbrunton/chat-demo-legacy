@@ -18,7 +18,7 @@
     "paths": {
       "@domain/*": ["src/domain/*"],
       "@pages/*": ["src/pages/*"],
-      "@common/*": ["src/common/*"],
+      "@app/*": ["src/app/*"],
       "@styles/*": ["src/styles/*"]
     }
   },

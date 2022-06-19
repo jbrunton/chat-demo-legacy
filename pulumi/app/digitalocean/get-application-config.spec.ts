@@ -4,9 +4,9 @@ jest.mock('@common/random');
 
 describe("getApplicationConfig", () => {
   it("adds a specId", () => {
-    const config = getApplicationConfig({ stackName: "dev", tag: "latest" });
+    const config = getApplicationConfig({ stackName: "test", tag: "latest" });
     expect(config).toMatchObject({
-      specId: "chat-demo-dev/latest/a1a1a1a1",
+      specId: "chat-demo-test/latest/a1a1a1a1",
     })
   })
 })

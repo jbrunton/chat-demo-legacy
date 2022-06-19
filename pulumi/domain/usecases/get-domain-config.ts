@@ -16,6 +16,6 @@ const getDomainName = (inputs: DomainInputs): string => {
   switch (inputs.environment) {
     case 'production': return `chat-demo.${rootDomain}`;
     case 'staging': return `chat-demo.staging.${rootDomain}`;
-    case 'development': return `${inputs.appName}.chat-demo.dev.${rootDomain}`;
+    case 'development': return `${inputs.stackName}.chat-demo.dev.${rootDomain}`;
   }
 }

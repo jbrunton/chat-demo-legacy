@@ -8,7 +8,7 @@ export interface DomainConfig {
 
 export interface DomainInputs {
   environment: Environment;
-  appName: string;
+  stackName: string;
 }
 
 export interface GetDomainConfig<T extends DomainConfig = DomainConfig> {

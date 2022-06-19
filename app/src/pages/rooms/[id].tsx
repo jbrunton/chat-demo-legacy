@@ -2,9 +2,9 @@ import React, { useState, useEffect, useRef } from "react";
 import { List, Input, Typography, InputRef } from "antd";
 import { io } from "socket.io-client";
 import { useRouter } from "next/router";
-import { SocketClient } from "types/sockets";
-import { Message } from "types/messages";
-import { formatTime } from "presentation/format";
+import { SocketClient } from "@common/sockets";
+import { Message } from "@domain/entities";
+import { formatTime } from "@common/format";
 
 const user = "User_" + String(new Date().getTime()).substr(-3);
 

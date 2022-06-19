@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import "types/sockets";
-import { generateResponse } from "usecases/messages";
+import "@common/sockets";
+import { generateResponse } from "@domain/usecases/messages";
 
 const Chat = (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method === "POST") {
@@ -13,10 +13,6 @@ const Chat = (req: NextApiRequest, res: NextApiResponse) => {
     const ioServer = res.socket.server.io;
 
     const response = generateResponse(message);
-    console.log({
-      message,
-      response,
-    });
     if (response.recipientId) {
       ioServer.to(response.recipientId).emit("message", response);
     } else {

@@ -1,4 +1,4 @@
-import { Message } from "types/messages";
+import { Message } from "src/domain/entities";
 import { generateResponse } from "./messages";
 
 describe("#generateResponse", () => {

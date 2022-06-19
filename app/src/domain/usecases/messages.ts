@@ -1,4 +1,4 @@
-import { Message } from "types/messages";
+import { Message } from "@domain/entities";
 
 const helpResponse = `
 <p>Type to chat, or enter one of the following commands:</p>

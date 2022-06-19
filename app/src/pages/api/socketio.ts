@@ -1,7 +1,7 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { Server as IOServer } from "socket.io";
 import { Server as NetServer } from "http";
-import { SocketServer } from "types/sockets";
+import { SocketServer } from "@common/sockets";
 
 export const config = {
   api: {

@@ -1,7 +1,7 @@
 import { Socket } from "socket.io-client";
 import { Server as IOServer } from "socket.io";
 import { Server as NetServer } from "http";
-import { Message } from "./messages";
+import { Message } from "@domain/entities";
 
 export interface ServerToClientEvents {
   message: (message: Message) => void;

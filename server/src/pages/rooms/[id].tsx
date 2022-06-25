@@ -4,7 +4,7 @@ import { io } from "socket.io-client";
 import { useRouter } from "next/router";
 import { SocketClient } from "@app/sockets";
 import { formatTime } from "@app/format";
-import { ClientMessage } from "src/app/message";
+import { PublicMessage } from "@domain/entities";
 
 const user = "User_" + String(new Date().getTime()).substr(-3);
 
@@ -14,7 +14,7 @@ const Index: React.FC = () => {
   const router = useRouter();
   const roomId: string = router.query.id as string;
 
-  const [chat, setChat] = useState<ClientMessage[]>([]);
+  const [chat, setChat] = useState<PublicMessage[]>([]);
   const [content, setContent] = useState<string>("");
   const [connected, setConnected] = useState<boolean>(false);
   const [socketId, setSocketId] = useState<string>();
@@ -24,7 +24,7 @@ const Index: React.FC = () => {
     setSocketId(socket.id);
   };
 
-  const onMessage = (message: ClientMessage) => {
+  const onMessage = (message: PublicMessage) => {
     setChat((chat) => [...chat, message]);
   };
 
@@ -35,8 +35,8 @@ const Index: React.FC = () => {
         {
           path: "/api/socketio",
           query: {
-            user,
             roomId,
+            user,
           },
         }
       );
@@ -56,10 +56,14 @@ const Index: React.FC = () => {
   }, [roomId]);
 
   const sendMessage = async () => {
+    if (!socketId) return;
+
     if (content) {
-      const message: ClientMessage = {
-        user,
-        senderId: socketId,
+      const message: PublicMessage = {
+        sender: {
+          id: socketId,
+          name: user,
+        },
         roomId,
         content,
         time: new Date().toISOString(),
@@ -87,10 +91,10 @@ const Index: React.FC = () => {
         size="small"
         renderItem={(message) => (
           <List.Item extra={<span>{formatTime(new Date(message.time))}</span>}>
-            {message.senderId ? (
+            {message.sender ? (
               <>
                 <Typography.Text strong={true}>
-                  {message.user}:{" "}
+                  {message.sender.name}:{" "}
                 </Typography.Text>
                 <span>{message.content}</span>
               </>

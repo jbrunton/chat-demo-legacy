@@ -1,8 +1,7 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import { Server as IOServer } from "socket.io";
 import { Server as NetServer } from "http";
-import { SocketServer } from "@app/sockets";
-import { ClientMessage } from "@app/message";
+import { SocketDispatcher } from "@app/socket-dispatcher";
+import { greetUser } from "@domain/usecases/messages/greet-user";
 
 export const config = {
   api: {
@@ -11,20 +10,15 @@ export const config = {
 };
 
 const createIOServer = (httpServer: NetServer) => {
-  const io: SocketServer = new IOServer(httpServer, {
+  const io: SocketDispatcher = new SocketDispatcher(httpServer, {
     path: "/api/socketio",
   });
   io.on("connection", (socket) => {
     const user = socket.handshake.query.user as string;
     const roomId = socket.handshake.query.roomId as string;
     socket.join(roomId);
-    const message: ClientMessage = {
-      content: `${user} joined the chat. Welcome, ${user}!`,
-      time: new Date().toISOString(),
-      roomId,
-      user,
-    };
-    io.to(roomId).emit("message", message);
+    const message = greetUser({ user, roomId });
+    io.sendPublicMessage(message);
   });
   return io;
 };

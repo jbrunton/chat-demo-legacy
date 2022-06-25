@@ -9,9 +9,12 @@ jobs:
 
   lint:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        directory: ["pulumi", "server"]
     defaults:
       run:
-        working-directory: server
+        working-directory: ${{ matrix.directory }}
     steps:
       - uses: actions/checkout@v3
       - run: npm ci
@@ -19,19 +22,12 @@ jobs:
 
   unit-test:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        directory: ["pulumi", "server"]
     defaults:
       run:
-        working-directory: server
-    steps:
-      - uses: actions/checkout@v3
-      - run: npm ci
-      - run: npm run test:unit
-
-  pulumi-test:
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: pulumi
+        working-directory: ${{ matrix.directory }}
     steps:
       - uses: actions/checkout@v3
       - run: npm ci
@@ -39,7 +35,7 @@ jobs:
   
   build:
     runs-on: ubuntu-latest
-    needs: [lint, unit-test, pulumi-test]
+    needs: [lint, unit-test]
     if: github.ref == 'refs/heads/develop'
     defaults:
       run:

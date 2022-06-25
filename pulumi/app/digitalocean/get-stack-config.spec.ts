@@ -6,7 +6,7 @@ describe("getStackConfig", () => {
     expect(config).toMatchObject({
       stackName: "test",
       appName: "chat-demo-test",
-      domain: "test.chat-demo.dev.jbrunton-do.com"
-    })
-  })
+      domain: "test.chat-demo.dev.jbrunton-do.com",
+    });
+  });
 });

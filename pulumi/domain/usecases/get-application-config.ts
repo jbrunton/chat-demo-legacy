@@ -1,7 +1,13 @@
-import { ApplicationInputs, Environment, GetApplicationConfig } from "@entities/application";
+import {
+  ApplicationInputs,
+  Environment,
+  GetApplicationConfig,
+} from "@entities/application";
 import { randomString } from "@common/random";
 
-export const getApplicationConfig: GetApplicationConfig = (inputs: ApplicationInputs) => {
+export const getApplicationConfig: GetApplicationConfig = (
+  inputs: ApplicationInputs
+) => {
   const { stackName, tag } = inputs;
   const environment = getEnvironment(inputs.stackName);
   const appName = getAppName(inputs.stackName);
@@ -13,15 +19,17 @@ export const getApplicationConfig: GetApplicationConfig = (inputs: ApplicationIn
     tag,
     protect,
   };
-}
+};
 
 const getEnvironment = (stackName: string): Environment => {
   switch (stackName) {
-    case 'production': return 'production';
-    case 'staging': return 'staging';
+    case "production":
+      return "production";
+    case "staging":
+      return "staging";
   }
-  return 'development';
-}
+  return "development";
+};
 
 const getAppName = (stackName: string): string => {
   const cleanName = `chat-demo-${cleanString(stackName)}`;
@@ -30,6 +38,6 @@ const getAppName = (stackName: string): string => {
     return `${shortName}-${randomString(2)}`;
   }
   return cleanName;
-}
+};
 
-const cleanString = (s: string) => s.replace('/', '').replace('.', '');
+const cleanString = (s: string) => s.replace("/", "").replace(".", "");

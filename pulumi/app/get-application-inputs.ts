@@ -8,4 +8,4 @@ export const getApplicationInputs: GetApplicationInputs = () => {
     stackName,
     tag,
   };
-}
+};

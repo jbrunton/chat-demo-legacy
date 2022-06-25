@@ -3,12 +3,14 @@ import { AppSpecService } from "@pulumi/digitalocean/types/input";
 import { ApplyStackConfig } from "@entities/stack";
 import { StackConfig } from "./get-stack-config";
 
-export const applyStackConfig: ApplyStackConfig<StackConfig> = (config: StackConfig) => {
+export const applyStackConfig: ApplyStackConfig<StackConfig> = (
+  config: StackConfig
+) => {
   const appSpec = getAppSpec(config);
   new App(config.appName, appSpec, {
-    protect: config.protect
+    protect: config.protect,
   });
-}
+};
 
 const getAppSpec = (config: StackConfig): AppArgs => {
   const serviceSpec = getServiceSpec(config);
@@ -16,15 +18,17 @@ const getAppSpec = (config: StackConfig): AppArgs => {
     spec: {
       name: config.appName,
       region: "lon",
-      domainNames: [{
+      domainNames: [
+        {
           name: config.domain,
           zone: config.rootDomain,
-          type: "PRIMARY"
-      }],
+          type: "PRIMARY",
+        },
+      ],
       services: [serviceSpec],
     },
   };
-}
+};
 
 const getServiceSpec = (config: StackConfig): AppSpecService => {
   const { tag, publicUrl, specId } = config;
@@ -37,23 +41,29 @@ const getServiceSpec = (config: StackConfig): AppSpecService => {
       repository: "chat-demo-app",
       tag,
     },
-    envs: [{
-      key: "NEXT_PUBLIC_DOMAIN",
-      scope: "RUN_TIME",
-      value: publicUrl,
-    }, {
-      key: "TAG",
-      scope: "RUN_TIME",
-      value: tag,
-    }, {
-      key: "SPEC_ID",
-      scope: "RUN_TIME",
-      value: specId,
-    }],
+    envs: [
+      {
+        key: "NEXT_PUBLIC_DOMAIN",
+        scope: "RUN_TIME",
+        value: publicUrl,
+      },
+      {
+        key: "TAG",
+        scope: "RUN_TIME",
+        value: tag,
+      },
+      {
+        key: "SPEC_ID",
+        scope: "RUN_TIME",
+        value: specId,
+      },
+    ],
     instanceCount: 1,
     instanceSizeSlug: "basic-xxs",
-    routes: [{
+    routes: [
+      {
         path: "/",
-    }],
+      },
+    ],
   };
-}
+};

@@ -13,7 +13,9 @@ export interface ApplicationInputs {
   tag: string;
 }
 
-export interface GetApplicationConfig<T extends ApplicationConfig = ApplicationConfig> {
+export interface GetApplicationConfig<
+  T extends ApplicationConfig = ApplicationConfig
+> {
   (inputs: ApplicationInputs): T;
 }
 

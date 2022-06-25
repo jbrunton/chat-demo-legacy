@@ -6,9 +6,11 @@
     "eslint:recommended",
     "plugin:@typescript-eslint/recommended",
     "prettier",
-    "plugin:prettier/recommended",
-    "next/core-web-vitals"
+    "plugin:prettier/recommended"
   ],
+  "env": {
+    "node": true
+  },
   "rules": {
     "prettier/prettier": "error"
   }

@@ -1,34 +1,34 @@
 {
-    "compilerOptions": {
-        "strict": true,
-        "outDir": "bin",
-        "target": "es2016",
-        "module": "commonjs",
-        "moduleResolution": "node",
-        "sourceMap": true,
-        "experimentalDecorators": true,
-        "pretty": true,
-        "noFallthroughCasesInSwitch": true,
-        "noImplicitReturns": true,
-        "forceConsistentCasingInFileNames": true,
-        "baseUrl": ".",
-        "paths": {
-          "@entities": ["domain/entities"],
-          "@entities/*": ["domain/entities/*"],
-          "@usecases": ["domain/usecases"],
-          "@usecases/*": ["domain/usecases/*"],
-          "@app/*": ["app/*"],
-          "@common/*": ["common/*"],
-        }
-    },
-    "include": [
-      "index.ts",
-      "load-paths.ts",
-      "domain/**/*.ts",
-      "app/**/*.ts",
-      "common/**/*.ts",
-    ],
-    "ts-node": {
-      "require": ["tsconfig-paths/register"]
-    }  
+  "compilerOptions": {
+    "strict": true,
+    "outDir": "bin",
+    "target": "es2016",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "sourceMap": true,
+    "experimentalDecorators": true,
+    "pretty": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitReturns": true,
+    "forceConsistentCasingInFileNames": true,
+    "baseUrl": ".",
+    "paths": {
+      "@entities": ["domain/entities"],
+      "@entities/*": ["domain/entities/*"],
+      "@usecases": ["domain/usecases"],
+      "@usecases/*": ["domain/usecases/*"],
+      "@app/*": ["app/*"],
+      "@common/*": ["common/*"]
+    }
+  },
+  "include": [
+    "index.ts",
+    "load-paths.ts",
+    "domain/**/*.ts",
+    "app/**/*.ts",
+    "common/**/*.ts"
+  ],
+  "ts-node": {
+    "require": ["tsconfig-paths/register"]
+  }
 }

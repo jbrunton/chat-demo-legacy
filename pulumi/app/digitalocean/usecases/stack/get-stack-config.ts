@@ -1,19 +1,22 @@
-import * as entities from "@entities";
-import { GetApplicationConfig } from "@entities";
-import * as usecases from "@usecases";
 import { randomString } from "@common/random";
+import * as entities from "@entities";
+import * as usecases from "@usecases";
 
 export type ApplicationConfig = entities.ApplicationConfig & {
   specId: string;
 };
 
-export const getApplicationConfig: GetApplicationConfig<ApplicationConfig> = (
+export type StackConfig = ApplicationConfig & entities.DomainConfig;
+
+export const getStackConfig: entities.GetStackConfig<StackConfig> = (
   inputs: entities.ApplicationInputs
-): ApplicationConfig => {
+): StackConfig => {
   const appConfig = usecases.getApplicationConfig(inputs);
-  const specId = getSpecId(appConfig.appName, appConfig.tag);
+  const domainConfig = usecases.getDomainConfig(appConfig);
+  const specId = getSpecId(appConfig);
   return {
     ...appConfig,
+    ...domainConfig,
     specId,
   };
 };
@@ -22,6 +25,6 @@ export const getApplicationConfig: GetApplicationConfig<ApplicationConfig> = (
  * There's a bug in the provider for App Platform in which provisioning hangs if the spec
  * hasn't changed. Hence, generate a unique ID each time we provision.
  */
-const getSpecId = (appName: string, tag: string): string => {
-  return `${appName}/${tag}/${randomString(4)}`;
+const getSpecId = (config: entities.ApplicationConfig): string => {
+  return `${config.appName}/${config.tag}/${randomString(4)}`;
 };

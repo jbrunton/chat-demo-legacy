@@ -19,7 +19,7 @@ export const processCommand: ProcessCommand = (command) => {
   const response = getResponse(command.name);
   return {
     content: response,
-    recipientId: command.senderId,
+    recipientId: command.sender.id,
     time: command.time,
     roomId: command.roomId,
   };

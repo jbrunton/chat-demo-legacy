@@ -3,8 +3,13 @@ interface MessageDetails {
   time: string;
 }
 
+export interface User {
+  id: string;
+  name: string;
+}
+
 export interface PublicMessage extends MessageDetails {
-  senderId?: string;
+  sender?: User;
   content: string;
 }
 
@@ -13,7 +18,7 @@ export interface PrivateMessage extends PublicMessage {
 }
 
 export interface Command extends MessageDetails {
-  senderId: string;
+  sender: User;
   name: string;
 }
 

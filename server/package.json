@@ -36,6 +36,7 @@
     "eslint-config-prettier": "8.5.0",
     "eslint-plugin-prettier": "4.0.0",
     "jest": "28.1.1",
+    "jest-mock-extended": "2.0.6",
     "prettier": "2.7.1",
     "semantic-release": "19.0.3",
     "ts-jest": "28.0.5",

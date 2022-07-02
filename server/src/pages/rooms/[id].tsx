@@ -1,5 +1,14 @@
 import React, { useState, useEffect, useRef } from "react";
-import { List, Input, Typography, InputRef } from "antd";
+import {
+  List,
+  Input,
+  Typography,
+  InputRef,
+  PageHeader,
+  Button,
+  Form,
+} from "antd";
+import { ArrowRightOutlined } from "@ant-design/icons";
 import { io } from "socket.io-client";
 import { useRouter } from "next/router";
 import { SocketClient } from "@app/sockets";
@@ -12,6 +21,10 @@ const Index: React.FC = () => {
   const inputRef = useRef<InputRef>(null);
 
   const router = useRouter();
+
+  const newRoom = () => {
+    router.push(`/rooms/new`);
+  };
   const roomId: string = router.query.id as string;
 
   const [chat, setChat] = useState<PublicMessage[]>([]);
@@ -85,6 +98,16 @@ const Index: React.FC = () => {
 
   return (
     <>
+      <PageHeader
+        className="site-page-header"
+        title="ChatDemo"
+        subTitle={`Room ${roomId}`}
+        extra={[
+          <Button key="new-room" type="primary" onClick={newRoom}>
+            New Room
+          </Button>,
+        ]}
+      />
       <List
         itemLayout="vertical"
         dataSource={chat}
@@ -104,17 +127,25 @@ const Index: React.FC = () => {
           </List.Item>
         )}
       />
-      <Input
-        disabled={!connected}
-        value={content}
-        ref={inputRef}
-        onChange={(e) => setContent(e.target.value)}
-        onKeyDown={(e) => {
-          if (e.key === "Enter") {
-            sendMessage();
-          }
-        }}
-      />
+      <Form layout="vertical" className="form">
+        <Form.Item>
+          <Input.Search
+            className="input"
+            disabled={!connected}
+            value={content}
+            ref={inputRef}
+            onChange={(e) => setContent(e.target.value)}
+            onSearch={() => sendMessage()}
+            enterButton={
+              <Button
+                type="primary"
+                disabled={!content.length}
+                icon={<ArrowRightOutlined disabled={true} />}
+              />
+            }
+          />
+        </Form.Item>
+      </Form>
     </>
   );
 };

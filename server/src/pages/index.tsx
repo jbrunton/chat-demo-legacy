@@ -1,4 +1,4 @@
-import { Button, Card } from "antd";
+import { Button, PageHeader } from "antd";
 import type { NextPage } from "next";
 import { useRouter } from "next/router";
 import styles from "@styles/Home.module.css";
@@ -7,19 +7,20 @@ const Home: NextPage = () => {
   const router = useRouter();
 
   const newRoom = () => {
-    const roomId = Math.random().toString(36).slice(2, 11);
-    router.push(`/rooms/${roomId}`);
+    router.push(`/rooms/new`);
   };
 
   return (
     <div className={styles.container}>
-      <main className={styles.main}>
-        <Card>
-          <Button type="primary" onClick={newRoom}>
+      <PageHeader
+        className="site-page-header"
+        title="ChatDemo"
+        extra={[
+          <Button key="new-room" type="primary" onClick={newRoom}>
             New Room
-          </Button>
-        </Card>
-      </main>
+          </Button>,
+        ]}
+      />
     </div>
   );
 };

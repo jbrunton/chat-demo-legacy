@@ -17,9 +17,10 @@ const Index: React.FC = () => {
   const roomId: string = router.query.id as string;
 
   const [chat, setChat] = useState<PublicMessage[]>([]);
-  const [content, setContent] = useState<string>("");
-  const [connected, setConnected] = useState<boolean>(false);
+  const [content, setContent] = useState("");
+  const [connected, setConnected] = useState(false);
   const [socketId, setSocketId] = useState<string>();
+  const [sendingMessage, setSendingMessage] = useState(false);
 
   const onConnected = (socket: SocketClient) => {
     setConnected(true);
@@ -61,6 +62,7 @@ const Index: React.FC = () => {
     if (!socketId) return;
 
     if (content) {
+      setSendingMessage(true);
       const message: PublicMessage = {
         sender: {
           id: socketId,
@@ -78,6 +80,8 @@ const Index: React.FC = () => {
         },
         body: JSON.stringify(message),
       });
+
+      setSendingMessage(false);
 
       if (resp.ok) setContent("");
     }
@@ -119,6 +123,7 @@ const Index: React.FC = () => {
               <Button
                 type="primary"
                 disabled={!content.length}
+                loading={sendingMessage}
                 icon={<ArrowRightOutlined disabled={true} />}
               />
             }

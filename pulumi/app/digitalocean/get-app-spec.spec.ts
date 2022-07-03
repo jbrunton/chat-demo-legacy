@@ -72,6 +72,16 @@ describe("getAppSpec", () => {
                 scope: "RUN_TIME",
                 value: "test-next-auth-secret",
               },
+              {
+                key: "EMAIL_TRANSPORT",
+                scope: "RUN_TIME",
+                value: "sendgrid",
+              },
+              {
+                key: "SENDGRID_API_KEY",
+                scope: "RUN_TIME",
+                value: "test-sendgrid-api-key",
+              },
             ],
             instanceCount: 1,
             instanceSizeSlug: "basic-xxs",

@@ -32,4 +32,24 @@ describe("TestAdapter", () => {
       expect(user).toBeNull();
     });
   });
+
+  describe("getUserByEmail", () => {
+    it("returns a user when one exists", async () => {
+      const adapter = TestAdapter(db);
+      const user = await adapter.createUser(testUser);
+      const user2 = await adapter.getUserByEmail(testUser.email);
+
+      expect(user).toEqual(user2);
+      expect(user).toEqual({
+        id: user!.id,
+        ...testUser,
+      });
+    });
+
+    it("returns null otherwise", async () => {
+      const adapter = TestAdapter(db);
+      const user = await adapter.getUserByEmail("not-a-user@example.com");
+      expect(user).toBeNull();
+    });
+  });
 });

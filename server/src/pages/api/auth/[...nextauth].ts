@@ -17,7 +17,7 @@ const smtpServer: SMTPConnectionOptions = {
   },
 };
 
-const db = new JsonDB("auth-db", false, false, "/");
+const db = new JsonDB("db/auth", false, false, "/");
 
 export default NextAuth({
   providers: [

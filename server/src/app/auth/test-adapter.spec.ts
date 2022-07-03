@@ -10,7 +10,7 @@ describe("TestAdapter", () => {
   let db: JsonDB;
 
   beforeEach(() => {
-    db = new JsonDB("test-db", false, false, "/");
+    db = new JsonDB("db/auth-test", false, false, "/");
   });
 
   describe("getUser", () => {

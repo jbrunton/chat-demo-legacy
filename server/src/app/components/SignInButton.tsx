@@ -5,6 +5,7 @@ import { UserOutlined, LogoutOutlined } from "@ant-design/icons";
 export const SignInButton = () => {
   const { data: session } = useSession();
   if (session) {
+    const displayName = session.user?.name || session.user?.email;
     const menu = (
       <Menu
         items={[
@@ -19,7 +20,7 @@ export const SignInButton = () => {
     );
     return (
       <Dropdown overlay={menu}>
-        <Button icon={<UserOutlined />}>{session.user?.name}</Button>
+        <Button icon={<UserOutlined />}>{displayName}</Button>
       </Dropdown>
     );
   }

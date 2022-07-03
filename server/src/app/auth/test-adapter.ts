@@ -8,6 +8,9 @@ import { Account } from "next-auth";
 import { JsonDB } from "node-json-db";
 import { DataError } from "node-json-db/dist/lib/Errors";
 import { randomString } from "./random";
+import { debug } from "debug";
+
+const authLogger = debug("auth");
 
 export function TestAdapter(db: JsonDB): Adapter {
   db.push("/users", {});
@@ -22,14 +25,17 @@ export function TestAdapter(db: JsonDB): Adapter {
         ...user,
       };
       db.push(`/users/${id}`, newUser);
+      authLogger("createUser: created user:", newUser);
       return newUser as AdapterUser;
     },
 
     async getUser(id): Promise<AdapterUser | null> {
       try {
         const user = db.getObject<AdapterUser | null>(`/users/${id}`);
+        authLogger(`getUser: found user (id=${id}):`, user);
         return user;
       } catch (DataError) {
+        authLogger(`getUser: could not find user (id=${id})`);
         return null;
       }
     },
@@ -37,7 +43,11 @@ export function TestAdapter(db: JsonDB): Adapter {
     async getUserByEmail(email): Promise<AdapterUser | null> {
       const users = db.getObject<AdapterUser[]>("/users");
       const user = Object.values(users).find((user) => user.email === email);
-      return user || null;
+      if (user) {
+        authLogger(`getUserByEmail: found user (email=${email}):`, user);
+        return user;
+      }
+      return null;
     },
 
     async getUserByAccount(providerAccountId): Promise<AdapterUser | null> {
@@ -63,15 +73,26 @@ export function TestAdapter(db: JsonDB): Adapter {
         ...session,
       };
       db.push(`/sessions/${id}`, newSession);
+      authLogger("createSession: created session:", newSession);
       return Promise.resolve(newSession);
     },
 
     async getSessionAndUser(
       sessionToken: string
     ): Promise<{ session: AdapterSession; user: AdapterUser } | null> {
-      const session = db.getObject<AdapterSession>(`/sessions/${sessionToken}`);
-      const user = db.getObject<AdapterUser>(`/users/${session.userId}`);
-      return { session, user };
+      try {
+        const session = db.getObject<AdapterSession>(
+          `/sessions/${sessionToken}`
+        );
+        const user = db.getObject<AdapterUser>(`/users/${session.userId}`);
+        authLogger(`getSessionAndUser: found:`, { session, user });
+        return { session, user };
+      } catch (DataError) {
+        authLogger(
+          `getSessionAndUser: could not find session for ${sessionToken}`
+        );
+        return null;
+      }
     },
 
     async updateSession(session): Promise<AdapterSession | null | undefined> {
@@ -82,6 +103,7 @@ export function TestAdapter(db: JsonDB): Adapter {
       sessionToken: string
     ): Promise<AdapterSession | null | undefined> {
       db.delete(`/sessions/${sessionToken}`);
+      authLogger("deleteSession: deleted session:", sessionToken);
       return Promise.resolve(null);
     },
 
@@ -92,6 +114,7 @@ export function TestAdapter(db: JsonDB): Adapter {
         `/verification-tokens/${verificationToken.identifier}`,
         verificationToken
       );
+      authLogger("createVerificationToken: created token:", verificationToken);
       return verificationToken;
     },
 
@@ -101,6 +124,8 @@ export function TestAdapter(db: JsonDB): Adapter {
       const verificationToken = db.getObject<VerificationToken>(
         `/verification-tokens/${identifier}`
       );
+      db.delete(`/verification-tokens/${identifier}`);
+      authLogger("useVerificationToken: used token:", verificationToken);
       return verificationToken;
     },
   };

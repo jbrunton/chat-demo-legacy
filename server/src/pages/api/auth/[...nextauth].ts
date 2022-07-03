@@ -1,11 +1,9 @@
 import NextAuth from "next-auth";
-import { Adapter, AdapterUser } from "next-auth/adapters";
 import GoogleProvider from "next-auth/providers/google";
 import EmailProvider from "next-auth/providers/email";
 import { Options as SMTPConnectionOptions } from "nodemailer/lib/smtp-transport";
-import { JsonDB } from "node-json-db";
-import { Config } from "node-json-db/dist/lib/JsonDBConfig";
-import { TestAdapter } from "@app/auth/test-adapter";
+import SequelizeAdapter from "@next-auth/sequelize-adapter";
+import { Sequelize } from "sequelize";
 
 const smtpServer: SMTPConnectionOptions = {
   host: "smtp.ethereal.email",
@@ -17,7 +15,7 @@ const smtpServer: SMTPConnectionOptions = {
   },
 };
 
-const db = new JsonDB("db/auth", false, false, "/");
+const sequelize = new Sequelize("sqlite::memory:");
 
 export default NextAuth({
   providers: [
@@ -30,5 +28,5 @@ export default NextAuth({
       from: "noreply@example.com",
     }),
   ],
-  adapter: TestAdapter(db),
+  adapter: SequelizeAdapter(sequelize),
 });

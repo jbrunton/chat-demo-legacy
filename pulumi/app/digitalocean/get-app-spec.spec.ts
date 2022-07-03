@@ -52,6 +52,26 @@ describe("getAppSpec", () => {
                 scope: "RUN_TIME",
                 value: "chat-demo-test/latest/a1a1a1a1",
               },
+              {
+                key: "GOOGLE_CLIENT_ID",
+                scope: "RUN_TIME",
+                value: "test-google-client-id",
+              },
+              {
+                key: "GOOGLE_CLIENT_SECRET",
+                scope: "RUN_TIME",
+                value: "test-google-client-secret",
+              },
+              {
+                key: "NEXTAUTH_URL",
+                scope: "RUN_TIME",
+                value: "https://test.chat-demo.dev.jbrunton-do.com",
+              },
+              {
+                key: "NEXTAUTH_SECRET",
+                scope: "RUN_TIME",
+                value: "test-next-auth-secret",
+              },
             ],
             instanceCount: 1,
             instanceSizeSlug: "basic-xxs",

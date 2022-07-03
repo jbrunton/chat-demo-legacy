@@ -1,19 +1,12 @@
 import React, { useState, useEffect, useRef } from "react";
-import {
-  List,
-  Input,
-  Typography,
-  InputRef,
-  PageHeader,
-  Button,
-  Form,
-} from "antd";
+import { List, Input, Typography, InputRef, Button, Form } from "antd";
 import { ArrowRightOutlined } from "@ant-design/icons";
 import { io } from "socket.io-client";
 import { useRouter } from "next/router";
 import { SocketClient } from "@app/sockets";
 import { formatTime } from "@app/format";
 import { PublicMessage } from "@domain/entities";
+import Layout from "@app/components/Layout";
 
 const user = "User_" + String(new Date().getTime()).substr(-3);
 
@@ -21,10 +14,6 @@ const Index: React.FC = () => {
   const inputRef = useRef<InputRef>(null);
 
   const router = useRouter();
-
-  const newRoom = () => {
-    router.push(`/rooms/new`);
-  };
   const roomId: string = router.query.id as string;
 
   const [chat, setChat] = useState<PublicMessage[]>([]);
@@ -97,17 +86,7 @@ const Index: React.FC = () => {
   };
 
   return (
-    <>
-      <PageHeader
-        className="site-page-header"
-        title="ChatDemo"
-        subTitle={`Room ${roomId}`}
-        extra={[
-          <Button key="new-room" type="primary" onClick={newRoom}>
-            New Room
-          </Button>,
-        ]}
-      />
+    <Layout subTitle={`Room ${roomId}`}>
       <List
         itemLayout="vertical"
         dataSource={chat}
@@ -146,7 +125,7 @@ const Index: React.FC = () => {
           />
         </Form.Item>
       </Form>
-    </>
+    </Layout>
   );
 };
 

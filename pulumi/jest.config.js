@@ -3,6 +3,7 @@ module.exports = {
   preset: "ts-jest",
   testEnvironment: "node",
   moduleDirectories: ["node_modules"],
+  setupFiles: ["<rootDir>/.jest/setEnvVars.js"],
   moduleNameMapper: {
     "^@entities/(.*)$": "<rootDir>/domain/entities/$1",
     "^@entities$": "<rootDir>/domain/entities",

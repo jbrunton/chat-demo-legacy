@@ -47,6 +47,26 @@ const getServiceSpec = (config: StackConfig): AppSpecService => {
         scope: "RUN_TIME",
         value: specId,
       },
+      {
+        key: "GOOGLE_CLIENT_ID",
+        scope: "RUN_TIME",
+        value: process.env.GOOGLE_CLIENT_ID,
+      },
+      {
+        key: "GOOGLE_CLIENT_SECRET",
+        scope: "RUN_TIME",
+        value: process.env.GOOGLE_CLIENT_SECRET,
+      },
+      {
+        key: "NEXTAUTH_URL",
+        scope: "RUN_TIME",
+        value: config.publicUrl,
+      },
+      {
+        key: "NEXTAUTH_SECRET",
+        scope: "RUN_TIME",
+        value: process.env.NEXTAUTH_SECRET,
+      },
     ],
     instanceCount: 1,
     instanceSizeSlug: "basic-xxs",

@@ -11,13 +11,17 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        directory: ["pulumi", "server", "test"]
+        directory: ["test"]
     defaults:
       run:
         working-directory: ${{ matrix.directory }}
     steps:
       - uses: actions/checkout@v3
       - run: npm ci
+      - name: Setup upterm session
+        uses: lhotari/action-upterm@v1
+        with:
+          limit-access-to-users: jbrunton
       - run: npm run lint
 
   unit-test:

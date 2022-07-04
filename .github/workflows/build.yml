@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        directory: ["pulumi", "server"]
+        directory: ["pulumi", "server", "test"]
     defaults:
       run:
         working-directory: ${{ matrix.directory }}

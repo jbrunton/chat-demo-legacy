@@ -17,10 +17,6 @@ jobs:
         working-directory: ${{ matrix.directory }}
     steps:
       - uses: actions/checkout@v3
-      - name: Setup upterm session
-        uses: lhotari/action-upterm@v1
-        with:
-          limit-access-to-users: jbrunton
       - run: npm ci
       - run: npm run lint
 

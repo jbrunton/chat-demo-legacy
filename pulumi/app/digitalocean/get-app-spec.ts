@@ -67,6 +67,16 @@ const getServiceSpec = (config: StackConfig): AppSpecService => {
         scope: "RUN_TIME",
         value: process.env.NEXTAUTH_SECRET,
       },
+      {
+        key: "EMAIL_TRANSPORT",
+        scope: "RUN_TIME",
+        value: "sendgrid",
+      },
+      {
+        key: "SENDGRID_API_KEY",
+        scope: "RUN_TIME",
+        value: process.env.SENDGRID_API_KEY,
+      },
     ],
     instanceCount: 1,
     instanceSizeSlug: "basic-xxs",

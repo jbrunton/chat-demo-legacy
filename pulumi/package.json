@@ -15,12 +15,14 @@
     "eslint-config-prettier": "8.5.0",
     "eslint-plugin-prettier": "4.2.1",
     "jest": "28.1.2",
+    "jest-mock-extended": "2.0.6",
     "prettier": "2.7.1",
     "ts-jest": "28.0.5",
     "tsconfig-paths": "4.0.0"
   },
   "dependencies": {
     "@pulumi/pulumi": "3.35.3",
-    "@pulumi/random": "4.8.0"
+    "@pulumi/random": "4.8.0",
+    "date-fns": "2.28.0"
   }
 }

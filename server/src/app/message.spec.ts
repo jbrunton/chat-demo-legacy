@@ -53,10 +53,6 @@ describe("handleMessage", () => {
     jest.useFakeTimers().setSystemTime(now);
   });
 
-  beforeAll(() => {
-    jest.useRealTimers();
-  });
-
   it("dispatches public messages", () => {
     const message: PublicMessage = {
       content: "Hello, World!",

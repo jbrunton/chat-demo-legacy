@@ -23,6 +23,7 @@
   },
   "include": [
     "index.ts",
+    "cleanup-stacks.ts",
     "load-paths.ts",
     "domain/**/*.ts",
     "app/**/*.ts",

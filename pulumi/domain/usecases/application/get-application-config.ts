@@ -21,7 +21,7 @@ export const getApplicationConfig: GetApplicationConfig = (
   };
 };
 
-const getEnvironment = (stackName: string): Environment => {
+export const getEnvironment = (stackName: string): Environment => {
   switch (stackName) {
     case "production":
       return "production";

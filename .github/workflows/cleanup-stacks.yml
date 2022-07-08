@@ -1,0 +1,19 @@
+name: cleanup-stacks
+
+on:
+  schedule:
+    - cron: '0 0 * * *'
+
+jobs:
+
+  clean:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: pulumi
+    steps:
+      - uses: actions/checkout@v3
+      - run: npm ci
+      - run: npx ts-node cleanup-stacks
+        env:
+          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}

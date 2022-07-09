@@ -18,3 +18,9 @@ import './commands'
 
 // Alternatively you can use CommonJS syntax:
 // require('./commands')
+
+beforeEach(() => {
+  cy.window().then((win) => {
+    win.location.href = 'about:blank'
+  })
+})

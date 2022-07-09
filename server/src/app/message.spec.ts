@@ -1,6 +1,6 @@
-import { Command, PublicMessage } from "@domain/entities";
+import { Command, PublicMessage, User } from "@domain/entities";
 import { Dispatcher } from "@domain/usecases/messages/dispatcher";
-import { handleMessage, IncomingMessage, parseMessage } from "./message";
+import { handleMessage, parseMessage } from "./message";
 import { mock, MockProxy } from "jest-mock-extended";
 
 describe("parseMessage", () => {
@@ -12,13 +12,13 @@ describe("parseMessage", () => {
   };
 
   it("parses commands", () => {
-    const incoming: IncomingMessage = {
+    const incoming: PublicMessage = {
       sender,
       roomId,
       content: "/list",
       time,
     };
-    const response = parseMessage(incoming);
+    const response = parseMessage(incoming, sender);
     expect(response).toEqual({
       name: "list",
       roomId,
@@ -28,13 +28,12 @@ describe("parseMessage", () => {
   });
 
   it("parses messages", () => {
-    const incoming: IncomingMessage = {
-      sender,
+    const incoming: PublicMessage = {
       roomId,
       content: "Hello, world!",
       time,
     };
-    const response = parseMessage(incoming);
+    const response = parseMessage(incoming, sender);
     expect(response).toEqual({
       roomId,
       sender,

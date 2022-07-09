@@ -11,4 +11,6 @@ const NewRoom: NextPage = () => {
   return <></>;
 };
 
+NewRoom.requireAuth = false;
+
 export default NewRoom;

@@ -5,12 +5,12 @@ import { debug } from "@app/debug";
 
 export class SocketDispatcher extends IOServer implements Dispatcher {
   sendPublicMessage(message: PublicMessage): void {
-    debug.messages("sending public message:", message);
+    debug.messages("sending public message: %O", message);
     this.to(message.roomId).emit("message", message);
   }
 
   sendPrivateMessage(message: PrivateMessage): void {
-    debug.messages("sending private message:", message);
+    debug.messages("sending private message: %O", message);
     this.to(message.recipientId).emit("message", message);
   }
 }

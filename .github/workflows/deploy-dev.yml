@@ -4,6 +4,14 @@ on:
   
   pull_request:
 
+  workflow_dispatch:
+    inputs:
+      stack_name:
+        type: string
+        default: test
+        description: Stack to deploy to
+        required: true
+
 jobs:
   
   build-dev:
@@ -36,7 +44,7 @@ jobs:
       - uses: pulumi/actions@25289694c7c830eecac517eb113ce8efcaf11643 # TODO: update to v3 after next release
         with:
           command: up
-          stack-name: ${{ github.head_ref }}
+          stack-name: ${{ github.event.inputs.stack_name || github.head_ref }}
           upsert: true
           work-dir: pulumi
           comment-on-pr: true

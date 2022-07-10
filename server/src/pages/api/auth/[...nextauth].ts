@@ -1,14 +1,26 @@
-import NextAuth from "next-auth";
+import NextAuth, { NextAuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import EmailProvider from "next-auth/providers/email";
-import SequelizeAdapter from "@next-auth/sequelize-adapter";
-import { Sequelize } from "sequelize";
 import { sendVerificationRequest } from "@app/email/verification-request";
+import { adapter } from "@app/auth/fs-adapter";
 
-const sequelize = new Sequelize("sqlite::memory:");
-sequelize.sync();
-
-export default NextAuth({
+export const authOptions: NextAuthOptions = {
+  session: {
+    strategy: "database",
+  },
+  callbacks: {
+    session: async (sessionInfo) => {
+      const { session, user } = sessionInfo;
+      if (session?.user) {
+        session.user.id = user.id;
+        const displayName = user.name || user.email;
+        if (displayName) {
+          session.user.name = displayName;
+        }
+      }
+      return session;
+    },
+  },
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID as string,
@@ -19,5 +31,7 @@ export default NextAuth({
       sendVerificationRequest: sendVerificationRequest,
     }),
   ],
-  adapter: SequelizeAdapter(sequelize),
-});
+  adapter,
+};
+
+export default NextAuth(authOptions);

@@ -23,3 +23,16 @@
 //
 // -- This will overwrite an existing command --
 // Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
+
+Cypress.Commands.add('login', (email = "test.user@example.com", name = "Test User") => {
+  cy.request('POST', 'http://localhost:3000/api/dev/auth/create-user', {
+    name,
+    email,
+  })
+  const sessionToken = Cypress._.uniqueId("token-");
+  cy.request('POST', 'http://localhost:3000/api/dev/auth/create-session', {
+    email,
+    sessionToken,
+  })
+  cy.setCookie('next-auth.session-token', sessionToken);
+});

@@ -1,7 +1,7 @@
 {
   "scripts": {
     "cy:open": "cypress open",
-    "cy:run": "cypress run"
+    "cy:run": "cypress run --browser chrome"
   },
   "devDependencies": {
     "cypress": "10.1.0"

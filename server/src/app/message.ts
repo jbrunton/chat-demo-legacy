@@ -2,24 +2,23 @@ import { Command, isCommand, PublicMessage, User } from "@domain/entities";
 import { processCommand } from "@domain/usecases/commands/process-command";
 import { Dispatcher } from "@domain/usecases/messages/dispatcher";
 
-export interface IncomingMessage extends PublicMessage {
-  sender: User;
-}
-
 export const parseMessage = (
-  incoming: IncomingMessage
+  incoming: PublicMessage,
+  sender: User
 ): PublicMessage | Command => {
   const { content, ...details } = incoming;
   if (content.startsWith("/")) {
     const commandName = content.slice(1).split(" ")[0];
     const command: Command = {
       ...details,
+      sender,
       name: commandName,
     };
     return command;
   }
   const message: PublicMessage = {
     ...details,
+    sender,
     content,
   };
   return message;

@@ -41,18 +41,20 @@ jobs:
       - name: start server
         run: |
           npm ci
-          npm run build
+          cp .env.development .env
+          echo "NEXTAUTH_SECRET=$(openssl rand -base64 32)" >> .env
+          ENABLE_DEV_API=1 npm run build
           npm start &
         working-directory: server
       - uses: cypress-io/github-action@v4
         with:
           working-directory: e2e
           wait-on: 'http://localhost:3000'
-          record: true
+          record: ${{ github.ref == 'refs/heads/develop' }}
           browser: chrome
         env:
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
-          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   build:
     runs-on: ubuntu-latest

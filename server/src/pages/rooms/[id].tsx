@@ -7,10 +7,9 @@ import { SocketClient } from "@app/sockets";
 import { formatTime } from "@app/format";
 import { PublicMessage } from "@domain/entities";
 import Layout from "@app/components/Layout";
+import { NextPage } from "next";
 
-const user = "User_" + String(new Date().getTime()).substr(-3);
-
-const Index: React.FC = () => {
+const Room: NextPage = () => {
   const inputRef = useRef<InputRef>(null);
 
   const router = useRouter();
@@ -39,7 +38,6 @@ const Index: React.FC = () => {
           path: "/api/socketio",
           query: {
             roomId,
-            user,
           },
         }
       );
@@ -64,10 +62,6 @@ const Index: React.FC = () => {
     if (content) {
       setSendingMessage(true);
       const message: PublicMessage = {
-        sender: {
-          id: socketId,
-          name: user,
-        },
         roomId,
         content,
         time: new Date().toISOString(),
@@ -134,4 +128,6 @@ const Index: React.FC = () => {
   );
 };
 
-export default Index;
+Room.requireAuth = true;
+
+export default Room;

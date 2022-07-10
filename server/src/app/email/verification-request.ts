@@ -33,7 +33,7 @@ export const sendVerificationRequest: EmailConfig["sendVerificationRequest"] =
         html: html({ url, host, email }),
       })
       .then((info) => {
-        debug.email("Verification Request email sent: %O)", meta);
+        debug.email("Verification Request email sent: %O", meta);
         if (process.env.EMAIL_TRANSPORT === "ethereal") {
           debug.email("Preview URL: %s", nodemailer.getTestMessageUrl(info));
         }

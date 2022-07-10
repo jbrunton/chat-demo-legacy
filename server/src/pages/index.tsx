@@ -9,4 +9,6 @@ const Home: NextPage = () => {
   );
 };
 
+Home.requireAuth = false;
+
 export default Home;

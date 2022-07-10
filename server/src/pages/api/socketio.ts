@@ -2,6 +2,9 @@ import { NextApiRequest, NextApiResponse } from "next";
 import { Server as NetServer } from "http";
 import { SocketDispatcher } from "@app/socket-dispatcher";
 import { greetUser } from "@domain/usecases/messages/greet-user";
+import cookie from "cookie";
+import { adapter } from "@app/auth/fs-adapter";
+import { Socket } from "socket.io";
 
 export const config = {
   api: {
@@ -9,15 +12,32 @@ export const config = {
   },
 };
 
+const authenticate = async (socket: Socket) => {
+  const cookies = cookie.parse(socket.handshake.headers.cookie || "");
+  const sessionToken =
+    cookies["next-auth.session-token"] ||
+    cookies["__Secure-next-auth.session-token"];
+  const sessionAndUser = await adapter.getSessionAndUser(sessionToken);
+  if (!sessionAndUser) {
+    throw new Error("User must be authenticated");
+  }
+  const { user } = sessionAndUser;
+  return user;
+};
+
 const createIOServer = (httpServer: NetServer) => {
   const io: SocketDispatcher = new SocketDispatcher(httpServer, {
     path: "/api/socketio",
   });
-  io.on("connection", (socket) => {
-    const user = socket.handshake.query.user as string;
+  io.on("connection", async (socket) => {
+    const user = await authenticate(socket);
+    socket.join(user.id);
+
     const roomId = socket.handshake.query.roomId as string;
     socket.join(roomId);
-    const message = greetUser({ user, roomId });
+
+    const displayName = user.name || user.email || "Anonymous";
+    const message = greetUser({ user: displayName, roomId });
     io.sendPublicMessage(message);
   });
   return io;

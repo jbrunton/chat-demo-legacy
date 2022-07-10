@@ -1,6 +1,12 @@
-import { Command, isCommand, PublicMessage, User } from "@domain/entities";
-import { processCommand } from "@domain/usecases/commands/process-command";
+import {
+  Command,
+  isCommand,
+  isPrivate,
+  PublicMessage,
+  User,
+} from "@domain/entities";
 import { Dispatcher } from "@domain/usecases/messages/dispatcher";
+import { processCommand } from "./commands/process-command";
 
 export const parseMessage = (
   incoming: PublicMessage,
@@ -8,11 +14,13 @@ export const parseMessage = (
 ): PublicMessage | Command => {
   const { content, ...details } = incoming;
   if (content.startsWith("/")) {
-    const commandName = content.slice(1).split(" ")[0];
+    const args = content.slice(1).split(" ");
+    const commandName = args[0];
     const command: Command = {
       ...details,
       sender,
       name: commandName,
+      args: args.slice(1),
     };
     return command;
   }
@@ -24,13 +32,17 @@ export const parseMessage = (
   return message;
 };
 
-export const handleMessage = (
+export const handleMessage = async (
   message: PublicMessage | Command,
   dispatcher: Dispatcher
 ) => {
   if (isCommand(message)) {
-    const response = processCommand(message);
-    dispatcher.sendPrivateMessage(response);
+    const response = await processCommand(message);
+    if (isPrivate(response)) {
+      dispatcher.sendPrivateMessage(response);
+    } else {
+      dispatcher.sendPublicMessage(response);
+    }
   } else {
     dispatcher.sendPublicMessage(message);
   }

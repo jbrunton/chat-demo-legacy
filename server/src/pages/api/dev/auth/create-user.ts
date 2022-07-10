@@ -12,7 +12,9 @@ const Session = async (req: NextApiRequest, res: NextApiResponse) => {
 
   const { name, email } = req.body || (req.query as RequestBody);
   let user = await adapter.getUserByEmail(email);
-  if (!user) {
+  if (user) {
+    user = await adapter.updateUser({ ...user, name, email });
+  } else {
     user = await adapter.createUser({ name, email });
   }
   res.status(201).send(user);

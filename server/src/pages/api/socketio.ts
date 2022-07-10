@@ -5,6 +5,7 @@ import { greetUser } from "@domain/usecases/messages/greet-user";
 import cookie from "cookie";
 import { adapter } from "@app/auth/fs-adapter";
 import { Socket } from "socket.io";
+import { toUser } from "./auth/utils";
 
 export const config = {
   api: {
@@ -22,7 +23,7 @@ const authenticate = async (socket: Socket) => {
     throw new Error("User must be authenticated");
   }
   const { user } = sessionAndUser;
-  return user;
+  return toUser(user);
 };
 
 const createIOServer = (httpServer: NetServer) => {
@@ -36,8 +37,7 @@ const createIOServer = (httpServer: NetServer) => {
     const roomId = socket.handshake.query.roomId as string;
     socket.join(roomId);
 
-    const displayName = user.name || user.email || "Anonymous";
-    const message = greetUser({ user: displayName, roomId });
+    const message = greetUser({ user, roomId });
     io.sendPublicMessage(message);
   });
   return io;

@@ -36,3 +36,7 @@ Cypress.Commands.add('login', (email = "test.user@example.com", name = "Test Use
   })
   cy.setCookie('next-auth.session-token', sessionToken);
 });
+
+Cypress.Commands.add('sendMessage', (text) => {
+  cy.get('input').type(`${text}{enter}`);
+});

@@ -19,7 +19,7 @@ const Chat = async (req: NextApiRequest, res: NextApiResponse) => {
     const ioServer = res.socket.server.io;
     const message = parseMessage(req.body, session.user);
     debug.messages("received message: %O", message);
-    handleMessage(message, ioServer);
+    await handleMessage(message, ioServer);
     res.status(201).send(message);
   }
 };

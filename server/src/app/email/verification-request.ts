@@ -26,6 +26,10 @@ export const sendVerificationRequest: EmailConfig["sendVerificationRequest"] =
       from,
       subject: `Sign in to ${host}`,
     };
+    if (process.env.NODE_ENV === "development") {
+      debug.email("Sending Verification Request email: %O", meta);
+      debug.email("Verification URL: %s", url);
+    }
     await transport
       .sendMail({
         ...meta,
@@ -33,7 +37,6 @@ export const sendVerificationRequest: EmailConfig["sendVerificationRequest"] =
         html: html({ url, host, email }),
       })
       .then((info) => {
-        debug.email("Verification Request email sent: %O", meta);
         if (process.env.EMAIL_TRANSPORT === "ethereal") {
           debug.email("Preview URL: %s", nodemailer.getTestMessageUrl(info));
         }

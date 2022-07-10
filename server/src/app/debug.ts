@@ -8,8 +8,7 @@ export const debug = {
 };
 
 export const requireDev = () => {
-  console.log(process.env);
-  if (process.env.NODE_ENV === "development" || process.env.ENABLE_DEV_API) {
+  if (process.env.NODE_ENV !== "development" && !process.env.ENABLE_DEV_API) {
     throw new Error("Expected NODE_ENV=development or ENABLE_DEV_API=1");
   }
 };

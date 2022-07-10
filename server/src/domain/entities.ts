@@ -1,3 +1,5 @@
+import { UserRepository } from "./usecases/commands/rename-user";
+
 interface MessageDetails {
   roomId: string;
   time: string;
@@ -17,13 +19,22 @@ export interface PrivateMessage extends PublicMessage {
   recipientId: string;
 }
 
+export const isPrivate = (
+  msg: PublicMessage | PrivateMessage
+): msg is PrivateMessage => {
+  return (msg as PrivateMessage).recipientId !== undefined;
+};
+
 export interface Command extends MessageDetails {
   sender: User;
   name: string;
+  args: string[];
 }
 
 export interface ProcessCommand {
-  (command: Command): PrivateMessage;
+  (command: Command, userRepo: UserRepository): Promise<
+    PrivateMessage | PublicMessage
+  >;
 }
 
 export const isCommand = (

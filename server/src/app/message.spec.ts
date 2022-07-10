@@ -11,7 +11,7 @@ describe("parseMessage", () => {
     name: "User_123",
   };
 
-  it("parses commands", () => {
+  it("parses commands with no arguments", () => {
     const incoming: PublicMessage = {
       sender,
       roomId,
@@ -21,6 +21,24 @@ describe("parseMessage", () => {
     const response = parseMessage(incoming, sender);
     expect(response).toEqual({
       name: "list",
+      args: [],
+      roomId,
+      sender,
+      time,
+    });
+  });
+
+  it("parses commands with arguments", () => {
+    const incoming: PublicMessage = {
+      sender,
+      roomId,
+      content: "/rename user Test User",
+      time,
+    };
+    const response = parseMessage(incoming, sender);
+    expect(response).toEqual({
+      name: "rename",
+      args: ["user", "Test", "User"],
       roomId,
       sender,
       time,
@@ -62,19 +80,20 @@ describe("handleMessage", () => {
     expect(dispatcher.sendPublicMessage).toHaveBeenCalledWith(message);
   });
 
-  it("dispatches commands", () => {
+  it("dispatches commands", async () => {
     const sender = {
       name: "Some User",
       id: "456",
     };
     const command: Command = {
       name: "not-a-command",
+      args: [],
       time: new Date().toISOString(),
       roomId: "123",
       sender,
     };
 
-    handleMessage(command, dispatcher);
+    await handleMessage(command, dispatcher);
 
     expect(dispatcher.sendPrivateMessage).toHaveBeenCalledWith({
       recipientId: sender.id,

@@ -7,11 +7,19 @@ describe('Sending commands', () => {
   beforeEach(() => {
     cy.login();
     cy.visit(`http://localhost:3000/rooms/${roomId}`)
-    cy.get('li.ant-list-item').first().should('contain', 'Test User joined the chat. Welcome, Test User!');
+    cy.get('li.ant-list-item').first().should('contain.text', 'Test User joined the chat. Welcome, Test User!');
   })
 
   it('responds to /help command', () => {
-    cy.get('input').type('/help{enter}');
-    cy.get('li.ant-list-item').contains(expectedCommandResponse).should('exist');
+    cy.sendMessage('/help');
+    cy.get('li.ant-list-item').should('contain.text', expectedCommandResponse);
+  })
+
+  it('responds to the /rename command', () => {
+    cy.sendMessage('/rename user Renamed User');
+    cy.get('li.ant-list-item').should('contain.text', "Test User changed their name to Renamed User");
+
+    cy.sendMessage('Howdy!');
+    cy.get('li.ant-list-item').should('contain.text', "Renamed User: Howdy!");
   })
 })

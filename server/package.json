@@ -28,7 +28,8 @@
     "sequelize": "6.21.2",
     "socket.io": "4.5.1",
     "socket.io-client": "4.5.1",
-    "sqlite3": "5.0.8"
+    "sqlite3": "5.0.8",
+    "unique-names-generator": "4.7.1"
   },
   "devDependencies": {
     "@semantic-release-plus/docker": "3.1.2",

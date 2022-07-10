@@ -105,9 +105,9 @@ export function FsAdapter(db: AuthDB): Adapter {
 
     async updateUser(user): Promise<AdapterUser> {
       db.read();
-      const updatedUser = db.users.find({ id: user.id! }).assign(user).value();
+      const updatedUser = db.users.find({ id: user.id }).assign(user).value();
       db.write();
-      debug.auth(`updateUser: updated user:`, user);
+      debug.auth(`updateUser: updated user: %O`, updatedUser);
       return updatedUser;
     },
 

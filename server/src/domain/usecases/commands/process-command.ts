@@ -1,4 +1,5 @@
 import { Command, ProcessCommand } from "@domain/entities";
+import { InvalidArgumentError } from "./InvalidArgumentError";
 import { renameUser, UserRepository } from "./rename-user";
 
 const helpResponse = `
@@ -52,7 +53,18 @@ const getResponse = async (
 ): Promise<{ content: string; recipientId?: string }> => {
   for (const executor of executors) {
     if (executor.match(command)) {
-      return await executor.exec(command, userRepo);
+      try {
+        return await executor.exec(command, userRepo);
+      } catch (e: any) {
+        if (e instanceof InvalidArgumentError) {
+          const content = e.message;
+          return {
+            content,
+            recipientId: command.sender.id,
+          };
+        }
+        throw e;
+      }
     }
   }
 

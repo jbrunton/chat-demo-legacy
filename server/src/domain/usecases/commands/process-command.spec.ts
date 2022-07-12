@@ -77,5 +77,25 @@ describe("#processCommand", () => {
         time,
       });
     });
+
+    it("requires a valid username", async () => {
+      const command: Command = {
+        name: "rename",
+        args: ["user", " "],
+        sender,
+        roomId,
+        time,
+      };
+
+      const response = await processCommand(command, userRepo);
+
+      expect(userRepo.rename).not.toHaveBeenCalled();
+      expect(response).toEqual({
+        content: "Please provide a valid username",
+        roomId,
+        time,
+        recipientId: sender.id,
+      });
+    });
   });
 });

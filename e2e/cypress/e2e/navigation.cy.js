@@ -10,7 +10,7 @@ describe('Navigation', () => {
   })
 
   it('displays the welcome message on all screen sizes', () => {
-    const sizes = ['macbook-16', 'macbook-13', 'iphone-x', 'iphone-4'];
+    const sizes = ['macbook-13', 'iphone-x', 'iphone-4'];
     sizes.forEach(size => {
       cy.viewport(size);
       cy.get('li.ant-list-item').contains('Test User joined the chat. Welcome, Test User!').should('exist');

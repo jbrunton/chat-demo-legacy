@@ -1,20 +1,32 @@
 /// <reference types="cypress" />
 
 describe('Navigation', () => {
-  const roomId = "a1b2c3d4";
+  const sizes = ['macbook-13', 'iphone-x', 'iphone-4'];
 
   beforeEach(() => {
     cy.login();
-    cy.visit(`http://localhost:3000/rooms/${roomId}`)
-    cy.get('li.ant-list-item').first().should('contain', 'Test User joined the chat. Welcome, Test User!');
+    cy.createRoom();
+    cy.visitRoom();
   })
 
-  it('displays the welcome message on all screen sizes', () => {
-    const sizes = ['macbook-13', 'iphone-x', 'iphone-4'];
+  it('displays the welcome message and navigation options on all screen sizes', () => {
     sizes.forEach(size => {
       cy.viewport(size);
       cy.get('li.ant-list-item').contains('Test User joined the chat. Welcome, Test User!').should('exist');
+      cy.get('button').contains('New Room').should('exist');
+      cy.getUser().then((user) => {
+        cy.get('button').contains(user.name).should('exist');
+      });
       cy.screenshot(size);
     })
+  })
+
+  describe("New Room", () => {
+    it("creates a new room", () => {
+      const roomName = `Navigation Test Room ${new Date().toISOString()}`;
+      cy.createRoom(roomName);
+      cy.visitRoom();
+      cy.get('.ant-page-header').contains(roomName).should('exist');
+    });
   })
 })

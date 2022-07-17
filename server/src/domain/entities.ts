@@ -42,3 +42,9 @@ export const isCommand = (
 ): message is Command => {
   return (message as Command).name !== undefined;
 };
+
+export interface Room {
+  id: string;
+  name: string;
+  ownerId: string;
+}

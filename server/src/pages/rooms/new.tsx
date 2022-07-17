@@ -1,16 +1,28 @@
+import { Room } from "@domain/entities";
 import { NextPage } from "next";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
 
 const NewRoom: NextPage = () => {
   const router = useRouter();
+  const createRoom = async (): Promise<Room> => {
+    const resp = await fetch("/api/rooms/create", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    return await resp.json();
+  };
   useEffect(() => {
-    const roomId = Math.random().toString(36).slice(2, 11);
-    router.push(`/rooms/${roomId}`);
+    createRoom().then((room) => {
+      router.push(`/rooms/${room.id}`);
+    });
   });
   return <></>;
 };
 
-NewRoom.requireAuth = false;
+NewRoom.requireAuth = true;
 
 export default NewRoom;

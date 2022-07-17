@@ -28,7 +28,9 @@ Cypress.Commands.add('login', (email = "test.user@example.com", name = "Test Use
   cy.request('POST', 'http://localhost:3000/api/dev/auth/create-user', {
     name,
     email,
-  })
+  }).then(response => {
+    cy.get(response.body).as("user");
+  });
   const sessionToken = Cypress._.uniqueId("token-");
   cy.request('POST', 'http://localhost:3000/api/dev/auth/create-session', {
     email,
@@ -37,6 +39,35 @@ Cypress.Commands.add('login', (email = "test.user@example.com", name = "Test Use
   cy.setCookie('next-auth.session-token', sessionToken);
 });
 
+Cypress.Commands.add('createRoom', (name = "Test Room", ownerEmail = "test.user@example.com") => {
+  cy.request('POST', 'http://localhost:3000/api/dev/rooms/create', {
+    name,
+    ownerEmail,
+  }).then(response => {
+    cy.get(response.body).as("room");
+  });
+});
+
 Cypress.Commands.add('sendMessage', (text) => {
   cy.get('input').type(`${text}{enter}`);
+});
+
+Cypress.Commands.add('getUser', () => {
+  return cy.get("@user").then(([user]) => user);
+});
+
+Cypress.Commands.add('getRoom', () => {
+  return cy.get("@room").then(([room]) => room);
+});
+
+Cypress.Commands.add('visitRoom', () => {
+  cy.getRoom().then(room => {
+    cy.visit(`http://localhost:3000/rooms/${room.id}`);
+  });
+});
+
+Cypress.Commands.add('waitForSocket', () => {
+  cy.getUser().then(user => {
+    cy.get('li.ant-list-item').first().should('contain', `${user.name} joined the chat. Welcome, ${user.name}!`);
+  });
 });

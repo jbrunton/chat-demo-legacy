@@ -46,4 +46,21 @@ describe("FsRoomRepository", () => {
       expect(room).toBeNull();
     });
   });
+
+  describe("renameRoom", () => {
+    it("renames the room", async () => {
+      const name = "New Name";
+      const updatedRoom = await repo.renameRoom({
+        id: testRoom.id,
+        name,
+      });
+      const room = db.rooms.find({ id: testRoom.id }).value();
+
+      expect(room).toEqual(updatedRoom);
+      expect(updatedRoom).toEqual({
+        ...testRoom,
+        name,
+      });
+    });
+  });
 });

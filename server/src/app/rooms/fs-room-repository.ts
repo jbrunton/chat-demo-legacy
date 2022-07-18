@@ -2,8 +2,9 @@ import { debug } from "@app/debug";
 import { Room } from "@domain/entities";
 import {
   CreateRoomParams,
+  RenameRoomParams,
   RoomRepository,
-} from "@domain/usecases/rooms/create-room";
+} from "@domain/usecases/rooms/repository";
 import { chain, ExpChain } from "lodash";
 import { LowSync } from "lowdb";
 import crypto from "crypto";
@@ -20,6 +21,15 @@ export class FsRoomDB extends LowSync<Data> {
   createRoom(room: Room) {
     this.data?.rooms.push(room);
     this.write();
+  }
+
+  updateRoom(room: Partial<Omit<Room, "id">> & Pick<Room, "id">) {
+    this.read();
+    const { id } = room;
+    const updatedRoom = this.rooms.find({ id }).assign(room).value();
+    this.write();
+    debug.room(`updateRoom: updated room: %O`, updatedRoom);
+    return updatedRoom;
   }
 }
 
@@ -54,5 +64,9 @@ export class FsRoomRepository implements RoomRepository {
     this.db.read();
     const room = this.db.rooms.find({ id }).value();
     return room || null;
+  }
+
+  async renameRoom(params: RenameRoomParams): Promise<Room> {
+    return this.db.updateRoom(params);
   }
 }

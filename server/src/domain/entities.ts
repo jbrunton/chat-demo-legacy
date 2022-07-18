@@ -1,8 +1,7 @@
-import { UserRepository } from "./usecases/commands/rename-user";
-
 interface MessageDetails {
   roomId: string;
   time: string;
+  updated?: ("room" | "user")[];
 }
 
 export interface User {
@@ -31,10 +30,8 @@ export interface Command extends MessageDetails {
   args: string[];
 }
 
-export interface ProcessCommand {
-  (command: Command, userRepo: UserRepository): Promise<
-    PrivateMessage | PublicMessage
-  >;
+export interface ProcessCommand<E> {
+  (command: Command, env: E): Promise<PrivateMessage | PublicMessage>;
 }
 
 export const isCommand = (

@@ -37,7 +37,7 @@ export const handleMessage = async (
   dispatcher: Dispatcher
 ) => {
   if (isCommand(message)) {
-    const response = await processCommand(message);
+    const response = await processCommand(message, dispatcher);
     if (isPrivate(response)) {
       dispatcher.sendPrivateMessage(response);
     } else {

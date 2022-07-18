@@ -1,8 +1,11 @@
-import { adapter, FsAdapter } from "@app/auth/fs-adapter";
+import { adapter } from "@app/auth/fs-adapter";
 import { Command, PublicMessage, User } from "@domain/entities";
 import { UserRepository } from "@domain/usecases/commands/rename-user";
 import { Adapter } from "next-auth/adapters";
 import { processCommand as domainProcessCommand } from "@domain/usecases/commands/process-command";
+import { FsRoomRepository } from "@app/rooms/fs-room-repository";
+import { roomDB } from "@app/rooms";
+import { Dispatcher } from "@domain/usecases/messages/dispatcher";
 
 class FsUserRepository implements UserRepository {
   private readonly adapter: Adapter;
@@ -23,11 +26,18 @@ class FsUserRepository implements UserRepository {
   }
 }
 
-const userRepo = new FsUserRepository(adapter);
+const userRepository = new FsUserRepository(adapter);
+const roomRepository = new FsRoomRepository(roomDB);
 
 export const processCommand = async (
-  command: Command
+  command: Command,
+  dispatcher: Dispatcher
 ): Promise<PublicMessage> => {
-  const message = await domainProcessCommand(command, userRepo);
+  const env = {
+    dispatcher,
+    userRepository,
+    roomRepository,
+  };
+  const message = await domainProcessCommand(command, env);
   return message;
 };

@@ -23,6 +23,7 @@ const RoomPage: NextPage = () => {
   const [socketId, setSocketId] = useState<string>();
   const [sendingMessage, setSendingMessage] = useState(false);
   const [room, setRoom] = useState<Room | null>(null);
+  const [roomUpdated, setRoomUpdated] = useState<Date>(new Date());
 
   const onConnected = (socket: SocketClient) => {
     setConnected(true);
@@ -30,12 +31,17 @@ const RoomPage: NextPage = () => {
   };
 
   const onMessage = (message: PublicMessage) => {
+    if (message.updated?.includes("room")) {
+      setRoomUpdated(new Date());
+    }
     setChat((chat) => [...chat, message]);
   };
 
   useEffect(() => {
-    getRoom(roomId).then(setRoom);
-  }, [roomId]);
+    if (roomId) {
+      getRoom(roomId).then(setRoom);
+    }
+  }, [roomId, roomUpdated]);
 
   useEffect(() => {
     const configureSocket = () => {

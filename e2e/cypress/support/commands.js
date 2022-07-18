@@ -50,6 +50,8 @@ Cypress.Commands.add('createRoom', (name = "Test Room", ownerEmail = "test.user@
 
 Cypress.Commands.add('sendMessage', (text) => {
   cy.get('input').type(`${text}{enter}`);
+  // without a wait, we sometimes see a race condition with multiple messages combined
+  cy.wait(1);
 });
 
 Cypress.Commands.add('getUser', () => {

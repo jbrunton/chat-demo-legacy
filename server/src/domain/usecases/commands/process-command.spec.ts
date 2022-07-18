@@ -1,34 +1,47 @@
-import { Command, User } from "@domain/entities";
+import { Command, Room, User } from "@domain/entities";
 import { mock, MockProxy } from "jest-mock-extended";
-import { processCommand } from "./process-command";
+import { Dispatcher } from "../messages/dispatcher";
+import { RoomRepository } from "../rooms/repository";
+import { CommandEnvironment, processCommand } from "./process-command";
 import { UserRepository } from "./rename-user";
 
 describe("#processCommand", () => {
   const time = "2022-01-01T10:30:00.000Z";
   const roomId = "a1b2c3";
-  const sender: User = {
+  const testUser: User = {
     id: "123",
     name: "Some User",
   };
+  const anotherUser: User = {
+    id: "456",
+    name: "Another User",
+  };
 
-  let userRepo: MockProxy<UserRepository>;
+  let userRepository: MockProxy<UserRepository>;
+  let roomRepository: MockProxy<RoomRepository>;
+  let env: CommandEnvironment;
 
   beforeEach(() => {
-    userRepo = mock<UserRepository>();
+    userRepository = mock<UserRepository>();
+    roomRepository = mock<RoomRepository>();
+    env = {
+      userRepository,
+      roomRepository,
+    };
   });
 
   it("generates an error response when given an invalid command", async () => {
     const command: Command = {
       name: "invalidcommand",
       args: [],
-      sender,
+      sender: testUser,
       roomId,
       time,
     };
-    const response = await processCommand(command, userRepo);
+    const response = await processCommand(command, env);
     expect(response).toEqual({
       content: "Unrecognised command, type <b>/help</b> for further assistance",
-      recipientId: sender.id,
+      recipientId: testUser.id,
       roomId,
       time,
     });
@@ -39,18 +52,18 @@ describe("#processCommand", () => {
       const command: Command = {
         name: "help",
         args: [],
-        sender,
+        sender: testUser,
         roomId,
         time,
       };
-      const response = await processCommand(command, userRepo);
+      const response = await processCommand(command, env);
       expect(response).toEqual({
         content: [
           "\n<p>Type to chat, or enter one of the following commands:</p>\n",
           "<b>/help</b>: list commands<br />\n",
           "<b>/rename user &lt;name&gt;</b>: change your display name<br />\n",
         ].join(""),
-        recipientId: sender.id,
+        recipientId: testUser.id,
         roomId,
         time,
       });
@@ -59,22 +72,29 @@ describe("#processCommand", () => {
 
   describe("/rename user", () => {
     it("renames the signed in user", async () => {
-      userRepo.rename.mockResolvedValue({ id: sender.id, name: "New Name" });
+      userRepository.rename.mockResolvedValue({
+        id: testUser.id,
+        name: "New Name",
+      });
       const command: Command = {
         name: "rename",
         args: ["user", "New", "Name"],
-        sender,
+        sender: testUser,
         roomId,
         time,
       };
 
-      const response = await processCommand(command, userRepo);
+      const response = await processCommand(command, env);
 
-      expect(userRepo.rename).toHaveBeenCalledWith(sender.id, "New Name");
+      expect(userRepository.rename).toHaveBeenCalledWith(
+        testUser.id,
+        "New Name"
+      );
       expect(response).toEqual({
         content: "Some User changed their name to New Name",
         roomId,
         time,
+        updated: ["user"],
       });
     });
 
@@ -82,19 +102,101 @@ describe("#processCommand", () => {
       const command: Command = {
         name: "rename",
         args: ["user", " "],
-        sender,
+        sender: testUser,
         roomId,
         time,
       };
 
-      const response = await processCommand(command, userRepo);
+      const response = await processCommand(command, env);
 
-      expect(userRepo.rename).not.toHaveBeenCalled();
+      expect(userRepository.rename).not.toHaveBeenCalled();
       expect(response).toEqual({
         content: "Please provide a valid username",
         roomId,
         time,
-        recipientId: sender.id,
+        recipientId: testUser.id,
+      });
+    });
+  });
+
+  describe("/rename room", () => {
+    const testRoom: Room = {
+      id: roomId,
+      name: "Test Room",
+      ownerId: testUser.id,
+    };
+
+    beforeEach(() => {
+      roomRepository.getRoom
+        .calledWith(testRoom.id)
+        .mockResolvedValue(testRoom);
+    });
+
+    it("renames the room", async () => {
+      roomRepository.renameRoom.mockResolvedValue({
+        id: roomId,
+        name: "New Name",
+        ownerId: testUser.id,
+      });
+      const command: Command = {
+        name: "rename",
+        args: ["room", "New", "Name"],
+        sender: testUser,
+        roomId,
+        time,
+      };
+
+      const response = await processCommand(command, env);
+
+      expect(roomRepository.renameRoom).toHaveBeenCalledWith({
+        id: roomId,
+        name: "New Name",
+      });
+      expect(response).toEqual({
+        content: "Some User changed the room name to New Name",
+        roomId,
+        time,
+        updated: ["room"],
+      });
+    });
+
+    it("requires a valid name", async () => {
+      const command: Command = {
+        name: "rename",
+        args: ["room", " "],
+        sender: testUser,
+        roomId,
+        time,
+      };
+
+      const response = await processCommand(command, env);
+
+      expect(roomRepository.renameRoom).not.toHaveBeenCalled();
+      expect(response).toEqual({
+        content: "Please provide a valid name",
+        roomId,
+        time,
+        recipientId: testUser.id,
+      });
+    });
+
+    it("requires the sender to be the owner", async () => {
+      const command: Command = {
+        name: "rename",
+        args: ["room", "New", "Name"],
+        sender: anotherUser,
+        roomId,
+        time,
+      };
+
+      const response = await processCommand(command, env);
+
+      expect(roomRepository.renameRoom).not.toHaveBeenCalled();
+      expect(response).toEqual({
+        content: "Only the owner can rename the room",
+        roomId,
+        time,
+        recipientId: anotherUser.id,
       });
     });
   });

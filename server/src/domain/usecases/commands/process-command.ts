@@ -1,5 +1,7 @@
-import { Command, ProcessCommand } from "@domain/entities";
+import { Command, ProcessCommand, PublicMessage } from "@domain/entities";
+import { RoomRepository } from "../rooms/repository";
 import { InvalidArgumentError } from "./InvalidArgumentError";
+import { renameRoom } from "./rename-room";
 import { renameUser, UserRepository } from "./rename-user";
 
 const helpResponse = `
@@ -16,9 +18,14 @@ interface CommandResult {
   recipientId?: string;
 }
 
+export interface CommandEnvironment {
+  userRepository: UserRepository;
+  roomRepository: RoomRepository;
+}
+
 interface CommandExecutor {
   match(command: Command): boolean;
-  exec(command: Command, userRepo: UserRepository): Promise<CommandResult>;
+  exec(command: Command, env: CommandEnvironment): Promise<CommandResult>;
 }
 
 const helpExecutor: CommandExecutor = {
@@ -26,7 +33,7 @@ const helpExecutor: CommandExecutor = {
     return command.name === "help";
   },
 
-  async exec(command, userRepo) {
+  async exec(command, _env) {
     return {
       content: helpResponse,
       recipientId: command.sender.id,
@@ -34,27 +41,42 @@ const helpExecutor: CommandExecutor = {
   },
 };
 
-const renameExecutor: CommandExecutor = {
+const renameUserExecutor: CommandExecutor = {
   match(command) {
     return command.name === "rename" && command.args[0] === "user";
   },
 
-  async exec(command, userRepo) {
-    const content = await renameUser(command, userRepo);
-    return { content };
+  async exec(command, env) {
+    const content = await renameUser(command, env.userRepository);
+    return { content, updated: ["user"] };
   },
 };
 
-const executors = [helpExecutor, renameExecutor];
+const renameRoomExecutor: CommandExecutor = {
+  match(command) {
+    return command.name === "rename" && command.args[0] === "room";
+  },
+
+  async exec(command, env) {
+    const content = await renameRoom(command, env.roomRepository);
+    return { content, updated: ["room"] };
+  },
+};
+
+const executors = [helpExecutor, renameUserExecutor, renameRoomExecutor];
+
+type ResponseResult = Pick<PublicMessage, "content" | "updated"> & {
+  recipientId?: string;
+};
 
 const getResponse = async (
   command: Command,
-  userRepo: UserRepository
-): Promise<{ content: string; recipientId?: string }> => {
+  env: CommandEnvironment
+): Promise<ResponseResult> => {
   for (const executor of executors) {
     if (executor.match(command)) {
       try {
-        return await executor.exec(command, userRepo);
+        return await executor.exec(command, env);
       } catch (e: any) {
         if (e instanceof InvalidArgumentError) {
           const content = e.message;
@@ -74,8 +96,11 @@ const getResponse = async (
   };
 };
 
-export const processCommand: ProcessCommand = async (command, userRepo) => {
-  const response = await getResponse(command, userRepo);
+export const processCommand: ProcessCommand<CommandEnvironment> = async (
+  command,
+  env
+) => {
+  const response = await getResponse(command, env);
   return {
     ...response,
     time: command.time,

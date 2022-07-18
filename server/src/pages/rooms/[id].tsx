@@ -5,11 +5,13 @@ import { io } from "socket.io-client";
 import { useRouter } from "next/router";
 import { SocketClient } from "@app/sockets";
 import { formatTime } from "@app/format";
-import { PublicMessage } from "@domain/entities";
+import { PublicMessage, Room } from "@domain/entities";
 import Layout from "@app/components/Layout";
 import { NextPage } from "next";
+import { getRoom } from "@app/api/rooms";
+import { sendMessage } from "@app/api/chat";
 
-const Room: NextPage = () => {
+const RoomPage: NextPage = () => {
   const inputRef = useRef<InputRef>(null);
 
   const router = useRouter();
@@ -20,6 +22,7 @@ const Room: NextPage = () => {
   const [connected, setConnected] = useState(false);
   const [socketId, setSocketId] = useState<string>();
   const [sendingMessage, setSendingMessage] = useState(false);
+  const [room, setRoom] = useState<Room | null>(null);
 
   const onConnected = (socket: SocketClient) => {
     setConnected(true);
@@ -29,6 +32,10 @@ const Room: NextPage = () => {
   const onMessage = (message: PublicMessage) => {
     setChat((chat) => [...chat, message]);
   };
+
+  useEffect(() => {
+    getRoom(roomId).then(setRoom);
+  }, [roomId]);
 
   useEffect(() => {
     const configureSocket = () => {
@@ -56,7 +63,7 @@ const Room: NextPage = () => {
       };
   }, [roomId]);
 
-  const sendMessage = async () => {
+  const onSendMessage = async () => {
     if (!socketId) return;
 
     if (content) {
@@ -67,24 +74,18 @@ const Room: NextPage = () => {
         time: new Date().toISOString(),
       };
 
-      const resp = await fetch("/api/chat", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(message),
-      });
+      await sendMessage(message);
 
       setSendingMessage(false);
 
-      if (resp.ok) setContent("");
+      setContent("");
     }
 
     inputRef?.current?.focus();
   };
 
   return (
-    <Layout subTitle={`Room ${roomId}`}>
+    <Layout subTitle={room?.name}>
       <List
         itemLayout="vertical"
         dataSource={chat}
@@ -112,7 +113,7 @@ const Room: NextPage = () => {
             value={content}
             ref={inputRef}
             onChange={(e) => setContent(e.target.value)}
-            onSearch={() => sendMessage()}
+            onSearch={() => onSendMessage()}
             enterButton={
               <Button
                 type="primary"
@@ -128,6 +129,6 @@ const Room: NextPage = () => {
   );
 };
 
-Room.requireAuth = true;
+RoomPage.requireAuth = true;
 
-export default Room;
+export default RoomPage;

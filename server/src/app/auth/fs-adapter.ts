@@ -10,7 +10,7 @@ import { JSONFileSync, LowSync } from "lowdb";
 import { chain, ExpChain } from "lodash";
 import { debug } from "@app/debug";
 
-export type Data = {
+type Data = {
   users: AdapterUser[];
   accounts: Account[];
   sessions: AdapterSession[];
@@ -69,22 +69,25 @@ export function FsAdapter(db: AuthDB): Adapter {
         ...user,
       } as AdapterUser;
       db.createUser(newUser);
-      debug.auth("createUser: created user:", newUser);
+      debug.auth("createUser: created user: %O", newUser);
       return newUser;
     },
 
     async getUser(id): Promise<AdapterUser | null> {
       db.read();
       const user = db.users.find({ id }).value();
-      debug.auth(`getUser: found user (id=${id}):`, user);
-      return Promise.resolve(user || null);
+      if (user) {
+        debug.auth(`getUser: found user (id=${id}): %O`, user);
+        return user;
+      }
+      return null;
     },
 
     async getUserByEmail(email): Promise<AdapterUser | null> {
       db.read();
       const user = db.users.find({ email }).value();
       if (user) {
-        debug.auth(`getUserByEmail: found user (email=${email}):`, user);
+        debug.auth(`getUserByEmail: found user (email=${email}): %O`, user);
         return user;
       }
       return null;
@@ -99,7 +102,7 @@ export function FsAdapter(db: AuthDB): Adapter {
       if (!account) return null;
       const user = db.users.find({ id: account.userId }).value();
       if (!user) return null;
-      debug.auth(`getUserByAccount: found:`, { account, user });
+      debug.auth(`getUserByAccount: found: %O`, { account, user });
       return user;
     },
 
@@ -114,7 +117,7 @@ export function FsAdapter(db: AuthDB): Adapter {
     async linkAccount(account: Account): Promise<Account | null | undefined> {
       db.read();
       db.createAccount(account);
-      debug.auth(`linkAccount: linked account`, account);
+      debug.auth(`linkAccount: linked account: %O`, account);
       return account;
     },
 
@@ -131,7 +134,7 @@ export function FsAdapter(db: AuthDB): Adapter {
       };
       db.createSession(newSession);
 
-      debug.auth("createSession: created session:", newSession);
+      debug.auth("createSession: created session: %O", newSession);
       return Promise.resolve(newSession);
     },
 
@@ -144,7 +147,7 @@ export function FsAdapter(db: AuthDB): Adapter {
       session.expires = new Date(session.expires);
       const user = db.users.find({ id: session.userId }).value();
       if (!user) return null;
-      debug.auth(`getSessionAndUser: found:`, { session, user });
+      debug.auth("getSessionAndUser: found: %O", { session, user });
       return { session, user };
     },
 
@@ -155,7 +158,7 @@ export function FsAdapter(db: AuthDB): Adapter {
         .assign(session)
         .value();
       db.write();
-      debug.auth(`updateUser: updated session:`, updatedSession);
+      debug.auth("updateSession: updated session: %O", updatedSession);
       return updatedSession;
     },
 
@@ -166,7 +169,7 @@ export function FsAdapter(db: AuthDB): Adapter {
       db.sessions.remove({ sessionToken });
       db.write();
 
-      debug.auth("deleteSession: deleted session:", sessionToken);
+      debug.auth("deleteSession: deleted session: %O", sessionToken);
       return Promise.resolve(null);
     },
 
@@ -176,7 +179,10 @@ export function FsAdapter(db: AuthDB): Adapter {
       db.read();
       db.createToken(verificationToken);
 
-      debug.auth("createVerificationToken: created token:", verificationToken);
+      debug.auth(
+        "createVerificationToken: created token: %O",
+        verificationToken
+      );
       return verificationToken;
     },
 
@@ -186,7 +192,7 @@ export function FsAdapter(db: AuthDB): Adapter {
       db.read();
       const token = db.verificationTokens.remove({ identifier }).value()[0];
       db.write();
-      debug.auth("useVerificationToken: used token:", token);
+      debug.auth("useVerificationToken: used token: %O", token);
       return token;
     },
   };

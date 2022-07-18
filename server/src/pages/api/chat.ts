@@ -4,6 +4,7 @@ import { handleMessage, parseMessage } from "@app/message";
 import { debug } from "@app/debug";
 import { authOptions } from "./auth/[...nextauth]";
 import { unstable_getServerSession } from "next-auth";
+import { getRoom } from "@app/rooms";
 
 const Chat = async (req: NextApiRequest, res: NextApiResponse) => {
   const session = await unstable_getServerSession(req, res, authOptions);
@@ -18,6 +19,10 @@ const Chat = async (req: NextApiRequest, res: NextApiResponse) => {
 
     const ioServer = res.socket.server.io;
     const message = parseMessage(req.body, session.user);
+    const room = await getRoom(message.roomId);
+    if (!room) {
+      throw new Error("Unexpected room");
+    }
     debug.messages("received message: %O", message);
     await handleMessage(message, ioServer);
     res.status(201).send(message);

@@ -1,6 +1,5 @@
 import { Command, Room, User } from "@domain/entities";
 import { mock, MockProxy } from "jest-mock-extended";
-import { Dispatcher } from "../messages/dispatcher";
 import { RoomRepository } from "../rooms/repository";
 import { CommandEnvironment, processCommand } from "./process-command";
 import { UserRepository } from "./rename-user";

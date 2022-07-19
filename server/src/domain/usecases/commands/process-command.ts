@@ -101,9 +101,10 @@ export const processCommand: ProcessCommand<CommandEnvironment> = async (
   env
 ) => {
   const response = await getResponse(command, env);
-  return {
+  const message = {
     ...response,
     time: command.time,
     roomId: command.roomId,
   };
+  return message;
 };

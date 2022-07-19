@@ -6,6 +6,7 @@ import cookie from "cookie";
 import { adapter } from "@app/auth/fs-adapter";
 import { Socket } from "socket.io";
 import { toUser } from "./auth/utils";
+import { roomRepository } from "@app/rooms";
 
 export const config = {
   api: {
@@ -38,6 +39,7 @@ const createIOServer = (httpServer: NetServer) => {
     socket.join(roomId);
 
     const message = greetUser({ user, roomId });
+    roomRepository.saveMessage(message);
     io.sendPublicMessage(message);
   });
   return io;

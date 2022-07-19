@@ -17,6 +17,16 @@ describe('Sending messages', () => {
     cy.get('li.ant-list-item').contains('Hello, World!').should('exist');
   })
 
+  it('preserves the room history', () => {
+    cy.get('input').type('Hello, World!{enter}');
+    cy.get('li.ant-list-item').contains('Hello, World!').should('exist');
+
+    cy.blankScreen();
+    cy.visitRoom();
+
+    cy.get('li.ant-list-item').contains('Hello, World!').should('exist');
+  })
+
   // This no longer works with cookied based auth. Need a new dev endpoint.
   xit('shows messages from other users', () => {
     const message = {

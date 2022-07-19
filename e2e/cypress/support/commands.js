@@ -73,3 +73,9 @@ Cypress.Commands.add('waitForSocket', () => {
     cy.get('li.ant-list-item').first().should('contain', `${user.name} joined the chat. Welcome, ${user.name}!`);
   });
 });
+
+Cypress.Commands.add('blankScreen', () => {
+  cy.window().then((win) => {
+    win.location.href = 'about:blank'
+  })
+});

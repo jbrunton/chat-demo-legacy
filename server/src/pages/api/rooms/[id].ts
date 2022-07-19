@@ -2,7 +2,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 import "@app/sockets";
 import { authOptions } from "../auth/[...nextauth]";
 import { unstable_getServerSession } from "next-auth";
-import { getRoom } from "@app/rooms";
+import { getRoom, roomRepository } from "@app/rooms";
 
 const Get = async (req: NextApiRequest, res: NextApiResponse) => {
   const session = await unstable_getServerSession(req, res, authOptions);
@@ -16,7 +16,8 @@ const Get = async (req: NextApiRequest, res: NextApiResponse) => {
     if (!room) {
       throw new Error("Could not find room:" + id);
     }
-    res.status(201).send(room);
+    const messages = await roomRepository.getMessageHistory(id);
+    res.status(201).send({ room, messages });
   }
 };
 

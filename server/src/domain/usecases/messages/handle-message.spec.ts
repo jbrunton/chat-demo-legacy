@@ -1,7 +1,15 @@
-import { Command, PublicMessage, User } from "@domain/entities";
+import {
+  Command,
+  IncomingMessage,
+  PublicMessage,
+  User,
+} from "@domain/entities";
 import { Dispatcher } from "@domain/usecases/messages/dispatcher";
-import { handleMessage, parseMessage } from "./message";
+import { handleMessage, parseMessage } from "./handle-message";
 import { mock, MockProxy } from "jest-mock-extended";
+import { UserRepository } from "../commands/rename-user";
+import { RoomRepository } from "../rooms/repository";
+import { CommandEnvironment } from "../commands/process-command";
 
 describe("parseMessage", () => {
   const time = "2022-01-01T10:30:00.000Z";
@@ -12,8 +20,7 @@ describe("parseMessage", () => {
   };
 
   it("parses commands with no arguments", () => {
-    const incoming: PublicMessage = {
-      sender,
+    const incoming: IncomingMessage = {
       roomId,
       content: "/list",
       time,
@@ -30,7 +37,6 @@ describe("parseMessage", () => {
 
   it("parses commands with arguments", () => {
     const incoming: PublicMessage = {
-      sender,
       roomId,
       content: "/rename user Test User",
       time,
@@ -65,18 +71,28 @@ describe("handleMessage", () => {
   let dispatcher: MockProxy<Dispatcher>;
   const now = new Date("2022-02-02T21:22:23.234Z");
 
+  let userRepository: MockProxy<UserRepository>;
+  let roomRepository: MockProxy<RoomRepository>;
+  let env: CommandEnvironment;
+
   beforeEach(() => {
     dispatcher = mock<Dispatcher>();
     jest.useFakeTimers().setSystemTime(now);
+    userRepository = mock<UserRepository>();
+    roomRepository = mock<RoomRepository>();
+    env = {
+      userRepository,
+      roomRepository,
+    };
   });
 
-  it("dispatches public messages", () => {
+  it("dispatches public messages", async () => {
     const message: PublicMessage = {
       content: "Hello, World!",
       time: new Date().toISOString(),
       roomId: "123",
     };
-    handleMessage(message, dispatcher);
+    await handleMessage(message, dispatcher, env);
     expect(dispatcher.sendPublicMessage).toHaveBeenCalledWith(message);
   });
 
@@ -93,7 +109,7 @@ describe("handleMessage", () => {
       sender,
     };
 
-    await handleMessage(command, dispatcher);
+    await handleMessage(command, dispatcher, env);
 
     expect(dispatcher.sendPrivateMessage).toHaveBeenCalledWith({
       recipientId: sender.id,

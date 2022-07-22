@@ -5,7 +5,12 @@ import { io } from "socket.io-client";
 import { useRouter } from "next/router";
 import { SocketClient } from "@app/sockets";
 import { formatTime } from "@app/format";
-import { PublicMessage, Room } from "@domain/entities";
+import {
+  IncomingMessage,
+  Message,
+  PublicMessage,
+  Room,
+} from "@domain/entities";
 import Layout from "@app/components/Layout";
 import { NextPage } from "next";
 import { getRoom } from "@app/api/rooms";
@@ -17,7 +22,7 @@ const RoomPage: NextPage = () => {
   const router = useRouter();
   const roomId: string = router.query.id as string;
 
-  const [chat, setChat] = useState<PublicMessage[]>([]);
+  const [chat, setChat] = useState<Message[]>([]);
   const [content, setContent] = useState("");
   const [connected, setConnected] = useState(false);
   const [socketId, setSocketId] = useState<string>();
@@ -39,11 +44,16 @@ const RoomPage: NextPage = () => {
 
   useEffect(() => {
     if (roomId) {
-      getRoom(roomId).then(setRoom);
+      getRoom(roomId).then((response) => {
+        setRoom(response.room);
+        setChat(response.messages);
+      });
     }
   }, [roomId, roomUpdated]);
 
   useEffect(() => {
+    if (!room) return;
+
     const configureSocket = () => {
       const socket: SocketClient = io(
         process.env.NEXT_PUBLIC_DOMAIN || "http://localhost:3000",
@@ -67,14 +77,14 @@ const RoomPage: NextPage = () => {
       return () => {
         socket.disconnect();
       };
-  }, [roomId]);
+  }, [roomId, room]);
 
   const onSendMessage = async () => {
     if (!socketId) return;
 
     if (content) {
       setSendingMessage(true);
-      const message: PublicMessage = {
+      const message: IncomingMessage = {
         roomId,
         content,
         time: new Date().toISOString(),
@@ -83,7 +93,6 @@ const RoomPage: NextPage = () => {
       await sendMessage(message);
 
       setSendingMessage(false);
-
       setContent("");
     }
 
@@ -96,6 +105,7 @@ const RoomPage: NextPage = () => {
         itemLayout="vertical"
         dataSource={chat}
         size="small"
+        locale={{ emptyText: <span>Be the first to say something!</span> }}
         renderItem={(message) => (
           <List.Item extra={<span>{formatTime(new Date(message.time))}</span>}>
             {message.sender ? (

@@ -1,7 +1,13 @@
-interface MessageDetails {
+export interface IncomingMessage {
   roomId: string;
+  content: string;
   time: string;
+}
+
+interface PublishedMessage extends IncomingMessage {
+  id?: string;
   updated?: ("room" | "user")[];
+  transient?: boolean;
 }
 
 export interface User {
@@ -9,22 +15,21 @@ export interface User {
   name: string;
 }
 
-export interface PublicMessage extends MessageDetails {
+export interface PublicMessage extends PublishedMessage {
   sender?: User;
-  content: string;
 }
 
 export interface PrivateMessage extends PublicMessage {
   recipientId: string;
 }
 
-export const isPrivate = (
-  msg: PublicMessage | PrivateMessage
-): msg is PrivateMessage => {
+export type Message = PrivateMessage | PublicMessage;
+
+export const isPrivate = (msg: Message): msg is PrivateMessage => {
   return (msg as PrivateMessage).recipientId !== undefined;
 };
 
-export interface Command extends MessageDetails {
+export interface Command extends Omit<IncomingMessage, "content"> {
   sender: User;
   name: string;
   args: string[];
@@ -34,9 +39,7 @@ export interface ProcessCommand<E> {
   (command: Command, env: E): Promise<PrivateMessage | PublicMessage>;
 }
 
-export const isCommand = (
-  message: PublicMessage | PrivateMessage | Command
-): message is Command => {
+export const isCommand = (message: Message | Command): message is Command => {
   return (message as Command).name !== undefined;
 };
 

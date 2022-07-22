@@ -1,10 +1,15 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import "@app/sockets";
-import { handleMessage, parseMessage } from "@app/message";
 import { debug } from "@app/debug";
 import { authOptions } from "./auth/[...nextauth]";
 import { unstable_getServerSession } from "next-auth";
-import { getRoom } from "@app/rooms";
+import { getRoom, roomRepository } from "@app/rooms";
+import {
+  handleMessage,
+  parseMessage,
+} from "@domain/usecases/messages/handle-message";
+import { CommandEnvironment } from "@domain/usecases/commands/process-command";
+import { userRepository } from "@app/auth/fs-user-repository";
 
 const Chat = async (req: NextApiRequest, res: NextApiResponse) => {
   const session = await unstable_getServerSession(req, res, authOptions);
@@ -24,7 +29,11 @@ const Chat = async (req: NextApiRequest, res: NextApiResponse) => {
       throw new Error("Unexpected room");
     }
     debug.messages("received message: %O", message);
-    await handleMessage(message, ioServer);
+    const env: CommandEnvironment = {
+      userRepository,
+      roomRepository,
+    };
+    await handleMessage(message, ioServer, env);
     res.status(201).send(message);
   }
 };

@@ -1,15 +1,19 @@
 import {
   Command,
+  IncomingMessage,
   isCommand,
   isPrivate,
   PublicMessage,
   User,
 } from "@domain/entities";
-import { Dispatcher } from "@domain/usecases/messages/dispatcher";
-import { processCommand } from "./commands/process-command";
+import {
+  CommandEnvironment,
+  processCommand,
+} from "../commands/process-command";
+import { Dispatcher } from "./dispatcher";
 
 export const parseMessage = (
-  incoming: PublicMessage,
+  incoming: IncomingMessage,
   sender: User
 ): PublicMessage | Command => {
   const { content, ...details } = incoming;
@@ -24,7 +28,7 @@ export const parseMessage = (
     };
     return command;
   }
-  const message: PublicMessage = {
+  const message = {
     ...details,
     sender,
     content,
@@ -34,16 +38,19 @@ export const parseMessage = (
 
 export const handleMessage = async (
   message: PublicMessage | Command,
-  dispatcher: Dispatcher
+  dispatcher: Dispatcher,
+  env: CommandEnvironment
 ) => {
   if (isCommand(message)) {
-    const response = await processCommand(message, dispatcher);
+    const response = await processCommand(message, env);
+    await env.roomRepository.saveMessage(response);
     if (isPrivate(response)) {
       dispatcher.sendPrivateMessage(response);
     } else {
       dispatcher.sendPublicMessage(response);
     }
   } else {
+    await env.roomRepository.saveMessage(message);
     dispatcher.sendPublicMessage(message);
   }
 };

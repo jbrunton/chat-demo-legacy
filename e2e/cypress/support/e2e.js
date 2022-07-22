@@ -20,7 +20,5 @@ import './commands'
 // require('./commands')
 
 beforeEach(() => {
-  cy.window().then((win) => {
-    win.location.href = 'about:blank'
-  })
+  cy.blankScreen();
 })

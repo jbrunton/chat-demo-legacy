@@ -1,5 +1,5 @@
 import { debug } from "@app/debug";
-import { Room } from "@domain/entities";
+import { IncomingMessage, isPrivate, Message, Room } from "@domain/entities";
 import {
   CreateRoomParams,
   RenameRoomParams,
@@ -11,15 +11,22 @@ import crypto from "crypto";
 
 export type Data = {
   rooms: Room[];
+  messages: Message[];
 };
 
 export class FsRoomDB extends LowSync<Data> {
   chain: ExpChain<this["data"]> = chain(this).get("data");
 
   rooms: ExpChain<Data["rooms"]> = this.chain.get("rooms");
+  messages: ExpChain<Data["messages"]> = this.chain.get("messages");
 
   createRoom(room: Room) {
     this.data?.rooms.push(room);
+    this.write();
+  }
+
+  createMessage(message: Message) {
+    this.data?.messages.push(message);
     this.write();
   }
 
@@ -43,6 +50,7 @@ export class FsRoomRepository implements RoomRepository {
     if (!db.data) {
       db.data = {
         rooms: [],
+        messages: [],
       };
       db.write();
     }
@@ -68,5 +76,26 @@ export class FsRoomRepository implements RoomRepository {
 
   async renameRoom(params: RenameRoomParams): Promise<Room> {
     return this.db.updateRoom(params);
+  }
+
+  async saveMessage(message: IncomingMessage): Promise<Message> {
+    this.db.read();
+    const id = crypto.randomUUID();
+    const newMessage = {
+      ...message,
+      id,
+    };
+    this.db.createMessage(newMessage);
+    debug.room("saved message: %O", newMessage);
+    return newMessage;
+  }
+
+  async getMessageHistory(roomId: string): Promise<Message[]> {
+    this.db.read();
+    return this.db.messages
+      .filter({ roomId })
+      .filter((message) => !isPrivate(message) && !message.transient)
+      .sortBy((msg) => new Date(msg.time))
+      .value();
   }
 }

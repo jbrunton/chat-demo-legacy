@@ -1,12 +1,10 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { Server as NetServer } from "http";
 import { SocketDispatcher } from "@app/socket-dispatcher";
-import { greetUser } from "@domain/usecases/messages/greet-user";
 import cookie from "cookie";
 import { adapter } from "@app/auth/fs-adapter";
 import { Socket } from "socket.io";
 import { toUser } from "./auth/utils";
-import { roomRepository } from "@app/rooms";
 
 export const config = {
   api: {
@@ -37,10 +35,6 @@ const createIOServer = (httpServer: NetServer) => {
 
     const roomId = socket.handshake.query.roomId as string;
     socket.join(roomId);
-
-    const message = greetUser({ user, roomId });
-    roomRepository.saveMessage(message);
-    io.sendPublicMessage(message);
   });
   return io;
 };

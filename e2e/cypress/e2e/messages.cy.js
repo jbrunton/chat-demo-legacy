@@ -8,10 +8,6 @@ describe('Sending messages', () => {
     cy.waitForSocket();
   })
 
-  it('displays a welcome message', () => {
-    cy.get('li.ant-list-item').contains('joined the chat. Welcome, Test User').should('exist');
-  })
-
   it('lets the user send a message', () => {
     cy.get('input').type('Hello, World!{enter}');
     cy.get('li.ant-list-item').contains('Hello, World!').should('exist');

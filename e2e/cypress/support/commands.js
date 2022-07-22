@@ -70,7 +70,7 @@ Cypress.Commands.add('visitRoom', () => {
 
 Cypress.Commands.add('waitForSocket', () => {
   cy.getUser().then(user => {
-    cy.get('li.ant-list-item').first().should('contain', `${user.name} joined the chat. Welcome, ${user.name}!`);
+    cy.get('input').should('not.be.disabled');
   });
 });
 

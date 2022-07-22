@@ -3,7 +3,6 @@ import { List, Input, Typography, InputRef, Button, Form } from "antd";
 import { ArrowRightOutlined } from "@ant-design/icons";
 import { io } from "socket.io-client";
 import { useRouter } from "next/router";
-import { SocketClient } from "@app/sockets";
 import { formatTime } from "@app/format";
 import {
   IncomingMessage,
@@ -27,20 +26,28 @@ const RoomPage: NextPage = () => {
   const [chat, setChat] = useState<Message[]>([]);
   const [content, setContent] = useState("");
   const [connected, setConnected] = useState(false);
-  const [socketId, setSocketId] = useState<string>();
   const [sendingMessage, setSendingMessage] = useState(false);
   const [room, setRoom] = useState<Room | null>(null);
-  const [roomUpdated, setRoomUpdated] = useState<Date>(new Date());
   const { refreshSession } = useContext(SessionContext);
 
-  const onConnected = (socket: SocketClient) => {
-    setConnected(true);
-    setSocketId(socket.id);
+  const loadRoom = async () => {
+    const response = await getRoom(roomId);
+    setRoom(response.room);
+    setChat(response.messages);
+  };
+
+  const createSocket = () => {
+    return io(process.env.NEXT_PUBLIC_DOMAIN || "http://localhost:3000", {
+      path: "/api/socketio",
+      query: {
+        roomId,
+      },
+    });
   };
 
   const onMessage = (message: PublicMessage) => {
     if (message.updated?.includes("room")) {
-      setRoomUpdated(new Date());
+      loadRoom();
     }
     if (message.updated?.includes("user")) {
       refreshSession();
@@ -49,44 +56,29 @@ const RoomPage: NextPage = () => {
   };
 
   useEffect(() => {
-    if (roomId) {
-      getRoom(roomId).then((response) => {
-        setRoom(response.room);
-        setChat(response.messages);
-      });
-    }
-  }, [roomId, roomUpdated]);
-
-  const configureSocket = () => {
-    const socket: SocketClient = io(
-      process.env.NEXT_PUBLIC_DOMAIN || "http://localhost:3000",
-      {
-        path: "/api/socketio",
-        query: {
-          roomId,
-        },
-      }
-    );
-
-    socket?.on("connect", () => onConnected(socket));
-    socket?.on("message", onMessage);
-
-    return socket;
-  };
+    if (!roomId) return;
+    const socket = createSocket();
+    socket.on("connect", () => {
+      setConnected(true);
+    });
+    socket.on("message", onMessage);
+    return () => {
+      socket.close();
+    };
+  }, [roomId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
-    if (!room) return;
+    if (roomId) {
+      loadRoom();
+    }
+  }, [roomId]); // eslint-disable-line react-hooks/exhaustive-deps
 
-    const socket = configureSocket();
-
-    if (socket)
-      return () => {
-        socket.disconnect();
-      };
-  }, [roomId, room]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    inputRef?.current?.focus();
+  }, [connected]);
 
   const onSendMessage = async () => {
-    if (!socketId) return;
+    if (!connected) return;
 
     if (content) {
       setSendingMessage(true);
@@ -134,6 +126,7 @@ const RoomPage: NextPage = () => {
             disabled={!connected}
             value={content}
             ref={inputRef}
+            placeholder="Type to chat"
             onChange={(e) => setContent(e.target.value)}
             onSearch={() => onSendMessage()}
             enterButton={

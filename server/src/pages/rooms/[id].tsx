@@ -15,6 +15,8 @@ import Layout from "@app/components/Layout";
 import { NextPage } from "next";
 import { getRoom } from "@app/api/rooms";
 import { sendMessage } from "@app/api/chat";
+import { useContext } from "react";
+import { SessionContext } from "@app/components/AuthWrapper";
 
 const RoomPage: NextPage = () => {
   const inputRef = useRef<InputRef>(null);
@@ -29,6 +31,7 @@ const RoomPage: NextPage = () => {
   const [sendingMessage, setSendingMessage] = useState(false);
   const [room, setRoom] = useState<Room | null>(null);
   const [roomUpdated, setRoomUpdated] = useState<Date>(new Date());
+  const { refreshSession } = useContext(SessionContext);
 
   const onConnected = (socket: SocketClient) => {
     setConnected(true);
@@ -38,6 +41,9 @@ const RoomPage: NextPage = () => {
   const onMessage = (message: PublicMessage) => {
     if (message.updated?.includes("room")) {
       setRoomUpdated(new Date());
+    }
+    if (message.updated?.includes("user")) {
+      refreshSession();
     }
     setChat((chat) => [...chat, message]);
   };
@@ -51,25 +57,25 @@ const RoomPage: NextPage = () => {
     }
   }, [roomId, roomUpdated]);
 
+  const configureSocket = () => {
+    const socket: SocketClient = io(
+      process.env.NEXT_PUBLIC_DOMAIN || "http://localhost:3000",
+      {
+        path: "/api/socketio",
+        query: {
+          roomId,
+        },
+      }
+    );
+
+    socket?.on("connect", () => onConnected(socket));
+    socket?.on("message", onMessage);
+
+    return socket;
+  };
+
   useEffect(() => {
     if (!room) return;
-
-    const configureSocket = () => {
-      const socket: SocketClient = io(
-        process.env.NEXT_PUBLIC_DOMAIN || "http://localhost:3000",
-        {
-          path: "/api/socketio",
-          query: {
-            roomId,
-          },
-        }
-      );
-
-      socket?.on("connect", () => onConnected(socket));
-      socket?.on("message", onMessage);
-
-      return socket;
-    };
 
     const socket = configureSocket();
 
@@ -77,7 +83,7 @@ const RoomPage: NextPage = () => {
       return () => {
         socket.disconnect();
       };
-  }, [roomId, room]);
+  }, [roomId, room]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const onSendMessage = async () => {
     if (!socketId) return;

@@ -21,6 +21,7 @@ describe('Sending commands', () => {
 
     cy.sendMessage('Howdy!');
     cy.get('li.ant-list-item').should('contain.text', "Renamed User: Howdy!");
+    cy.get('.ant-page-header').contains("Renamed User").should('exist');
   })
 
   it('responds to the /rename room command', () => {

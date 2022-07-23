@@ -19,6 +19,8 @@
       "@domain/*": ["src/domain/*"],
       "@pages/*": ["src/pages/*"],
       "@app/*": ["src/app/*"],
+      "@data/*": ["src/data/*"],
+      "@util/*": ["src/util/*"],
       "@styles/*": ["src/styles/*"]
     }
   },

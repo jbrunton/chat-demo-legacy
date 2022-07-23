@@ -5,6 +5,8 @@ module.exports = {
   moduleNameMapper: {
     "^@domain/(.*)$": ["<rootDir>/src/domain/$1"],
     "^@app/(.*)$": ["<rootDir>/src/app/$1"],
+    "^@data/(.*)$": ["<rootDir>/src/data/$1"],
+    "^@util/(.*)$": ["<rootDir>/src/util/$1"],
   },
   transform: {
     "^.+\\.[tj]s$": "ts-jest",

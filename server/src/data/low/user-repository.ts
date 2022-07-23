@@ -1,13 +1,15 @@
 import { User } from "@domain/entities";
 import { UserRepository } from "@domain/usecases/commands/rename-user";
 import { Adapter } from "next-auth/adapters";
-import { adapter } from "./fs-adapter";
+import { AuthDB } from "./auth-db";
 
-export class FsUserRepository implements UserRepository {
+export class LowUserRepository implements UserRepository {
   private readonly adapter: Adapter;
+  private readonly db: AuthDB;
 
-  constructor(adapter: Adapter) {
+  constructor(adapter: Adapter, db: AuthDB) {
     this.adapter = adapter;
+    this.db = db;
   }
 
   async rename(userId: string, newName: string): Promise<User> {
@@ -21,5 +23,3 @@ export class FsUserRepository implements UserRepository {
     };
   }
 }
-
-export const userRepository = new FsUserRepository(adapter);

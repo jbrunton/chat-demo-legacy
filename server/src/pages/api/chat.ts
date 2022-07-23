@@ -9,7 +9,15 @@ import {
   parseMessage,
 } from "@domain/usecases/messages/handle-message";
 import { CommandEnvironment } from "@domain/usecases/commands/process-command";
-import { userRepository } from "@app/auth/fs-user-repository";
+import { LowUserRepository } from "src/data/low/user-repository";
+import { LowAuthAdapter } from "src/data/low/auth-adapter";
+import { AuthDB } from "src/data/low/auth-db";
+
+const authDB = AuthDB.createFileSystemDB();
+const userRepository = new LowUserRepository(
+  new LowAuthAdapter(authDB),
+  authDB
+);
 
 const Chat = async (req: NextApiRequest, res: NextApiResponse) => {
   const session = await unstable_getServerSession(req, res, authOptions);

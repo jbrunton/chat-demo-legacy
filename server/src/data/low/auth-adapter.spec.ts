@@ -1,7 +1,7 @@
-import { MemorySync } from "lowdb";
 import { Account } from "next-auth";
 import { Adapter, AdapterUser } from "next-auth/adapters";
-import { AuthDB, FsAdapter } from "./fs-adapter";
+import { LowAuthAdapter } from "./auth-adapter";
+import { AuthDB } from "./auth-db";
 
 describe("FsAdapter", () => {
   const testUserProps = {
@@ -25,8 +25,8 @@ describe("FsAdapter", () => {
   let db: AuthDB;
 
   beforeEach(() => {
-    db = new AuthDB(new MemorySync());
-    adapter = FsAdapter(db);
+    db = AuthDB.createMemoryDB();
+    adapter = new LowAuthAdapter(db);
     db.data?.users.push(testUser);
     db.data?.accounts.push(testAccount);
   });

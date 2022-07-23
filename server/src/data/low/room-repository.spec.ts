@@ -1,10 +1,12 @@
 import { Room } from "@domain/entities";
-import { MemorySync } from "lowdb";
-import { FsRoomDB, FsRoomRepository } from "./fs-room-repository";
+import { AuthDB } from "./auth-db";
+import { RoomDB } from "./room-db";
+import { LowRoomRepository } from "./room-repository";
 
 describe("FsRoomRepository", () => {
-  let db: FsRoomDB;
-  let repo: FsRoomRepository;
+  let roomDB: RoomDB;
+  let authDB: AuthDB;
+  let repo: LowRoomRepository;
 
   const testUserId = "1234";
 
@@ -15,9 +17,10 @@ describe("FsRoomRepository", () => {
   };
 
   beforeEach(() => {
-    db = new FsRoomDB(new MemorySync());
-    repo = new FsRoomRepository(db);
-    db.createRoom(testRoom);
+    roomDB = RoomDB.createMemoryDB();
+    authDB = AuthDB.createMemoryDB();
+    repo = new LowRoomRepository(roomDB, authDB);
+    roomDB.createRoom(testRoom);
   });
 
   describe("createRoom", () => {
@@ -26,7 +29,7 @@ describe("FsRoomRepository", () => {
         name: "New Room",
         ownerId: testUserId,
       });
-      const newRoom = db.rooms.find({ id: room.id }).value();
+      const newRoom = roomDB.rooms.find({ id: room.id }).value();
       expect(room).toMatchObject({
         name: "New Room",
         ownerId: testUserId,
@@ -54,7 +57,7 @@ describe("FsRoomRepository", () => {
         id: testRoom.id,
         name,
       });
-      const room = db.rooms.find({ id: testRoom.id }).value();
+      const room = roomDB.rooms.find({ id: testRoom.id }).value();
 
       expect(room).toEqual(updatedRoom);
       expect(updatedRoom).toEqual({

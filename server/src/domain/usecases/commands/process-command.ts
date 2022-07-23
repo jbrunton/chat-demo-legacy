@@ -8,6 +8,7 @@ const helpResponse = `
 <p>Type to chat, or enter one of the following commands:</p>
 <b>/help</b>: list commands<br />
 <b>/rename user &lt;name&gt;</b>: change your display name<br />
+<b>/rename room &lt;name&gt;</b>: change the room name<br />
 `;
 
 const unrecognisedResponse =

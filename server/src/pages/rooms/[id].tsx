@@ -51,6 +51,7 @@ const RoomPage: NextPage = () => {
     }
     if (message.updated?.includes("user")) {
       refreshSession();
+      loadRoom();
     }
     setChat((chat) => [...chat, message]);
   };

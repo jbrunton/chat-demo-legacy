@@ -6,10 +6,13 @@ import {
   colors,
   countries,
 } from "unique-names-generator";
-import { FsRoomDB, FsRoomRepository } from "./fs-room-repository";
+import { RoomDB } from "src/data/low/room-db";
+import { LowRoomRepository } from "src/data/low/room-repository";
+import { AuthDB } from "@data/low/auth-db";
 
-export const roomDB = new FsRoomDB(new JSONFileSync("db/rooms.json"));
-export const roomRepository = new FsRoomRepository(roomDB);
+export const roomDB = new RoomDB(new JSONFileSync("db/rooms.json"));
+const authDB = AuthDB.createFileSystemDB();
+export const roomRepository = new LowRoomRepository(roomDB, authDB);
 
 const generateName = () => {
   const randomName = uniqueNamesGenerator({

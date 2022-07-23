@@ -16,12 +16,14 @@ describe('Sending commands', () => {
   })
 
   it('responds to the /rename user command', () => {
-    cy.sendMessage('/rename user Renamed User');
-    cy.get('li.ant-list-item').should('contain.text', "Test User changed their name to Renamed User");
-
     cy.sendMessage('Howdy!');
-    cy.get('li.ant-list-item').should('contain.text', "Renamed User: Howdy!");
+    cy.get('li.ant-list-item').should('contain.text', "Test User: Howdy!");
+
+    cy.sendMessage('/rename user Renamed User');
+
     cy.get('.ant-page-header').contains("Renamed User").should('exist');
+    cy.get('li.ant-list-item').should('contain.text', "Test User changed their name to Renamed User");
+    cy.get('li.ant-list-item').should('contain.text', "Renamed User: Howdy!");
   })
 
   it('responds to the /rename room command', () => {

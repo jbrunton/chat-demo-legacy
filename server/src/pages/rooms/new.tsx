@@ -1,4 +1,4 @@
-import { Room } from "@domain/entities";
+import { Room } from "@domain/entities/room";
 import { NextPage } from "next";
 import { useRouter } from "next/router";
 import { useEffect } from "react";

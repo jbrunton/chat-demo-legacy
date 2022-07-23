@@ -4,18 +4,18 @@ import { ArrowRightOutlined } from "@ant-design/icons";
 import { io } from "socket.io-client";
 import { useRouter } from "next/router";
 import { formatTime } from "@app/format";
-import {
-  IncomingMessage,
-  Message,
-  PublicMessage,
-  Room,
-} from "@domain/entities";
 import Layout from "@app/components/Layout";
 import { NextPage } from "next";
 import { getRoom } from "@app/api/rooms";
 import { sendMessage } from "@app/api/chat";
 import { useContext } from "react";
 import { SessionContext } from "@app/components/AuthWrapper";
+import {
+  IncomingMessage,
+  Message,
+  PublicMessage,
+} from "@domain/entities/messages";
+import { Room } from "@domain/entities/room";
 
 const RoomPage: NextPage = () => {
   const inputRef = useRef<InputRef>(null);

@@ -1,4 +1,4 @@
-import { User } from "@domain/entities";
+import { User } from "@domain/entities/user";
 import { AdapterUser } from "next-auth/adapters";
 
 export const toUser = (user: AdapterUser): User => {

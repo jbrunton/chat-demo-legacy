@@ -1,111 +1,68 @@
-import { Command, ProcessCommand, PublicMessage } from "@domain/entities";
-import { RoomRepository } from "../rooms/repository";
-import { InvalidArgumentError } from "./InvalidArgumentError";
-import { renameRoom } from "./rename-room";
-import { renameUser, UserRepository } from "./rename-user";
-
-const helpResponse = `
-<p>Type to chat, or enter one of the following commands:</p>
-<b>/help</b>: list commands<br />
-<b>/rename user &lt;name&gt;</b>: change your display name<br />
-<b>/rename room &lt;name&gt;</b>: change the room name<br />
-`;
+import { Command } from "@domain/entities/commands";
+import { Message } from "@domain/entities/messages";
+import { Dependencies } from "../dependencies";
+import { InvalidArgumentError } from "../../entities/errors";
+import { renameRoom, RenameRoomParams } from "../rooms/rename-room";
+import { renameUser, RenameUserParams } from "../users/rename-user";
+import { ReaderTask } from "fp-ts/ReaderTask";
+import { pipe } from "fp-ts/function";
+import * as RT from "fp-ts/ReaderTask";
+import * as E from "fp-ts/Either";
+import * as TE from "fp-ts/TaskEither";
+import * as RTE from "fp-ts/ReaderTaskEither";
+import { ResponseBuilder } from "./response-builder";
+import { helpResponse } from "../help/help-response";
+import { ParsedCommand, parsers } from "./parsers";
 
 const unrecognisedResponse =
   "Unrecognised command, type <b>/help</b> for further assistance";
 
-interface CommandResult {
-  content: string;
-  recipientId?: string;
-}
-
-export interface CommandEnvironment {
-  userRepository: UserRepository;
-  roomRepository: RoomRepository;
-}
-
-interface CommandExecutor {
-  match(command: Command): boolean;
-  exec(command: Command, env: CommandEnvironment): Promise<CommandResult>;
-}
-
-const helpExecutor: CommandExecutor = {
-  match(command) {
-    return command.name === "help";
-  },
-
-  async exec(command, _env) {
-    return {
-      content: helpResponse,
-      recipientId: command.sender.id,
-    };
-  },
-};
-
-const renameUserExecutor: CommandExecutor = {
-  match(command) {
-    return command.name === "rename" && command.args[0] === "user";
-  },
-
-  async exec(command, env) {
-    const content = await renameUser(command, env.userRepository);
-    return { content, updated: ["user"] };
-  },
-};
-
-const renameRoomExecutor: CommandExecutor = {
-  match(command) {
-    return command.name === "rename" && command.args[0] === "room";
-  },
-
-  async exec(command, env) {
-    const content = await renameRoom(command, env.roomRepository);
-    return { content, updated: ["room"] };
-  },
-};
-
-const executors = [helpExecutor, renameUserExecutor, renameRoomExecutor];
-
-type ResponseResult = Pick<PublicMessage, "content" | "updated"> & {
-  recipientId?: string;
-};
-
-const getResponse = async (
-  command: Command,
-  env: CommandEnvironment
-): Promise<ResponseResult> => {
-  for (const executor of executors) {
-    if (executor.match(command)) {
-      try {
-        return await executor.exec(command, env);
-      } catch (e: any) {
-        if (e instanceof InvalidArgumentError) {
-          const content = e.message;
-          return {
-            content,
-            recipientId: command.sender.id,
-          };
-        }
-        throw e;
-      }
+export const processCommand = (
+  command: Command
+): ReaderTask<Dependencies, Message> => {
+  for (const parse of parsers) {
+    const parsedCommand = parse(command);
+    if (parsedCommand) {
+      return pipe(
+        RT.ask<Dependencies>(),
+        RT.chain((deps) =>
+          TE.tryCatchK(executeCommand(parsedCommand)(deps), E.toError)
+        ),
+        RTE.getOrElse(handleCommandError(command))
+      );
     }
   }
 
-  return {
-    content: unrecognisedResponse,
-    recipientId: command.sender.id,
-  };
+  return RT.of(
+    ResponseBuilder(command).privateResponse({
+      content: unrecognisedResponse,
+    })
+  );
 };
 
-export const processCommand: ProcessCommand<CommandEnvironment> = async (
-  command,
-  env
-) => {
-  const response = await getResponse(command, env);
-  const message = {
-    ...response,
-    time: command.time,
-    roomId: command.roomId,
-  };
-  return message;
+const executeCommand = ({
+  tag,
+  params,
+}: ParsedCommand): ReaderTask<Dependencies, Message> => {
+  switch (tag) {
+    case "help":
+      return helpResponse(params);
+    case "renameUser":
+      return renameUser(params);
+    case "renameRoom":
+      return renameRoom(params);
+  }
 };
+
+const handleCommandError =
+  (command: Command) =>
+  (e: Error): ReaderTask<Dependencies, Message> => {
+    if (e instanceof InvalidArgumentError) {
+      return RT.of(
+        ResponseBuilder(command).privateResponse({
+          content: e.message,
+        })
+      );
+    }
+    throw e;
+  };

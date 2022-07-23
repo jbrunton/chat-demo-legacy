@@ -1,77 +1,64 @@
 import { debug } from "@app/debug";
-import {
-  isPrivate,
-  Message,
-  PublicMessage,
-  Room,
-  User,
-} from "@domain/entities";
-import {
-  CreateRoomParams,
-  RenameRoomParams,
-  RoomRepository,
-} from "@domain/usecases/rooms/repository";
 import { chain, omit, pick } from "lodash";
 import crypto from "crypto";
 import { AuthDB } from "./auth-db";
 import { RoomDB } from "./room-db";
+import {
+  CreateRoomParams,
+  RenameRoomParams,
+  Room,
+  RoomRepository,
+} from "@domain/entities/room";
+import { isPrivate, Message, PublicMessage } from "@domain/entities/messages";
+import { User } from "@domain/entities/user";
 
 export class LowRoomRepository implements RoomRepository {
-  private readonly db: RoomDB;
+  private readonly roomDB: RoomDB;
   private readonly authDB: AuthDB;
 
-  constructor(db: RoomDB, authDB: AuthDB) {
-    this.db = db;
+  constructor(roomDB: RoomDB, authDB: AuthDB) {
+    this.roomDB = roomDB;
     this.authDB = authDB;
-
-    db.read();
-    if (!db.data) {
-      db.data = {
-        rooms: [],
-        messages: [],
-      };
-      db.write();
-    }
   }
 
   async createRoom(params: CreateRoomParams): Promise<Room> {
-    this.db.read();
+    this.roomDB.read();
     const id = crypto.randomUUID();
     const newRoom = {
       id,
       ...params,
     };
-    this.db.createRoom(newRoom);
+    this.roomDB.createRoom(newRoom);
     debug.room("created room: %O", newRoom);
     return newRoom;
   }
 
   async getRoom(id: string): Promise<Room> {
-    this.db.read();
-    const room = this.db.rooms.find({ id }).value();
+    this.roomDB.read();
+    const room = this.roomDB.rooms.find({ id }).value();
     return room || null;
   }
 
   async renameRoom(params: RenameRoomParams): Promise<Room> {
-    return this.db.updateRoom(params);
+    return this.roomDB.updateRoom(params);
   }
 
   async saveMessage(message: PublicMessage): Promise<Message> {
-    this.db.read();
+    this.roomDB.read();
     const id = crypto.randomUUID();
     const newMessage = {
       id,
       senderId: message.sender?.id,
       ...omit(message, "sender"),
     };
-    this.db.createMessage(newMessage);
+    this.roomDB.createMessage(newMessage);
     debug.room("saved message: %O", newMessage);
     return newMessage;
   }
 
   async getMessageHistory(roomId: string): Promise<Message[]> {
-    this.db.read();
-    const messages = this.db.messages
+    this.roomDB.read();
+    const messages = this.roomDB.messages
       .filter({ roomId })
       .filter((message) => !isPrivate(message) && !message.transient)
       .sortBy((msg) => new Date(msg.time))

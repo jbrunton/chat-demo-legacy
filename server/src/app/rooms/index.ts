@@ -1,5 +1,3 @@
-import { Room } from "@domain/entities";
-import { JSONFileSync } from "lowdb";
 import {
   uniqueNamesGenerator,
   adjectives,
@@ -9,8 +7,9 @@ import {
 import { RoomDB } from "src/data/low/room-db";
 import { LowRoomRepository } from "src/data/low/room-repository";
 import { AuthDB } from "@data/low/auth-db";
+import { Room } from "@domain/entities/room";
 
-export const roomDB = new RoomDB(new JSONFileSync("db/rooms.json"));
+export const roomDB = RoomDB.createFileSystemDB();
 const authDB = AuthDB.createFileSystemDB();
 export const roomRepository = new LowRoomRepository(roomDB, authDB);
 

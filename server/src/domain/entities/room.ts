@@ -1,4 +1,10 @@
-import { Message, PublicMessage, Room } from "@domain/entities";
+import { Message, PublicMessage } from "./messages";
+
+export interface Room {
+  id: string;
+  name: string;
+  ownerId: string;
+}
 
 export type CreateRoomParams = Pick<Room, "name" | "ownerId">;
 export type RenameRoomParams = Pick<Room, "id" | "name">;

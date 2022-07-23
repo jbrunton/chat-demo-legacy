@@ -1,7 +1,8 @@
 import { debug } from "@app/debug";
-import { Message, Room } from "@domain/entities";
+import { Message } from "@domain/entities/messages";
+import { Room } from "@domain/entities/room";
 import { chain, ExpChain } from "lodash";
-import { JSONFileSync, LowSync, MemorySync } from "lowdb";
+import { JSONFileSync, LowSync, MemorySync, SyncAdapter } from "lowdb";
 
 export type StoredMessage = Omit<Message, "sender"> & {
   senderId?: string;
@@ -21,11 +22,24 @@ export class RoomDB extends LowSync<Data> {
   messages: ExpChain<Data["messages"]> = this.chain.get("messages");
 
   static createFileSystemDB() {
-    return new RoomDB(new JSONFileSync("db/auth.json"));
+    return new RoomDB(new JSONFileSync("db/rooms.json"));
   }
 
   static createMemoryDB() {
     return new RoomDB(new MemorySync());
+  }
+
+  constructor(adapter: SyncAdapter<Data>) {
+    super(adapter);
+
+    this.read();
+    if (!this.data) {
+      this.data = {
+        rooms: [],
+        messages: [],
+      };
+      this.write();
+    }
   }
 
   createRoom(room: Room) {

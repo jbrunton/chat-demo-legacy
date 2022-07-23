@@ -8,10 +8,10 @@ import {
   handleMessage,
   parseMessage,
 } from "@domain/usecases/messages/handle-message";
-import { CommandEnvironment } from "@domain/usecases/commands/process-command";
 import { LowUserRepository } from "src/data/low/user-repository";
 import { LowAuthAdapter } from "src/data/low/auth-adapter";
 import { AuthDB } from "src/data/low/auth-db";
+import { Dependencies } from "@domain/usecases/dependencies";
 
 const authDB = AuthDB.createFileSystemDB();
 const userRepository = new LowUserRepository(
@@ -37,11 +37,11 @@ const Chat = async (req: NextApiRequest, res: NextApiResponse) => {
       throw new Error("Unexpected room");
     }
     debug.messages("received message: %O", message);
-    const env: CommandEnvironment = {
+    const deps: Dependencies = {
       userRepository,
       roomRepository,
     };
-    await handleMessage(message, ioServer, env);
+    await handleMessage(message, ioServer, deps);
     res.status(201).send(message);
   }
 };

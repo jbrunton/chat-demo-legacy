@@ -3,21 +3,12 @@ import "@app/sockets";
 import { debug } from "@app/debug";
 import { authOptions } from "./auth/[...nextauth]";
 import { unstable_getServerSession } from "next-auth";
-import { getRoom, roomRepository } from "@app/rooms";
 import {
   handleMessage,
   parseMessage,
 } from "@domain/usecases/messages/handle-message";
-import { LowUserRepository } from "src/data/low/user-repository";
-import { LowAuthAdapter } from "src/data/low/auth-adapter";
-import { AuthDB } from "src/data/low/auth-db";
-import { Dependencies } from "@domain/usecases/dependencies";
-
-const authDB = AuthDB.createFileSystemDB();
-const userRepository = new LowUserRepository(
-  new LowAuthAdapter(authDB),
-  authDB
-);
+import { dependencies } from "@app/dependencies";
+import { getRoom } from "@domain/usecases/rooms/get-room";
 
 const Chat = async (req: NextApiRequest, res: NextApiResponse) => {
   const session = await unstable_getServerSession(req, res, authOptions);
@@ -32,16 +23,12 @@ const Chat = async (req: NextApiRequest, res: NextApiResponse) => {
 
     const ioServer = res.socket.server.io;
     const message = parseMessage(req.body, session.user);
-    const room = await getRoom(message.roomId);
+    const room = await getRoom(message.roomId)(dependencies)();
     if (!room) {
       throw new Error("Unexpected room");
     }
     debug.messages("received message: %O", message);
-    const deps: Dependencies = {
-      userRepository,
-      roomRepository,
-    };
-    await handleMessage(message, ioServer, deps);
+    await handleMessage(message, ioServer, dependencies);
     res.status(201).send(message);
   }
 };

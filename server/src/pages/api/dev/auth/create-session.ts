@@ -1,7 +1,9 @@
-import { adapter } from "@app/auth/fs-adapter";
 import { requireDev } from "@app/debug";
+import { dependencies } from "@app/dependencies";
 import { addDays } from "date-fns";
 import { NextApiRequest, NextApiResponse } from "next";
+
+const { adapter } = dependencies;
 
 type RequestBody = {
   sessionToken: string;

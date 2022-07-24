@@ -1,4 +1,5 @@
 import { Command } from "@domain/entities/commands";
+import { NameGenerator } from "@domain/entities/name-generator";
 import { Room, RoomRepository } from "@domain/entities/room";
 import { User, UserRepository } from "@domain/entities/user";
 import { mock, MockProxy } from "jest-mock-extended";
@@ -27,6 +28,7 @@ describe("#processCommand", () => {
     deps = {
       userRepository,
       roomRepository,
+      nameGenerator: mock<NameGenerator>(),
     };
     jest.useFakeTimers().setSystemTime(new Date(time));
   });

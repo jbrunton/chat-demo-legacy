@@ -6,6 +6,7 @@ import { UserRepository } from "@domain/entities/user";
 import { RoomRepository } from "@domain/entities/room";
 import { Dependencies } from "../dependencies";
 import { Command } from "@domain/entities/commands";
+import { NameGenerator } from "@domain/entities/name-generator";
 
 describe("parseMessage", () => {
   const time = "2022-01-01T10:30:00.000Z";
@@ -79,6 +80,7 @@ describe("handleMessage", () => {
     deps = {
       userRepository,
       roomRepository,
+      nameGenerator: mock<NameGenerator>(),
     };
   });
 

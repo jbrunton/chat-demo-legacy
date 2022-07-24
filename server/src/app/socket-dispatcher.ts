@@ -1,7 +1,7 @@
 import { Server as IOServer } from "socket.io";
-import { PrivateMessage, PublicMessage } from "@domain/entities";
 import { Dispatcher } from "@domain/usecases/messages/dispatcher";
 import { debug } from "@app/debug";
+import { PrivateMessage, PublicMessage } from "@domain/entities/messages";
 
 export class SocketDispatcher extends IOServer implements Dispatcher {
   sendPublicMessage(message: PublicMessage): void {

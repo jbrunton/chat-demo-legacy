@@ -1,15 +1,11 @@
-import {
-  Command,
-  IncomingMessage,
-  PublicMessage,
-  User,
-} from "@domain/entities";
 import { Dispatcher } from "@domain/usecases/messages/dispatcher";
 import { handleMessage, parseMessage } from "./handle-message";
 import { mock, MockProxy } from "jest-mock-extended";
-import { UserRepository } from "../commands/rename-user";
-import { RoomRepository } from "../rooms/repository";
-import { CommandEnvironment } from "../commands/process-command";
+import { IncomingMessage, PublicMessage } from "@domain/entities/messages";
+import { UserRepository } from "@domain/entities/user";
+import { RoomRepository } from "@domain/entities/room";
+import { Dependencies } from "../dependencies";
+import { Command } from "@domain/entities/commands";
 
 describe("parseMessage", () => {
   const time = "2022-01-01T10:30:00.000Z";
@@ -73,14 +69,14 @@ describe("handleMessage", () => {
 
   let userRepository: MockProxy<UserRepository>;
   let roomRepository: MockProxy<RoomRepository>;
-  let env: CommandEnvironment;
+  let deps: Dependencies;
 
   beforeEach(() => {
     dispatcher = mock<Dispatcher>();
     jest.useFakeTimers().setSystemTime(now);
     userRepository = mock<UserRepository>();
     roomRepository = mock<RoomRepository>();
-    env = {
+    deps = {
       userRepository,
       roomRepository,
     };
@@ -92,7 +88,7 @@ describe("handleMessage", () => {
       time: new Date().toISOString(),
       roomId: "123",
     };
-    await handleMessage(message, dispatcher, env);
+    await handleMessage(message, dispatcher, deps);
     expect(dispatcher.sendPublicMessage).toHaveBeenCalledWith(message);
   });
 
@@ -109,7 +105,7 @@ describe("handleMessage", () => {
       sender,
     };
 
-    await handleMessage(command, dispatcher, env);
+    await handleMessage(command, dispatcher, deps);
 
     expect(dispatcher.sendPrivateMessage).toHaveBeenCalledWith({
       recipientId: sender.id,

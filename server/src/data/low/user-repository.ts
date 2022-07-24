@@ -1,5 +1,4 @@
-import { User } from "@domain/entities";
-import { UserRepository } from "@domain/usecases/commands/rename-user";
+import { User, UserRepository } from "@domain/entities/user";
 import { Adapter } from "next-auth/adapters";
 import { AuthDB } from "./auth-db";
 

@@ -1,8 +1,9 @@
-import { Command, Room, User } from "@domain/entities";
+import { Command } from "@domain/entities/commands";
+import { Room, RoomRepository } from "@domain/entities/room";
+import { User, UserRepository } from "@domain/entities/user";
 import { mock, MockProxy } from "jest-mock-extended";
-import { RoomRepository } from "../rooms/repository";
-import { CommandEnvironment, processCommand } from "./process-command";
-import { UserRepository } from "./rename-user";
+import { Dependencies } from "../dependencies";
+import { processCommand } from "./process-command";
 
 describe("#processCommand", () => {
   const time = "2022-01-01T10:30:00.000Z";
@@ -18,15 +19,16 @@ describe("#processCommand", () => {
 
   let userRepository: MockProxy<UserRepository>;
   let roomRepository: MockProxy<RoomRepository>;
-  let env: CommandEnvironment;
+  let deps: Dependencies;
 
   beforeEach(() => {
     userRepository = mock<UserRepository>();
     roomRepository = mock<RoomRepository>();
-    env = {
+    deps = {
       userRepository,
       roomRepository,
     };
+    jest.useFakeTimers().setSystemTime(new Date(time));
   });
 
   it("generates an error response when given an invalid command", async () => {
@@ -37,7 +39,7 @@ describe("#processCommand", () => {
       roomId,
       time,
     };
-    const response = await processCommand(command, env);
+    const response = await processCommand(command)(deps)();
     expect(response).toEqual({
       content: "Unrecognised command, type <b>/help</b> for further assistance",
       recipientId: testUser.id,
@@ -55,7 +57,7 @@ describe("#processCommand", () => {
         roomId,
         time,
       };
-      const response = await processCommand(command, env);
+      const response = await processCommand(command)(deps)();
       expect(response).toEqual({
         content: [
           "\n<p>Type to chat, or enter one of the following commands:</p>\n",
@@ -84,7 +86,7 @@ describe("#processCommand", () => {
         time,
       };
 
-      const response = await processCommand(command, env);
+      const response = await processCommand(command)(deps)();
 
       expect(userRepository.rename).toHaveBeenCalledWith(
         testUser.id,
@@ -107,7 +109,7 @@ describe("#processCommand", () => {
         time,
       };
 
-      const response = await processCommand(command, env);
+      const response = await processCommand(command)(deps)();
 
       expect(userRepository.rename).not.toHaveBeenCalled();
       expect(response).toEqual({
@@ -146,7 +148,7 @@ describe("#processCommand", () => {
         time,
       };
 
-      const response = await processCommand(command, env);
+      const response = await processCommand(command)(deps)();
 
       expect(roomRepository.renameRoom).toHaveBeenCalledWith({
         id: roomId,
@@ -169,7 +171,7 @@ describe("#processCommand", () => {
         time,
       };
 
-      const response = await processCommand(command, env);
+      const response = await processCommand(command)(deps)();
 
       expect(roomRepository.renameRoom).not.toHaveBeenCalled();
       expect(response).toEqual({
@@ -189,7 +191,7 @@ describe("#processCommand", () => {
         time,
       };
 
-      const response = await processCommand(command, env);
+      const response = await processCommand(command)(deps)();
 
       expect(roomRepository.renameRoom).not.toHaveBeenCalled();
       expect(response).toEqual({

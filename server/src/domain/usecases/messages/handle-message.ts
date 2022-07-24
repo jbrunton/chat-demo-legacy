@@ -1,15 +1,12 @@
+import { Command, isCommand } from "@domain/entities/commands";
 import {
-  Command,
   IncomingMessage,
-  isCommand,
   isPrivate,
   PublicMessage,
-  User,
-} from "@domain/entities";
-import {
-  CommandEnvironment,
-  processCommand,
-} from "../commands/process-command";
+} from "@domain/entities/messages";
+import { User } from "@domain/entities/user";
+import { processCommand } from "../commands/process-command";
+import { Dependencies } from "../dependencies";
 import { Dispatcher } from "./dispatcher";
 
 export const parseMessage = (
@@ -39,18 +36,18 @@ export const parseMessage = (
 export const handleMessage = async (
   message: PublicMessage | Command,
   dispatcher: Dispatcher,
-  env: CommandEnvironment
+  deps: Dependencies
 ) => {
   if (isCommand(message)) {
-    const response = await processCommand(message, env);
-    await env.roomRepository.saveMessage(response);
+    const response = await processCommand(message)(deps)();
+    await deps.roomRepository.saveMessage(response);
     if (isPrivate(response)) {
       dispatcher.sendPrivateMessage(response);
     } else {
       dispatcher.sendPublicMessage(response);
     }
   } else {
-    await env.roomRepository.saveMessage(message);
+    await deps.roomRepository.saveMessage(message);
     dispatcher.sendPublicMessage(message);
   }
 };

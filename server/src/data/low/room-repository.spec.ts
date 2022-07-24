@@ -1,4 +1,4 @@
-import { Room } from "@domain/entities";
+import { Room } from "@domain/entities/room";
 import { AuthDB } from "./auth-db";
 import { RoomDB } from "./room-db";
 import { LowRoomRepository } from "./room-repository";

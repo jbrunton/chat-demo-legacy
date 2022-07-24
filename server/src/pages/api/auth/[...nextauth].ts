@@ -1,23 +1,10 @@
 import NextAuth, { NextAuthOptions } from "next-auth";
-import {
-  uniqueNamesGenerator,
-  animals,
-  adjectives,
-} from "unique-names-generator";
 import GoogleProvider from "next-auth/providers/google";
 import EmailProvider from "next-auth/providers/email";
 import { sendVerificationRequest } from "@app/email/verification-request";
-import { adapter } from "@app/auth/fs-adapter";
+import { dependencies } from "@app/dependencies";
 
-const generateName = () => {
-  const randomName = uniqueNamesGenerator({
-    dictionaries: [adjectives, animals],
-    style: "capital",
-    separator: " ",
-    length: 2,
-  });
-  return `Anon ${randomName}`;
-};
+const { adapter, nameGenerator } = dependencies;
 
 export const authOptions: NextAuthOptions = {
   session: {
@@ -26,7 +13,7 @@ export const authOptions: NextAuthOptions = {
   events: {
     async createUser({ user }) {
       if (!user.name) {
-        const name = generateName();
+        const name = nameGenerator.getAnimalName();
         await adapter.updateUser({ id: user.id, name });
       }
     },

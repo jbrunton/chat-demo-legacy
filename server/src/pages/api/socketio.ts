@@ -2,9 +2,11 @@ import { NextApiRequest, NextApiResponse } from "next";
 import { Server as NetServer } from "http";
 import { SocketDispatcher } from "@app/socket-dispatcher";
 import cookie from "cookie";
-import { adapter } from "@app/auth/fs-adapter";
 import { Socket } from "socket.io";
 import { toUser } from "./auth/utils";
+import { dependencies } from "@app/dependencies";
+
+const { adapter } = dependencies;
 
 export const config = {
   api: {

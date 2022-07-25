@@ -33,7 +33,7 @@ export class LowRoomRepository implements RoomRepository {
     return newRoom;
   }
 
-  async getRoom(id: string): Promise<Room> {
+  async getRoom(id: string): Promise<Room | null> {
     this.roomDB.read();
     const room = this.roomDB.rooms.find({ id }).value();
     return room || null;

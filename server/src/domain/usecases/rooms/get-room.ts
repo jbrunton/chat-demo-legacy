@@ -1,17 +1,21 @@
+import { EntityNotFoundError } from "@domain/entities/errors";
 import { Message } from "@domain/entities/messages";
 import { Room } from "@domain/entities/room";
-import { ReaderTask } from "fp-ts/ReaderTask";
-import { Dependencies } from "../dependencies";
+import { DependencyReaderTask } from "../dependencies";
 
 export const getRoom =
-  (roomId: string): ReaderTask<Dependencies, Room> =>
+  (roomId: string): DependencyReaderTask<Room> =>
   ({ roomRepository }) =>
   async () => {
-    return await roomRepository.getRoom(roomId);
+    const room = await roomRepository.getRoom(roomId);
+    if (!room) {
+      throw EntityNotFoundError.create(roomId, "room");
+    }
+    return room;
   };
 
 export const getMessageHistory =
-  (roomId: string): ReaderTask<Dependencies, Message[]> =>
+  (roomId: string): DependencyReaderTask<Message[]> =>
   ({ roomRepository }) =>
   async () => {
     return await roomRepository.getMessageHistory(roomId);

@@ -1,6 +1,5 @@
 import { Room } from "@domain/entities/room";
-import { ReaderTask } from "fp-ts/ReaderTask";
-import { Dependencies } from "../dependencies";
+import { DependencyReaderTask } from "../dependencies";
 
 export type CreateRoomParams = {
   ownerId: string;
@@ -8,7 +7,7 @@ export type CreateRoomParams = {
 };
 
 export const createRoom =
-  ({ ownerId, name }: CreateRoomParams): ReaderTask<Dependencies, Room> =>
+  ({ ownerId, name }: CreateRoomParams): DependencyReaderTask<Room> =>
   ({ roomRepository, nameGenerator }) =>
   async () => {
     return await roomRepository.createRoom({

@@ -2,12 +2,15 @@ import { Command, isCommand } from "@domain/entities/commands";
 import {
   IncomingMessage,
   isPrivate,
+  Message,
   PublicMessage,
 } from "@domain/entities/messages";
 import { User } from "@domain/entities/user";
-import { processCommand } from "../commands/process-command";
-import { Dependencies } from "../dependencies";
-import { Dispatcher } from "./dispatcher";
+import { pipe } from "fp-ts/lib/function";
+import * as RT from "fp-ts/ReaderTask";
+import { ReqDependencies } from "@app/dependencies";
+import { DependencyReaderTask } from "@domain/usecases/dependencies";
+import { processCommand } from "@domain/usecases/commands/process-command";
 
 export const parseMessage = (
   incoming: IncomingMessage,
@@ -33,21 +36,24 @@ export const parseMessage = (
   return message;
 };
 
-export const handleMessage = async (
-  message: PublicMessage | Command,
-  dispatcher: Dispatcher,
-  deps: Dependencies
-) => {
+export const handleMessage = (
+  message: PublicMessage | Command
+): DependencyReaderTask<void, ReqDependencies> => {
   if (isCommand(message)) {
-    const response = await processCommand(message)(deps)();
-    await deps.roomRepository.saveMessage(response);
+    return pipe(processCommand(message), RT.chain(sendMessage));
+  } else {
+    return sendMessage(message);
+  }
+};
+
+const sendMessage =
+  (response: Message): DependencyReaderTask<void, ReqDependencies> =>
+  ({ dispatcher, roomRepository }) =>
+  async () => {
+    await roomRepository.saveMessage(response);
     if (isPrivate(response)) {
       dispatcher.sendPrivateMessage(response);
     } else {
       dispatcher.sendPublicMessage(response);
     }
-  } else {
-    await deps.roomRepository.saveMessage(message);
-    dispatcher.sendPublicMessage(message);
-  }
-};
+  };

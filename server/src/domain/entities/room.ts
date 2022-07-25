@@ -11,7 +11,7 @@ export type RenameRoomParams = Pick<Room, "id" | "name">;
 
 export interface RoomRepository {
   createRoom(params: CreateRoomParams): Promise<Room>;
-  getRoom(id: string): Promise<Room>;
+  getRoom(id: string): Promise<Room | null>;
   renameRoom(params: RenameRoomParams): Promise<Room>;
   saveMessage(message: PublicMessage): Promise<Message>;
   getMessageHistory(roomId: string): Promise<Message[]>;

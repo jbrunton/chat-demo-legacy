@@ -9,4 +9,4 @@ export interface Dependencies {
   nameGenerator: NameGenerator;
 }
 
-export type DependencyReader<T> = ReaderTask<Dependencies, T>;
+export type DependencyReaderTask<T, D = Dependencies> = ReaderTask<D, T>;

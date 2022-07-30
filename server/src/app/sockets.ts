@@ -1,7 +1,7 @@
 import { Socket } from "socket.io-client";
 import { Server as IOServer } from "socket.io";
 import { Server as NetServer } from "http";
-import { SocketDispatcher } from "./socket-dispatcher";
+import { SocketDispatcher } from "./messages/socket-dispatcher";
 import { PublicMessage } from "@domain/entities/messages";
 
 export interface ServerToClientEvents {
@@ -19,7 +19,7 @@ export type SocketServer = IOServer<ClientToServerEvents, ServerToClientEvents>;
 declare module "net" {
   interface Socket {
     server: NetServer & {
-      io?: SocketDispatcher;
+      dispatcher?: SocketDispatcher;
     };
   }
 }

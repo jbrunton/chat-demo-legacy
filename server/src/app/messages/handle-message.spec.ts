@@ -4,9 +4,10 @@ import { mock, MockProxy } from "jest-mock-extended";
 import { IncomingMessage, PublicMessage } from "@domain/entities/messages";
 import { UserRepository } from "@domain/entities/user";
 import { RoomRepository } from "@domain/entities/room";
-import { Dependencies } from "../dependencies";
 import { Command } from "@domain/entities/commands";
 import { NameGenerator } from "@domain/entities/name-generator";
+import { ReqDependencies, withDeps } from "@app/dependencies";
+import { Adapter } from "next-auth/adapters";
 
 describe("parseMessage", () => {
   const time = "2022-01-01T10:30:00.000Z";
@@ -70,7 +71,7 @@ describe("handleMessage", () => {
 
   let userRepository: MockProxy<UserRepository>;
   let roomRepository: MockProxy<RoomRepository>;
-  let deps: Dependencies;
+  let deps: ReqDependencies;
 
   beforeEach(() => {
     dispatcher = mock<Dispatcher>();
@@ -81,6 +82,8 @@ describe("handleMessage", () => {
       userRepository,
       roomRepository,
       nameGenerator: mock<NameGenerator>(),
+      dispatcher,
+      adapter: mock<Adapter>(),
     };
   });
 
@@ -90,7 +93,7 @@ describe("handleMessage", () => {
       time: new Date().toISOString(),
       roomId: "123",
     };
-    await handleMessage(message, dispatcher, deps);
+    await withDeps(deps).run(handleMessage(message));
     expect(dispatcher.sendPublicMessage).toHaveBeenCalledWith(message);
   });
 
@@ -107,7 +110,7 @@ describe("handleMessage", () => {
       sender,
     };
 
-    await handleMessage(command, dispatcher, deps);
+    await withDeps(deps).run(handleMessage(command));
 
     expect(dispatcher.sendPrivateMessage).toHaveBeenCalledWith({
       recipientId: sender.id,

@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { Server as NetServer } from "http";
-import { SocketDispatcher } from "@app/socket-dispatcher";
+import { SocketDispatcher } from "@app/messages/socket-dispatcher";
 import cookie from "cookie";
 import { Socket } from "socket.io";
 import { toUser } from "./auth/utils";
@@ -17,8 +17,8 @@ export const config = {
 const authenticate = async (socket: Socket) => {
   const cookies = cookie.parse(socket.handshake.headers.cookie || "");
   const sessionToken =
-    cookies["next-auth.session-token"] ||
-    cookies["__Secure-next-auth.session-token"];
+    cookies["__Secure-next-auth.session-token"] ||
+    cookies["next-auth.session-token"];
   const sessionAndUser = await adapter.getSessionAndUser(sessionToken);
   if (!sessionAndUser) {
     throw new Error("User must be authenticated");
@@ -46,9 +46,9 @@ const Handler = async (_req: NextApiRequest, res: NextApiResponse) => {
     throw new Error("res.socket is undefined");
   }
 
-  if (!res.socket.server.io) {
+  if (!res.socket.server.dispatcher) {
     console.log("Creating Socket.io server...");
-    res.socket.server.io = createIOServer(res.socket.server);
+    res.socket.server.dispatcher = createIOServer(res.socket.server);
   }
 
   res.end();

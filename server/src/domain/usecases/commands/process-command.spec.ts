@@ -163,45 +163,5 @@ describe("#processCommand", () => {
         updated: ["room"],
       });
     });
-
-    it("requires a valid name", async () => {
-      const command: Command = {
-        name: "rename",
-        args: ["room", " "],
-        sender: testUser,
-        roomId,
-        time,
-      };
-
-      const response = await processCommand(command)(deps)();
-
-      expect(roomRepository.renameRoom).not.toHaveBeenCalled();
-      expect(response).toEqual({
-        content: "Please provide a valid name",
-        roomId,
-        time,
-        recipientId: testUser.id,
-      });
-    });
-
-    it("requires the sender to be the owner", async () => {
-      const command: Command = {
-        name: "rename",
-        args: ["room", "New", "Name"],
-        sender: anotherUser,
-        roomId,
-        time,
-      };
-
-      const response = await processCommand(command)(deps)();
-
-      expect(roomRepository.renameRoom).not.toHaveBeenCalled();
-      expect(response).toEqual({
-        content: "Only the owner can rename the room",
-        roomId,
-        time,
-        recipientId: anotherUser.id,
-      });
-    });
   });
 });

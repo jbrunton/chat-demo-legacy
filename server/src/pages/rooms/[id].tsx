@@ -3,7 +3,7 @@ import { List, Input, Typography, InputRef, Button, Form } from "antd";
 import { ArrowRightOutlined } from "@ant-design/icons";
 import { io } from "socket.io-client";
 import { useRouter } from "next/router";
-import { formatTime } from "@app/format";
+import { formatTime } from "@util/format";
 import Layout from "@app/components/Layout";
 import { NextPage } from "next";
 import { getRoom } from "@app/api/rooms";

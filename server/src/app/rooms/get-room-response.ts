@@ -1,6 +1,6 @@
 import { Message } from "@domain/entities/messages";
 import { Room } from "@domain/entities/room";
-import { DependencyReader } from "@domain/usecases/dependencies";
+import { DependencyReaderTask } from "@domain/usecases/dependencies";
 import { getMessageHistory, getRoom } from "@domain/usecases/rooms/get-room";
 import { pipe } from "fp-ts/function";
 import * as RT from "fp-ts/ReaderTask";
@@ -10,7 +10,9 @@ export type RoomResponse = {
   messages: Message[];
 };
 
-export const getRoomResponse = (id: string): DependencyReader<RoomResponse> => {
+export const getRoomResponse = (
+  id: string
+): DependencyReaderTask<RoomResponse> => {
   return pipe(
     getRoom(id),
     RT.chain((room) =>

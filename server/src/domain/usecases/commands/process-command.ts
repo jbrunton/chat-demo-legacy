@@ -1,7 +1,7 @@
 import { Command } from "@domain/entities/commands";
 import { Message } from "@domain/entities/messages";
 import { Dependencies } from "../dependencies";
-import { InvalidArgumentError } from "../../entities/errors";
+import { InvalidArgumentError, UserError } from "../../entities/errors";
 import { renameRoom, RenameRoomParams } from "../rooms/rename-room";
 import { renameUser, RenameUserParams } from "../users/rename-user";
 import { ReaderTask } from "fp-ts/ReaderTask";
@@ -57,7 +57,7 @@ const executeCommand = ({
 const handleCommandError =
   (command: Command) =>
   (e: Error): ReaderTask<Dependencies, Message> => {
-    if (e instanceof InvalidArgumentError) {
+    if (e instanceof UserError) {
       return RT.of(
         ResponseBuilder(command).privateResponse({
           content: e.message,

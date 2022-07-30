@@ -3,7 +3,7 @@ import "@app/sockets";
 import { authOptions } from "../auth/[...nextauth]";
 import { unstable_getServerSession } from "next-auth";
 import { createRoom } from "@domain/usecases/rooms/create-room";
-import { dependencies } from "@app/dependencies";
+import { withDefaultDeps } from "@app/dependencies";
 
 const Create = async (req: NextApiRequest, res: NextApiResponse) => {
   const session = await unstable_getServerSession(req, res, authOptions);
@@ -13,7 +13,7 @@ const Create = async (req: NextApiRequest, res: NextApiResponse) => {
 
   if (req.method === "POST") {
     const ownerId = session.user.id;
-    const room = await createRoom({ ownerId })(dependencies)();
+    const room = await withDefaultDeps().run(createRoom({ ownerId }));
     res.status(201).send(room);
   }
 };

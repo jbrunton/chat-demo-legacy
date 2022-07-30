@@ -1,9 +1,9 @@
 import { Command } from "@domain/entities/commands";
 import { Message } from "@domain/entities/messages";
 import { Dependencies } from "../dependencies";
-import { InvalidArgumentError, UserError } from "../../entities/errors";
-import { renameRoom, RenameRoomParams } from "../rooms/rename-room";
-import { renameUser, RenameUserParams } from "../users/rename-user";
+import { UserError } from "../../entities/errors";
+import { renameRoom } from "../rooms/rename-room";
+import { renameUser } from "../users/rename-user";
 import { ReaderTask } from "fp-ts/ReaderTask";
 import { pipe } from "fp-ts/function";
 import * as RT from "fp-ts/ReaderTask";

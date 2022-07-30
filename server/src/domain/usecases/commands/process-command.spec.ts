@@ -13,10 +13,6 @@ describe("#processCommand", () => {
     id: "123",
     name: "Some User",
   };
-  const anotherUser: User = {
-    id: "456",
-    name: "Another User",
-  };
 
   let userRepository: MockProxy<UserRepository>;
   let roomRepository: MockProxy<RoomRepository>;

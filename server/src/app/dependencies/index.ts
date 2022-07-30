@@ -8,7 +8,6 @@ import {
   DependencyReaderTask,
 } from "@domain/usecases/dependencies";
 import { Dispatcher } from "@domain/usecases/messages/dispatcher";
-import { Task } from "fp-ts/lib/Task";
 import { NextApiResponse } from "next";
 import { Adapter } from "next-auth/adapters";
 import { nameGenerator } from "./name-generator";
@@ -49,7 +48,10 @@ export const withDefaultDeps = () => ({
 });
 
 export const withReqDeps = (res: NextApiResponse) => {
-  const dispatcher = res.socket?.server.dispatcher!;
+  const dispatcher = res.socket?.server?.dispatcher;
+  if (!dispatcher) {
+    throw Error("dispatcher is undefined");
+  }
   const reqDependencies = {
     dispatcher,
     ...dependencies,

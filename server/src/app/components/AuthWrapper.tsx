@@ -2,10 +2,11 @@ import { useSession } from "next-auth/react";
 import React, { PropsWithChildren } from "react";
 
 export const SessionContext = React.createContext({
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   refreshSession: () => {},
 });
 
-const AuthWrapper = ({ children }: PropsWithChildren<{}>) => {
+const AuthWrapper = ({ children }: PropsWithChildren) => {
   const refreshSession = () => {
     // See https://github.com/nextauthjs/next-auth/issues/596#issuecomment-943453568
     const event = new Event("visibilitychange");
@@ -17,7 +18,7 @@ const AuthWrapper = ({ children }: PropsWithChildren<{}>) => {
   });
 
   if (status === "loading") {
-    return <>"Loading or not authenticated..."</>;
+    return <>Loading or not authenticated...</>;
   }
 
   return (

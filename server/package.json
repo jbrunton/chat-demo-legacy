@@ -6,7 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint --max-warnings 0",
+    "lint": "next lint --max-warnings 0 --dir src/",
     "format": "prettier --write --ignore-unknown .",
     "test:unit": "jest"
   },

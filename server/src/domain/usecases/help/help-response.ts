@@ -1,4 +1,4 @@
-import { PrivateMessage, PublicMessage } from "@domain/entities/messages";
+import { PrivateMessage } from "@domain/entities/messages";
 import { User } from "@domain/entities/user";
 import { ReaderTask } from "fp-ts/ReaderTask";
 import * as RT from "fp-ts/ReaderTask";

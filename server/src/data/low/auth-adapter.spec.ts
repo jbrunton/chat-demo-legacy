@@ -4,8 +4,10 @@ import { LowAuthAdapter } from "./auth-adapter";
 import { AuthDB } from "./auth-db";
 
 describe("FsAdapter", () => {
+  const testUserEmail = "test@example.com";
+
   const testUserProps = {
-    email: "test@example.com",
+    email: testUserEmail,
     emailVerified: null,
   };
 
@@ -54,7 +56,7 @@ describe("FsAdapter", () => {
 
   describe("getUserByEmail", () => {
     it("returns a user when one exists", async () => {
-      const user = await adapter.getUserByEmail(testUser.email!);
+      const user = await adapter.getUserByEmail(testUserEmail);
       expect(user).toEqual(testUser);
     });
 

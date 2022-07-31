@@ -1,4 +1,5 @@
 import { User, UserRepository } from "@domain/entities/user";
+import { toUser } from "@data/utils";
 import { Adapter } from "next-auth/adapters";
 import { AuthDB } from "./auth-db";
 
@@ -16,9 +17,6 @@ export class LowUserRepository implements UserRepository {
       id: userId,
       name: newName,
     });
-    return {
-      id: updatedUser.id,
-      name: updatedUser.name!,
-    };
+    return toUser(updatedUser);
   }
 }

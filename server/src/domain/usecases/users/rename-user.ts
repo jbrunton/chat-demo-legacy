@@ -1,9 +1,7 @@
-import { Command } from "@domain/entities/commands";
 import { Dependencies } from "../dependencies";
 import { InvalidArgumentError } from "../../entities/errors";
 import { ReaderTask } from "fp-ts/ReaderTask";
-import { Message, PublicMessage } from "@domain/entities/messages";
-import { ResponseBuilder } from "../commands/response-builder";
+import { PublicMessage } from "@domain/entities/messages";
 import { User } from "@domain/entities/user";
 
 export type RenameUserParams = {

@@ -1,5 +1,3 @@
-import { Adapter } from "next-auth/adapters";
-import { AuthDB } from "./auth-db";
 import { AuthEmail, EmailDB } from "./email-db";
 
 export class LowEmailRepository {

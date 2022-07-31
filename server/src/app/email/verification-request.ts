@@ -6,7 +6,6 @@ import { createSendgridTransport } from "./sendgrid";
 import { AuthEmail, EmailDB } from "@data/low/email-db";
 import { LowEmailRepository } from "@data/low/email-repository";
 import { pick } from "lodash";
-import { string } from "fp-ts";
 
 const createTransport = async () => {
   switch (process.env.EMAIL_TRANSPORT) {

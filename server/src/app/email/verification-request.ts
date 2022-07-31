@@ -3,6 +3,10 @@ import { EmailConfig } from "next-auth/providers";
 import { createEtherealTransport } from "./ethereal";
 import nodemailer from "nodemailer";
 import { createSendgridTransport } from "./sendgrid";
+import { AuthEmail, EmailDB } from "@data/low/email-db";
+import { LowEmailRepository } from "@data/low/email-repository";
+import { pick } from "lodash";
+import { string } from "fp-ts";
 
 const createTransport = async () => {
   switch (process.env.EMAIL_TRANSPORT) {
@@ -26,10 +30,6 @@ export const sendVerificationRequest: EmailConfig["sendVerificationRequest"] =
       from,
       subject: `Sign in to ${host}`,
     };
-    if (process.env.NODE_ENV === "development") {
-      debug.email("Sending Verification Request email: %O", meta);
-      debug.email("Verification URL: %s", url);
-    }
     await transport
       .sendMail({
         ...meta,
@@ -37,8 +37,28 @@ export const sendVerificationRequest: EmailConfig["sendVerificationRequest"] =
         html: html({ url, host, email }),
       })
       .then((info) => {
-        if (process.env.EMAIL_TRANSPORT === "ethereal") {
-          debug.email("Preview URL: %s", nodemailer.getTestMessageUrl(info));
+        const isDevelopment =
+          process.env.NODE_ENV === "development" ||
+          process.env.ENVIRONMENT_TYPE === "development";
+        if (isDevelopment) {
+          const emailDB = EmailDB.createFileSystemDB();
+          const emailRepo = new LowEmailRepository(emailDB);
+          const authEmail: AuthEmail = {
+            ...pick(meta, ["to", "subject"]),
+            date: new Date().toISOString(),
+            verificationUrl: url,
+          };
+
+          debug.email("Sent Verification Request email: %O", meta);
+          debug.email("Verification URL: %s", url);
+
+          if (process.env.EMAIL_TRANSPORT === "ethereal") {
+            const previewUrl = nodemailer.getTestMessageUrl(info);
+            debug.email("Preview URL: %s", previewUrl);
+            authEmail.previewUrl = previewUrl ? previewUrl : undefined;
+          }
+
+          emailRepo.recordEmail(authEmail);
         }
       });
   };

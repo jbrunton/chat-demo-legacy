@@ -43,6 +43,11 @@ describe("getAppSpec", () => {
                 value: "https://test.chat-demo.dev.jbrunton-do.com",
               },
               {
+                key: "ENVIRONMENT_TYPE",
+                scope: "RUN_TIME",
+                value: "development",
+              },
+              {
                 key: "TAG",
                 scope: "RUN_TIME",
                 value: "latest",

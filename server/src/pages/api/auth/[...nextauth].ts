@@ -14,7 +14,7 @@ const pages = isDevelopment
   ? {
       verifyRequest: "/auth/verify-request",
     }
-  : undefined;
+  : {};
 
 export const authOptions: NextAuthOptions = {
   session: {

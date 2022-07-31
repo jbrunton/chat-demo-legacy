@@ -1,3 +1,4 @@
+import { AuditLogRepository } from "@domain/entities/audit-log";
 import { Command } from "@domain/entities/commands";
 import { NameGenerator } from "@domain/entities/name-generator";
 import { Room, RoomRepository } from "@domain/entities/room";
@@ -24,6 +25,7 @@ describe("#processCommand", () => {
     deps = {
       userRepository,
       roomRepository,
+      auditLogRepository: mock<AuditLogRepository>(),
       nameGenerator: mock<NameGenerator>(),
     };
     jest.useFakeTimers().setSystemTime(new Date(time));

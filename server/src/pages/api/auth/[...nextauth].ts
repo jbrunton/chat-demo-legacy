@@ -2,9 +2,8 @@ import NextAuth, { NextAuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import EmailProvider from "next-auth/providers/email";
 import { sendVerificationRequest } from "@app/email/verification-request";
-import { dependencies } from "@app/dependencies";
-
-const { adapter, nameGenerator } = dependencies;
+import { adapter } from "@app/dependencies";
+import { nameGenerator } from "@app/dependencies/name-generator";
 
 const isDevelopment =
   process.env.NODE_ENV === "development" ||

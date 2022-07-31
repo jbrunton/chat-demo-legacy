@@ -4,9 +4,7 @@ import { SocketDispatcher } from "@app/messages/socket-dispatcher";
 import cookie from "cookie";
 import { Socket } from "socket.io";
 import { toUser } from "@data/utils";
-import { dependencies } from "@app/dependencies";
-
-const { adapter } = dependencies;
+import { adapter } from "@app/dependencies";
 
 export const config = {
   api: {

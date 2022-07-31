@@ -1,65 +1,31 @@
-import { debug } from "@app/debug";
 import { EmailConfig } from "next-auth/providers";
-import { createEtherealTransport } from "./ethereal";
-import nodemailer from "nodemailer";
-import { createSendgridTransport } from "./sendgrid";
-import { AuthEmail, EmailDB } from "@data/low/email-db";
-import { LowEmailRepository } from "@data/low/email-repository";
-import { pick } from "lodash";
-
-const createTransport = async () => {
-  switch (process.env.EMAIL_TRANSPORT) {
-    case "sendgrid":
-      return createSendgridTransport();
-    case "ethereal":
-      return createEtherealTransport();
-    default:
-      throw new Error(
-        `EMAIL_TRANSPORT must be sendgrid or ethereral, was ${process.env.EMAIL_TRANSPORT}`
-      );
-  }
-};
+import { withDefaultDeps } from "@app/dependencies";
+import { EmailParams, sendEmail } from "./email";
 
 export const sendVerificationRequest: EmailConfig["sendVerificationRequest"] =
   async ({ identifier: email, url, provider: { from } }) => {
+    if (!from) {
+      throw new Error("from parameter was not set");
+    }
+
     const { host } = new URL(url);
-    const transport = await createTransport();
-    const meta = {
+
+    const logUrl =
+      process.env.NODE_ENV === "development" ||
+      process.env.ENVIRONMENT_TYPE === "development";
+    const auditLogMeta = logUrl ? { verificationUrl: url } : undefined;
+
+    const params: EmailParams = {
       to: email,
       from,
       subject: `Sign in to ${host}`,
+      text: text({ url, host }),
+      html: html({ url, host, email }),
+      auditLogType: "verification-request",
+      auditLogMeta,
     };
-    await transport
-      .sendMail({
-        ...meta,
-        text: text({ url, host }),
-        html: html({ url, host, email }),
-      })
-      .then((info) => {
-        const isDevelopment =
-          process.env.NODE_ENV === "development" ||
-          process.env.ENVIRONMENT_TYPE === "development";
-        if (isDevelopment) {
-          const emailDB = EmailDB.createFileSystemDB();
-          const emailRepo = new LowEmailRepository(emailDB);
-          const authEmail: AuthEmail = {
-            ...pick(meta, ["to", "subject"]),
-            date: new Date().toISOString(),
-            verificationUrl: url,
-          };
 
-          debug.email("Sent Verification Request email: %O", meta);
-          debug.email("Verification URL: %s", url);
-
-          if (process.env.EMAIL_TRANSPORT === "ethereal") {
-            const previewUrl = nodemailer.getTestMessageUrl(info);
-            debug.email("Preview URL: %s", previewUrl);
-            authEmail.previewUrl = previewUrl ? previewUrl : undefined;
-          }
-
-          emailRepo.recordEmail(authEmail);
-        }
-      });
+    await withDefaultDeps().run(sendEmail(params));
   };
 
 function html({ url, host, email }: Record<"url" | "host" | "email", string>) {

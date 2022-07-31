@@ -6,6 +6,16 @@ import { dependencies } from "@app/dependencies";
 
 const { adapter, nameGenerator } = dependencies;
 
+const isDevelopment =
+  process.env.NODE_ENV === "development" ||
+  process.env.ENVIRONMENT_TYPE === "development";
+
+const pages = isDevelopment
+  ? {
+      verifyRequest: "/auth/verify-request",
+    }
+  : undefined;
+
 export const authOptions: NextAuthOptions = {
   session: {
     strategy: "database",
@@ -38,6 +48,7 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   adapter,
+  pages,
 };
 
 export default NextAuth(authOptions);

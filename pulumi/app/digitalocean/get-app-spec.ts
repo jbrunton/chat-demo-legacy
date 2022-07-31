@@ -38,6 +38,11 @@ const getServiceSpec = (config: StackConfig): AppSpecService => {
         value: publicUrl,
       },
       {
+        key: "ENVIRONMENT_TYPE",
+        scope: "RUN_TIME",
+        value: config.environment,
+      },
+      {
         key: "TAG",
         scope: "RUN_TIME",
         value: tag,

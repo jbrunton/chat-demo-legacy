@@ -18,7 +18,8 @@ class StackCleaner implements usecases.StackCleaner {
   }
 
   async destroyStack(stackName: string): Promise<void> {
-    await LocalWorkspace.selectStack({ stackName, workDir });
+    const stack = await LocalWorkspace.selectStack({ stackName, workDir });
+    await stack.destroy();
   }
 
   async removeStack(stackName: string): Promise<void> {

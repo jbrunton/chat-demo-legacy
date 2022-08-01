@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import "@app/sockets";
-import { authOptions } from "../auth/[...nextauth]";
+import { authOptions } from "../../auth/[...nextauth]";
 import { unstable_getServerSession } from "next-auth";
 import { withDefaultDeps } from "@app/dependencies";
 import { getRoomResponse } from "@app/rooms/get-room-response";

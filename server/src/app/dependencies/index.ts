@@ -1,30 +1,27 @@
 import { Mailer } from "@app/email/mailer";
 import { createEtheralMailer } from "@app/email/mailers/ethereal";
 import { createSendgridMailer } from "@app/email/mailers/sendgrid";
-import { AuditLogDB } from "@data/low/audit-log-db";
-import { LowAuditLogRepository } from "@data/low/audit-log-repository";
-import { LowAuthAdapter } from "@data/low/auth-adapter";
-import { AuthDB } from "@data/low/auth-db";
-import { RoomDB } from "@data/low/room-db";
-import { LowRoomRepository } from "@data/low/room-repository";
-import { LowUserRepository } from "@data/low/user-repository";
 import {
   Dependencies,
   DependencyReaderTask,
 } from "@domain/usecases/dependencies";
 import { Dispatcher } from "@domain/usecases/messages/dispatcher";
-import { NextApiResponse } from "next";
+import { NextApiRequest, NextApiResponse } from "next";
 import { Adapter } from "next-auth/adapters";
+import { NextSessionRepository, SessionRepository } from "./session-repository";
 import { nameGenerator } from "./name-generator";
-
-const authDB = AuthDB.createFileSystemDB();
-const roomDB = RoomDB.createFileSystemDB();
-const auditLogDB = AuditLogDB.createFileSystemDB();
-
-export const adapter = new LowAuthAdapter(authDB);
-const userRepository = new LowUserRepository(adapter, authDB);
-const roomRepository = new LowRoomRepository(roomDB, authDB);
-const auditLogRepository = new LowAuditLogRepository(auditLogDB);
+import { adapter } from "./auth-adapter";
+import {
+  auditLogRepository,
+  roomRepository,
+  userRepository,
+} from "./repositories";
+import {
+  NextRequestAdapter,
+  NextResponseAdapter,
+  RequestAdapter,
+  ResponseAdapter,
+} from "./requests-adapters";
 
 const createMailer = () => {
   switch (process.env.EMAIL_TRANSPORT) {
@@ -45,6 +42,9 @@ export type AppDependencies = Dependencies & {
 };
 
 export type ReqDependencies = AppDependencies & {
+  req: RequestAdapter;
+  res: ResponseAdapter;
+  sessionRepository: SessionRepository;
   dispatcher: Dispatcher;
 };
 
@@ -65,14 +65,21 @@ export const withDeps = <D = Dependencies>(dependencies: D) => ({
 
 export const withDefaultDeps = () => withDeps(getDefaultDeps());
 
-export const withReqDeps = (res: NextApiResponse) => {
+export const withReqDeps = (req: NextApiRequest, res: NextApiResponse) => {
   const dispatcher = res.socket?.server?.dispatcher;
   if (!dispatcher) {
     throw Error("dispatcher is undefined");
   }
-  const reqDependencies = {
+
+  const sessionRepository = NextSessionRepository(req, res);
+
+  const reqDependencies: ReqDependencies = {
+    req: NextRequestAdapter(req),
+    res: NextResponseAdapter(res),
     dispatcher,
+    sessionRepository,
     ...getDefaultDeps(),
   };
+
   return withDeps(reqDependencies);
 };

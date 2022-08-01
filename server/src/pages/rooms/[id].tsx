@@ -10,11 +10,7 @@ import { getRoom } from "@app/api/rooms";
 import { sendMessage } from "@app/api/chat";
 import { useContext } from "react";
 import { SessionContext } from "@app/components/AuthWrapper";
-import {
-  IncomingMessage,
-  Message,
-  PublicMessage,
-} from "@domain/entities/messages";
+import { Message, PublicMessage } from "@domain/entities/messages";
 import { Room } from "@domain/entities/room";
 
 const RoomPage: NextPage = () => {
@@ -83,13 +79,11 @@ const RoomPage: NextPage = () => {
 
     if (content) {
       setSendingMessage(true);
-      const message: IncomingMessage = {
-        roomId,
+
+      await sendMessage(roomId, {
         content,
         time: new Date().toISOString(),
-      };
-
-      await sendMessage(message);
+      });
 
       setSendingMessage(false);
       setContent("");

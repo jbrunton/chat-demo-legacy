@@ -1,28 +1,21 @@
+import { AuditLogEntry } from "@domain/entities/audit-log";
 import { chain, ExpChain } from "lodash";
 import { JSONFileSync, LowSync, MemorySync, SyncAdapter } from "lowdb";
 
-export type AuthEmail = {
-  date: string;
-  to: string;
-  subject: string;
-  verificationUrl: string;
-  previewUrl?: string;
-};
-
 type Data = {
-  emails: AuthEmail[];
+  auditLog: AuditLogEntry[];
 };
 
-export class EmailDB extends LowSync<Data> {
+export class AuditLogDB extends LowSync<Data> {
   chain: ExpChain<this["data"]> = chain(this).get("data");
-  emails: ExpChain<Data["emails"]> = this.chain.get("emails");
+  auditLog: ExpChain<Data["auditLog"]> = this.chain.get("auditLog");
 
   static createFileSystemDB() {
-    return new EmailDB(new JSONFileSync("db/emails.json"));
+    return new AuditLogDB(new JSONFileSync("db/audit_log.json"));
   }
 
   static createMemoryDB() {
-    return new EmailDB(new MemorySync());
+    return new AuditLogDB(new MemorySync());
   }
 
   constructor(adapter: SyncAdapter<Data>) {
@@ -31,15 +24,15 @@ export class EmailDB extends LowSync<Data> {
     this.read();
     if (!this.data) {
       this.data = {
-        emails: [],
+        auditLog: [],
       };
       this.write();
     }
   }
 
-  createEmail(email: AuthEmail) {
+  createEntry(entry: AuditLogEntry) {
     this.read();
-    this.data?.emails.push(email);
+    this.data?.auditLog.push(entry);
     this.write();
   }
 }

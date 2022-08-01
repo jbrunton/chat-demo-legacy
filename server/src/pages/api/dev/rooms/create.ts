@@ -1,9 +1,7 @@
 import { requireDev } from "@app/debug";
-import { dependencies } from "@app/dependencies";
+import { adapter, withDefaultDeps } from "@app/dependencies";
 import { createRoom } from "@domain/usecases/rooms/create-room";
 import { NextApiRequest, NextApiResponse } from "next";
-
-const { adapter } = dependencies;
 
 type RequestBody = {
   name: string;
@@ -18,7 +16,9 @@ const CreateRoom = async (req: NextApiRequest, res: NextApiResponse) => {
   if (!owner) {
     throw new Error("Could not find owner");
   }
-  const room = await createRoom({ ownerId: owner.id, name })(dependencies)();
+  const room = await withDefaultDeps().run(
+    createRoom({ ownerId: owner.id, name })
+  );
   res.status(201).send(room);
 };
 

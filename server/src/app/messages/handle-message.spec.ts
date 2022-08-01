@@ -8,6 +8,8 @@ import { Command } from "@domain/entities/commands";
 import { NameGenerator } from "@domain/entities/name-generator";
 import { ReqDependencies, withDeps } from "@app/dependencies";
 import { Adapter } from "next-auth/adapters";
+import { AuditLogRepository } from "@domain/entities/audit-log";
+import { Mailer } from "@app/email/mailer";
 
 describe("parseMessage", () => {
   const time = "2022-01-01T10:30:00.000Z";
@@ -81,8 +83,10 @@ describe("handleMessage", () => {
     deps = {
       userRepository,
       roomRepository,
+      auditLogRepository: mock<AuditLogRepository>(),
       nameGenerator: mock<NameGenerator>(),
       dispatcher,
+      mailer: mock<Mailer>(),
       adapter: mock<Adapter>(),
     };
   });

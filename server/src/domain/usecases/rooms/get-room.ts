@@ -3,6 +3,7 @@ import { Message } from "@domain/entities/messages";
 import { Room } from "@domain/entities/room";
 import { DependencyReaderTask } from "../dependencies";
 
+// TODO: can this be refactored with RT.of and ask()
 export const getRoom =
   (roomId: string): DependencyReaderTask<Room> =>
   ({ roomRepository }) =>

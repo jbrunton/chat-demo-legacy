@@ -2,6 +2,7 @@ import * as _debug from "debug";
 
 export const debug = {
   email: _debug.debug("chat-demo:email"),
+  audit: _debug.debug("chat-demo:audit"),
   messages: _debug.debug("chat-demo:messages"),
   auth: _debug.debug("chat-demo:auth"),
   room: _debug.debug("chat-demo:room"),

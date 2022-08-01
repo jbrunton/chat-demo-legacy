@@ -1,18 +1,23 @@
 import AppLayout from "@app/components/Layout";
-import { AuthEmail, EmailDB } from "@data/low/email-db";
-import { LowEmailRepository } from "@data/low/email-repository";
+import { AppDependencies, withDefaultDeps } from "@app/dependencies";
+import { AuditLogEntry } from "@domain/entities/audit-log";
+import { DependencyReaderTask } from "@domain/usecases/dependencies";
 import { Button, Result } from "antd";
 import { GetServerSideProps } from "next";
 
-export default function VerifyRequestPage({ email }: { email: AuthEmail }) {
+export default function VerifyRequestPage({
+  meta,
+}: {
+  meta: Record<string, string>;
+}) {
   const extra = (
     <>
-      {email.previewUrl ? (
-        <Button target={"_blank"} href={email.previewUrl}>
+      {meta.previewUrl ? (
+        <Button target={"_blank"} href={meta.previewUrl}>
           Preview
         </Button>
       ) : null}
-      <Button href={email.verificationUrl}>Sign In as {email.to}</Button>
+      <Button href={meta.verificationUrl}>Sign In as {meta.to}</Button>
     </>
   );
   return (
@@ -22,13 +27,19 @@ export default function VerifyRequestPage({ email }: { email: AuthEmail }) {
   );
 }
 
+const getRecentRequestEntry =
+  (): DependencyReaderTask<AuditLogEntry | null, AppDependencies> =>
+  ({ auditLogRepository }) =>
+  () => {
+    return auditLogRepository.getRecentEntry("verification-request");
+  };
+
 export const getServerSideProps: GetServerSideProps = async () => {
-  const emailDB = EmailDB.createFileSystemDB();
-  const emailRepo = new LowEmailRepository(emailDB);
-  const email = await emailRepo.getRecentEmail();
+  const entry = await withDefaultDeps().run(getRecentRequestEntry());
+  const meta = entry && entry.meta ? JSON.parse(entry.meta) : {};
   return {
     props: {
-      email,
+      meta,
     },
   };
 };

@@ -1,5 +1,7 @@
 import { withDeps } from "@app/dependencies";
 import { nameGenerator } from "@app/dependencies/name-generator";
+import { AuditLogDB } from "@data/low/audit-log-db";
+import { LowAuditLogRepository } from "@data/low/audit-log-repository";
 import { LowAuthAdapter } from "@data/low/auth-adapter";
 import { AuthDB } from "@data/low/auth-db";
 import { RoomDB } from "@data/low/room-db";
@@ -35,6 +37,7 @@ describe("renameRoom", () => {
   beforeEach(async () => {
     const authDB = AuthDB.createMemoryDB();
     const roomDB = RoomDB.createMemoryDB();
+    const auditLogDB = AuditLogDB.createMemoryDB();
     const adapter = new LowAuthAdapter(authDB);
 
     roomDB.createRoom(testRoom);
@@ -42,6 +45,7 @@ describe("renameRoom", () => {
     deps = {
       userRepository: new LowUserRepository(adapter, authDB),
       roomRepository: new LowRoomRepository(roomDB, authDB),
+      auditLogRepository: new LowAuditLogRepository(auditLogDB),
       nameGenerator,
     };
   });

@@ -1,125 +1,96 @@
 import { Dispatcher } from "@domain/usecases/messages/dispatcher";
-import { handleMessage, parseMessage } from "./handle-message";
-import { mock, MockProxy } from "jest-mock-extended";
-import { IncomingMessage, PublicMessage } from "@domain/entities/messages";
-import { UserRepository } from "@domain/entities/user";
-import { RoomRepository } from "@domain/entities/room";
-import { Command } from "@domain/entities/commands";
-import { NameGenerator } from "@domain/entities/name-generator";
-import { ReqDependencies, withDeps } from "@app/dependencies";
-import { Adapter } from "next-auth/adapters";
-import { AuditLogRepository } from "@domain/entities/audit-log";
-import { Mailer } from "@app/email/mailer";
-
-describe("parseMessage", () => {
-  const time = "2022-01-01T10:30:00.000Z";
-  const roomId = "a1b2c3";
-  const sender = {
-    id: "1234",
-    name: "User_123",
-  };
-
-  it("parses commands with no arguments", () => {
-    const incoming: IncomingMessage = {
-      roomId,
-      content: "/list",
-      time,
-    };
-    const response = parseMessage(incoming, sender);
-    expect(response).toEqual({
-      name: "list",
-      args: [],
-      roomId,
-      sender,
-      time,
-    });
-  });
-
-  it("parses commands with arguments", () => {
-    const incoming: PublicMessage = {
-      roomId,
-      content: "/rename user Test User",
-      time,
-    };
-    const response = parseMessage(incoming, sender);
-    expect(response).toEqual({
-      name: "rename",
-      args: ["user", "Test", "User"],
-      roomId,
-      sender,
-      time,
-    });
-  });
-
-  it("parses messages", () => {
-    const incoming: PublicMessage = {
-      roomId,
-      content: "Hello, world!",
-      time,
-    };
-    const response = parseMessage(incoming, sender);
-    expect(response).toEqual({
-      roomId,
-      sender,
-      content: "Hello, world!",
-      time,
-    });
-  });
-});
+import { handleMessage, MessageRequestBody } from "./handle-message";
+import { MockProxy } from "jest-mock-extended";
+import { User } from "@domain/entities/user";
+import { Room } from "@domain/entities/room";
+import { withDeps } from "@app/dependencies";
+import { AdapterUser } from "next-auth/adapters";
+import {
+  mockReqDependencies,
+  MockReqDependencies,
+} from "@fixtures/dependencies";
+import { Session } from "next-auth";
 
 describe("handleMessage", () => {
   let dispatcher: MockProxy<Dispatcher>;
   const now = new Date("2022-02-02T21:22:23.234Z");
 
-  let userRepository: MockProxy<UserRepository>;
-  let roomRepository: MockProxy<RoomRepository>;
-  let deps: ReqDependencies;
+  const testUser: User = {
+    id: "test-user",
+    name: "Test User",
+  };
+
+  const testAdapterUser: AdapterUser = {
+    ...testUser,
+    emailVerified: new Date(),
+  };
+
+  const testSession: Session = {
+    user: testUser,
+    expires: new Date().toISOString(),
+  };
+
+  const testRoom: Room = {
+    id: "test-room",
+    name: "Test Room",
+    ownerId: testUser.id,
+  };
+
+  const query = { id: testRoom.id };
+
+  let deps: MockReqDependencies;
+
+  const stubBody = (body: MessageRequestBody) => {
+    deps.req = {
+      query,
+      method: "POST",
+      body,
+    };
+  };
 
   beforeEach(() => {
-    dispatcher = mock<Dispatcher>();
     jest.useFakeTimers().setSystemTime(now);
-    userRepository = mock<UserRepository>();
-    roomRepository = mock<RoomRepository>();
-    deps = {
-      userRepository,
-      roomRepository,
-      auditLogRepository: mock<AuditLogRepository>(),
-      nameGenerator: mock<NameGenerator>(),
-      dispatcher,
-      mailer: mock<Mailer>(),
-      adapter: mock<Adapter>(),
-    };
+    deps = mockReqDependencies();
+    dispatcher = deps.dispatcher;
+
+    deps.sessionRepository.getSession.mockResolvedValue(testSession);
+    deps.roomRepository.getRoom
+      .calledWith(testRoom.id)
+      .mockResolvedValue(testRoom);
+    deps.adapter.getUser
+      .calledWith(testUser.id)
+      .mockResolvedValue(testAdapterUser);
   });
 
   it("dispatches public messages", async () => {
-    const message: PublicMessage = {
+    const body: MessageRequestBody = {
       content: "Hello, World!",
       time: new Date().toISOString(),
-      roomId: "123",
     };
-    await withDeps(deps).run(handleMessage(message));
-    expect(dispatcher.sendPublicMessage).toHaveBeenCalledWith(message);
+    stubBody(body);
+
+    await withDeps(deps).run(handleMessage());
+
+    expect(dispatcher.sendPublicMessage).toHaveBeenCalledWith({
+      ...body,
+      roomId: testRoom.id,
+      sender: testUser,
+    });
   });
 
   it("dispatches commands", async () => {
-    const sender = {
-      name: "Some User",
-      id: "456",
-    };
-    const command: Command = {
-      name: "not-a-command",
-      args: [],
+    const body: MessageRequestBody = {
+      content: "/not-a-command",
       time: new Date().toISOString(),
-      roomId: "123",
-      sender,
     };
+    stubBody(body);
 
-    await withDeps(deps).run(handleMessage(command));
+    await withDeps(deps).run(handleMessage());
 
     expect(dispatcher.sendPrivateMessage).toHaveBeenCalledWith({
-      recipientId: sender.id,
+      recipientId: testUser.id,
       content: "Unrecognised command, type <b>/help</b> for further assistance",
-      roomId: "123",
+      roomId: testRoom.id,
       time: "2022-02-02T21:22:23.234Z",
     });
   });

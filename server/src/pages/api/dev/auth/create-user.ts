@@ -1,5 +1,5 @@
 import { requireDev } from "@app/debug";
-import { adapter } from "@app/dependencies";
+import { adapter } from "@app/dependencies/auth-adapter";
 import { NextApiRequest, NextApiResponse } from "next";
 
 type RequestBody = {

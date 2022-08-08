@@ -1,3 +1,4 @@
+import { User } from "@domain/entities/user";
 import { DefaultUser } from "next-auth";
 
 declare module "next-auth" {
@@ -15,5 +16,9 @@ declare module "next-auth" {
 declare module "next" {
   interface NextPage {
     requireAuth?: boolean;
+  }
+
+  interface NextApiRequest {
+    user?: User;
   }
 }

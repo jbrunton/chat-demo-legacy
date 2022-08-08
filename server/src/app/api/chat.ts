@@ -1,5 +1,5 @@
-import { PublicMessage } from "@domain/entities/messages";
+import { MessageRequestBody } from "@app/messages/handle-message";
 import { post } from "./http";
 
-export const sendMessage = (message: PublicMessage) =>
-  post("/api/chat", JSON.stringify(message));
+export const sendMessage = (roomId: string, message: MessageRequestBody) =>
+  post(`/api/rooms/${roomId}/chat`, JSON.stringify(message));

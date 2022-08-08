@@ -1,5 +1,6 @@
 import { requireDev } from "@app/debug";
-import { adapter, withDefaultDeps } from "@app/dependencies";
+import { withDefaultDeps } from "@app/dependencies";
+import { adapter } from "@app/dependencies/auth-adapter";
 import { createRoom } from "@domain/usecases/rooms/create-room";
 import { NextApiRequest, NextApiResponse } from "next";
 

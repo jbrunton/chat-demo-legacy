@@ -21,6 +21,7 @@
       "@app/*": ["src/app/*"],
       "@data/*": ["src/data/*"],
       "@util/*": ["src/util/*"],
+      "@fixtures/*": ["src/fixtures/*"],
       "@styles/*": ["src/styles/*"]
     }
   },

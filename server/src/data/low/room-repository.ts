@@ -5,6 +5,8 @@ import { AuthDB } from "./auth-db";
 import { RoomDB } from "./room-db";
 import {
   CreateRoomParams,
+  FindMembershipStatusParams,
+  MembershipStatus,
   RenameRoomParams,
   Room,
   RoomRepository,
@@ -82,5 +84,27 @@ export class LowRoomRepository implements RoomRepository {
       .filter((user) => ids.includes(user.id))
       .map((user) => pick(user, "id", "name") as User)
       .value();
+  }
+
+  async getMembershipStatus(
+    params: FindMembershipStatusParams
+  ): Promise<MembershipStatus> {
+    this.roomDB.read();
+    const membership = this.roomDB.findMembershipStatus(params).value();
+    return membership?.status ?? MembershipStatus.None;
+  }
+
+  async setMembershipStatus(
+    params: FindMembershipStatusParams,
+    status: MembershipStatus
+  ): Promise<void> {
+    this.roomDB.read();
+    const time = new Date().toISOString();
+    this.roomDB.memberships.find(params).assign({ until: time }).commit();
+    this.roomDB.createMembership({
+      ...params,
+      from: time,
+      status,
+    });
   }
 }

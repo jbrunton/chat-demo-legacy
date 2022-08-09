@@ -1,4 +1,4 @@
-import { Room } from "@domain/entities/room";
+import { MembershipStatus, Room } from "@domain/entities/room";
 import { ReaderTask } from "fp-ts/lib/ReaderTask";
 import { Dependencies } from "../dependencies";
 
@@ -11,8 +11,16 @@ export const createRoom =
   ({ ownerId, name }: CreateRoomParams): ReaderTask<Dependencies, Room> =>
   ({ roomRepository, nameGenerator }) =>
   async () => {
-    return await roomRepository.createRoom({
+    const room = await roomRepository.createRoom({
       ownerId,
       name: name || nameGenerator.getPlaceName(),
     });
+    await roomRepository.setMembershipStatus(
+      {
+        userId: ownerId,
+        roomId: room.id,
+      },
+      MembershipStatus.Joined
+    );
+    return room;
   };

@@ -1,6 +1,10 @@
 import { EntityNotFoundError } from "@domain/entities/errors";
 import { Message } from "@domain/entities/messages";
-import { Room } from "@domain/entities/room";
+import {
+  FindMembershipStatusParams,
+  MembershipStatus,
+  Room,
+} from "@domain/entities/room";
 import { ReaderTask } from "fp-ts/ReaderTask";
 import { Dependencies } from "../dependencies";
 
@@ -22,4 +26,13 @@ export const getMessageHistory =
   ({ roomRepository }) =>
   async () => {
     return await roomRepository.getMessageHistory(roomId);
+  };
+
+export const getMembershipStatus =
+  (
+    params: FindMembershipStatusParams
+  ): ReaderTask<GetRoomDependencies, MembershipStatus> =>
+  ({ roomRepository }) =>
+  async () => {
+    return await roomRepository.getMembershipStatus(params);
   };

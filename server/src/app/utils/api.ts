@@ -39,7 +39,7 @@ export const sendResponse = <T>(
   pipe(
     RT.ask<ReqDependencies>(),
     RT.map(({ res }) => {
-      res.sendResponse(201, response);
+      res.sendResponse(201, response || {});
     })
   );
 
@@ -97,6 +97,7 @@ const handleError =
         RT.fromTask(async () => {
           const unhandledError = onError ? onError(e, deps.res) : e;
           if (unhandledError) {
+            console.error(unhandledError);
             if (process.env.NODE_ENV === "development") {
               deps.res.sendResponse(500, { error: e.message, trace: e.stack });
             } else {

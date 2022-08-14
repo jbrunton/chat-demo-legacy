@@ -20,7 +20,7 @@ export const handleMessage = (): DependencyReaderTask<
 > => {
   return pipe(
     authenticate(),
-    RT.chain(() => selectRequest("POST")),
+    RT.apSecond(selectRequest("POST")),
     RT.map(parseMessage),
     RT.chain(validateRoom),
     RT.chain(processCommands),

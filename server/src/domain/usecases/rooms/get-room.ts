@@ -1,11 +1,13 @@
 import { EntityNotFoundError } from "@domain/entities/errors";
 import { Message } from "@domain/entities/messages";
 import { Room } from "@domain/entities/room";
-import { DependencyReaderTask } from "../dependencies";
+import { ReaderTask } from "fp-ts/ReaderTask";
+import { Dependencies } from "../dependencies";
 
-// TODO: can this be refactored with RT.of and ask()
+export type GetRoomDependencies = Pick<Dependencies, "roomRepository">;
+
 export const getRoom =
-  (roomId: string): DependencyReaderTask<Room> =>
+  (roomId: string): ReaderTask<GetRoomDependencies, Room> =>
   ({ roomRepository }) =>
   async () => {
     const room = await roomRepository.getRoom(roomId);
@@ -16,7 +18,7 @@ export const getRoom =
   };
 
 export const getMessageHistory =
-  (roomId: string): DependencyReaderTask<Message[]> =>
+  (roomId: string): ReaderTask<GetRoomDependencies, Message[]> =>
   ({ roomRepository }) =>
   async () => {
     return await roomRepository.getMessageHistory(roomId);

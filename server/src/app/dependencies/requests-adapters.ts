@@ -4,7 +4,7 @@ import { NextApiRequest } from "next";
 import { NextApiResponse } from "next";
 
 export interface RequestAdapter {
-  method?: string;
+  method: string;
   query: Record<string, string | string[] | undefined>;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   body: any;
@@ -16,7 +16,11 @@ export interface ResponseAdapter {
 }
 
 export const NextRequestAdapter = (req: NextApiRequest): RequestAdapter => {
-  return pick(req, ["method", "query", "body"]);
+  const { method, ...rest } = pick(req, ["method", "query", "body"]);
+  if (method === undefined) {
+    throw new Error("Invalid request: no method provided");
+  }
+  return { method, ...rest };
 };
 
 export const NextResponseAdapter = (res: NextApiResponse): ResponseAdapter => {

@@ -17,8 +17,4 @@ declare module "next" {
   interface NextPage {
     requireAuth?: boolean;
   }
-
-  interface NextApiRequest {
-    user?: User;
-  }
 }

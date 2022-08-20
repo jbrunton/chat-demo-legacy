@@ -1,6 +1,6 @@
 import { Command, isCommand } from "@domain/entities/commands";
 import { isPrivate, Message, PublicMessage } from "@domain/entities/messages";
-import { pipe } from "fp-ts/lib/function";
+import { flow, pipe } from "fp-ts/lib/function";
 import * as RT from "fp-ts/ReaderTask";
 import { ReqDependencies } from "@app/dependencies";
 import { DependencyReaderTask } from "@domain/usecases/dependencies";
@@ -8,6 +8,7 @@ import { processCommand } from "@domain/usecases/commands/process-command";
 import { authenticate } from "@app/auth/authenticate";
 import { selectRequest, sendResponse } from "@app/utils/api";
 import { parseMessage } from "./parse-message";
+import { sequenceT } from "fp-ts/lib/Apply";
 
 export type MessageRequestBody = {
   content: string;
@@ -18,15 +19,18 @@ export const handleMessage = (): DependencyReaderTask<
   void,
   ReqDependencies
 > => {
-  return pipe(
-    authenticate(),
-    RT.apSecond(selectRequest("POST")),
-    RT.map(parseMessage),
+  const parseRequest = pipe(
+    sequenceT(RT.ApplySeq)(authenticate(), selectRequest("POST")),
+    RT.map(parseMessage)
+  );
+
+  const processRequest = flow(
     RT.chain(validateRoom),
     RT.chain(processCommands),
-    RT.chain(processResponse),
-    RT.chain(sendResponse)
+    RT.chain(processResponse)
   );
+
+  return pipe(parseRequest, processRequest, RT.chain(sendResponse));
 };
 
 const validateRoom = (

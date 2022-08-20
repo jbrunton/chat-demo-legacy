@@ -14,6 +14,7 @@ describe("parseMessage", () => {
 
   const makeRequest = (body: MessageRequestBody): RequestAdapter => {
     return {
+      method: "POST",
       query,
       body,
       user: sender,

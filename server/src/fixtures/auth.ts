@@ -6,14 +6,14 @@ import { AdapterUser } from "next-auth/adapters";
 import { MockReqDependencies } from "./dependencies";
 
 export const stubSession =
-  (session: Session) =>
+  (session: Session | null) =>
   ({ sessionRepository, ...deps }: MockReqDependencies) => {
     sessionRepository.getSession.mockResolvedValue(session);
     return { sessionRepository, ...deps };
   };
 
 export const stubAdapterUser =
-  (userId: string, adapterUser: AdapterUser) =>
+  (userId: string, adapterUser: AdapterUser | null) =>
   ({ adapter, ...deps }: MockReqDependencies) => {
     adapter.getUser.calledWith(userId).mockResolvedValue(adapterUser);
     return { adapter, ...deps };

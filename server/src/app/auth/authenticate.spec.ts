@@ -1,19 +1,14 @@
 import { withDeps } from "@app/dependencies";
 import { User } from "@domain/entities/user";
-import { MockProxy } from "jest-mock-extended";
 import { Session } from "next-auth";
 import { AdapterUser } from "next-auth/adapters";
 import { mockReqDependencies } from "@fixtures/dependencies";
-import { authenticate, AuthenticateDeps } from "./authenticate";
+import { authenticate } from "./authenticate";
 import { UnauthorisedUser } from "@domain/entities/errors";
-
-type MockAuthenticateDeps = {
-  [K in keyof AuthenticateDeps]: MockProxy<AuthenticateDeps[K]>;
-};
+import { pipe } from "fp-ts/lib/function";
+import { stubAdapterUser, stubSession } from "@fixtures/auth";
 
 describe("authenticate", () => {
-  let dependencies: MockAuthenticateDeps;
-
   const testUser: User = {
     id: "123",
     name: "Test User",
@@ -29,48 +24,35 @@ describe("authenticate", () => {
     expires: new Date().toISOString(),
   };
 
-  beforeEach(() => {
-    dependencies = mockReqDependencies();
-  });
-
-  const mockSession = ({
-    session,
-    user,
-  }: {
-    session: Session | null;
-    user: AdapterUser | null;
-  }) => {
-    const { sessionRepository, adapter } = dependencies;
-    sessionRepository.getSession.mockResolvedValue(session);
-    adapter.getUser.calledWith(testUser.id).mockResolvedValue(user);
-  };
-
   it("returns the authenticated user", async () => {
-    mockSession({
-      session: testSession,
-      user: testAdapterUser,
-    });
-    const user = await withDeps(dependencies).run(authenticate());
+    const deps = pipe(
+      mockReqDependencies(),
+      stubSession(testSession),
+      stubAdapterUser(testUser.id, testAdapterUser)
+    );
+    const user = await withDeps(deps).run(authenticate());
     expect(user).toEqual(testUser);
   });
 
   it("errors if the request is not authenticated", async () => {
-    mockSession({
-      session: null,
-      user: testAdapterUser,
-    });
-    await expect(() =>
-      withDeps(dependencies).run(authenticate())
-    ).rejects.toEqual(new UnauthorisedUser("User must be authenticated"));
+    const deps = pipe(
+      mockReqDependencies(),
+      stubSession(null),
+      stubAdapterUser(testUser.id, testAdapterUser)
+    );
+    await expect(() => withDeps(deps).run(authenticate())).rejects.toEqual(
+      new UnauthorisedUser("User must be authenticated")
+    );
   });
 
   it("errors if the user does not exist", async () => {
-    mockSession({
-      session: testSession,
-      user: null,
-    });
-    await expect(() =>
-      withDeps(dependencies).run(authenticate())
-    ).rejects.toEqual(new UnauthorisedUser("User does not exist"));
+    const deps = pipe(
+      mockReqDependencies(),
+      stubSession(testSession),
+      stubAdapterUser(testUser.id, null)
+    );
+    await expect(() => withDeps(deps).run(authenticate())).rejects.toEqual(
+      new UnauthorisedUser("User does not exist")
+    );
   });
 });

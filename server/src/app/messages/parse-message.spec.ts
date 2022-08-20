@@ -17,7 +17,6 @@ describe("parseMessage", () => {
       method: "POST",
       query,
       body,
-      user: sender,
     };
   };
 
@@ -26,7 +25,7 @@ describe("parseMessage", () => {
       content: "/list",
       time,
     };
-    const response = parseMessage(makeRequest(body));
+    const response = parseMessage([sender, makeRequest(body)]);
     expect(response).toEqual({
       name: "list",
       args: [],
@@ -41,7 +40,7 @@ describe("parseMessage", () => {
       content: "/rename user Test User",
       time,
     };
-    const response = parseMessage(makeRequest(body));
+    const response = parseMessage([sender, makeRequest(body)]);
     expect(response).toEqual({
       name: "rename",
       args: ["user", "Test", "User"],
@@ -57,7 +56,7 @@ describe("parseMessage", () => {
       time,
     };
 
-    const response = parseMessage(makeRequest(body));
+    const response = parseMessage([sender, makeRequest(body)]);
 
     expect(response).toEqual({
       roomId,

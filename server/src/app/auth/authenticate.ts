@@ -6,15 +6,10 @@ import { DependencyReaderTask } from "@domain/usecases/dependencies";
 import { pipe } from "fp-ts/function";
 import * as RT from "fp-ts/ReaderTask";
 
-export type AuthenticateDeps = Pick<
-  ReqDependencies,
-  "req" | "adapter" | "sessionRepository"
->;
-
-export const authenticate = (): DependencyReaderTask<User, AuthenticateDeps> =>
+export const authenticate = (): DependencyReaderTask<User, ReqDependencies> =>
   pipe(
-    RT.ask<AuthenticateDeps>(),
-    RT.chain(({ req, adapter, sessionRepository }) =>
+    RT.ask<ReqDependencies>(),
+    RT.chain(({ adapter, sessionRepository }) =>
       RT.fromTask(async () => {
         const session = await sessionRepository.getSession();
         if (!session) {
@@ -26,10 +21,7 @@ export const authenticate = (): DependencyReaderTask<User, AuthenticateDeps> =>
           throw new UnauthorisedUser("User does not exist");
         }
 
-        const user = toUser(adapterUser);
-        req.user = user;
-
-        return user;
+        return toUser(adapterUser);
       })
     )
   );

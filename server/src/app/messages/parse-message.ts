@@ -2,16 +2,15 @@ import { debug } from "@app/debug";
 import { RequestAdapter } from "@app/dependencies/requests-adapters";
 import { Command } from "@domain/entities/commands";
 import { PublicMessage } from "@domain/entities/messages";
-import { assertNotNil } from "@util/assert";
+import { User } from "@domain/entities/user";
 import { MessageRequestBody } from "./handle-message";
 
-export const parseMessage = (req: RequestAdapter): PublicMessage | Command => {
+export const parseMessage = ([sender, req]: [User, RequestAdapter]):
+  | PublicMessage
+  | Command => {
   const roomId = req.query["id"] as string;
   const body: MessageRequestBody = req.body;
   const { content, ...details } = body;
-
-  const sender = req.user;
-  assertNotNil(sender);
 
   if (content.startsWith("/")) {
     const args = content.slice(1).split(" ");

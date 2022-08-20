@@ -1,4 +1,3 @@
-import { User } from "@domain/entities/user";
 import { pick } from "lodash";
 import { NextApiRequest } from "next";
 import { NextApiResponse } from "next";
@@ -8,7 +7,6 @@ export interface RequestAdapter {
   query: Record<string, string | string[] | undefined>;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   body: any;
-  user?: User;
 }
 
 export interface ResponseAdapter {

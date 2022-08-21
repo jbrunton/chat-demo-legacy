@@ -7,6 +7,7 @@ import { pipe } from "fp-ts/lib/function";
 import { stubRequest } from "@fixtures/requests";
 import { stubAuth } from "@fixtures/auth";
 import { stubRoom } from "@fixtures/room";
+import { fakeDispatcher } from "@fixtures/dispatcher";
 
 describe("handleMessage", () => {
   const now = new Date("2022-02-02T21:22:23.234Z");
@@ -37,16 +38,21 @@ describe("handleMessage", () => {
       mockReqDependencies(),
       stubRequest({ method: "POST", query, body }),
       stubAuth(testUser),
-      stubRoom(testRoom)
+      stubRoom(testRoom),
+      fakeDispatcher()
     );
 
     await withDeps(deps).run(handleMessage());
 
-    expect(deps.dispatcher.sendPublicMessage).toHaveBeenCalledWith({
+    const expectedResponse = {
       ...body,
       roomId: testRoom.id,
       sender: testUser,
-    });
+    };
+    expect(deps.roomRepository.saveMessage).toHaveBeenCalledWith(
+      expectedResponse
+    );
+    expect(deps.dispatcher.sendMessage).toHaveBeenCalledWith(expectedResponse);
   });
 
   it("dispatches commands", async () => {
@@ -58,16 +64,21 @@ describe("handleMessage", () => {
       mockReqDependencies(),
       stubRequest({ method: "POST", query, body }),
       stubAuth(testUser),
-      stubRoom(testRoom)
+      stubRoom(testRoom),
+      fakeDispatcher()
     );
 
     await withDeps(deps).run(handleMessage());
 
-    expect(deps.dispatcher.sendPrivateMessage).toHaveBeenCalledWith({
+    const expectedResponse = {
       recipientId: testUser.id,
       content: "Unrecognised command, type <b>/help</b> for further assistance",
       roomId: testRoom.id,
       time: "2022-02-02T21:22:23.234Z",
-    });
+    };
+    expect(deps.roomRepository.saveMessage).toHaveBeenCalledWith(
+      expectedResponse
+    );
+    expect(deps.dispatcher.sendMessage).toHaveBeenCalledWith(expectedResponse);
   });
 });

@@ -1,6 +1,5 @@
-import { PrivateMessage, PublicMessage } from "@domain/entities/messages";
+import { Message } from "@domain/entities/messages";
 
 export interface Dispatcher {
-  sendPublicMessage(message: PublicMessage): void;
-  sendPrivateMessage(message: PrivateMessage): void;
+  sendMessage(message: Message): void;
 }

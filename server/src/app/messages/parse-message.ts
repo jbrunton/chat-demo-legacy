@@ -5,9 +5,12 @@ import { PublicMessage } from "@domain/entities/messages";
 import { User } from "@domain/entities/user";
 import { MessageRequestBody } from "./handle-message";
 
-export const parseMessage = ([sender, req]: [User, RequestAdapter]):
-  | PublicMessage
-  | Command => {
+export type ParsedMessage = PublicMessage | Command;
+
+export const parseMessage = ([sender, req]: [
+  User,
+  RequestAdapter
+]): ParsedMessage => {
   const roomId = req.query["id"] as string;
   const body: MessageRequestBody = req.body;
   const { content, ...details } = body;

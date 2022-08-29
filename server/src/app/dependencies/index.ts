@@ -20,6 +20,7 @@ import {
   ResponseAdapter,
 } from "./requests-adapters";
 import * as RT from "fp-ts/ReaderTask";
+import { createSocketDispatcher } from "./socket-dispatcher";
 
 const createMailer = () => {
   switch (process.env.EMAIL_TRANSPORT) {
@@ -68,10 +69,7 @@ export const withDeps = <D = Dependencies>(dependencies: D) => ({
 export const withDefaultDeps = () => withDeps(getDefaultDeps());
 
 export const withReqDeps = (req: NextApiRequest, res: NextApiResponse) => {
-  const dispatcher = res.socket?.server?.dispatcher;
-  if (!dispatcher) {
-    throw Error("dispatcher is undefined");
-  }
+  const dispatcher = createSocketDispatcher(res);
 
   const sessionRepository = NextSessionRepository(req, res);
 

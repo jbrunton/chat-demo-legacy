@@ -1,13 +1,12 @@
 import { ReqDependencies } from "@app/dependencies";
 import { RequestAdapter } from "@app/dependencies/requests-adapters";
 import { InvalidArgumentError } from "@domain/entities/errors";
-import { DependencyReaderTask } from "@domain/usecases/dependencies";
 import { pipe } from "fp-ts/lib/function";
 import * as RT from "fp-ts/ReaderTask";
 
 export const selectRequest = (
   method?: string
-): DependencyReaderTask<RequestAdapter, ReqDependencies> =>
+): RT.ReaderTask<ReqDependencies, RequestAdapter> =>
   pipe(
     RT.ask<ReqDependencies>(),
     RT.map(({ req }) => {
@@ -20,7 +19,7 @@ export const selectRequest = (
 
 export const sendResponse = <T>(
   response: T
-): DependencyReaderTask<void, ReqDependencies> =>
+): RT.ReaderTask<ReqDependencies, void> =>
   pipe(
     RT.ask<ReqDependencies>(),
     RT.map(({ res }) => {

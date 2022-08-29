@@ -1,11 +1,12 @@
 import { Command } from "@domain/entities/commands";
 import { Message } from "@domain/entities/messages";
-import { Dependencies, DependencyReaderTask } from "../dependencies";
+import { Dependencies } from "../dependencies";
 import { UserError } from "../../entities/errors";
 import { renameRoom } from "../rooms/rename-room";
 import { renameUser } from "../users/rename-user";
 import { pipe } from "fp-ts/function";
 import * as RT from "fp-ts/ReaderTask";
+import { ReaderTask } from "fp-ts/ReaderTask";
 import * as E from "fp-ts/Either";
 import * as TE from "fp-ts/TaskEither";
 import * as RTE from "fp-ts/ReaderTaskEither";
@@ -18,7 +19,7 @@ const unrecognisedResponse =
 
 export const processCommand = (
   command: Command
-): DependencyReaderTask<Message> => {
+): RT.ReaderTask<Dependencies, Message> => {
   for (const parse of parsers) {
     const parsedCommand = parse(command);
     if (parsedCommand) {
@@ -42,7 +43,7 @@ export const processCommand = (
 const executeCommand = ({
   tag,
   params,
-}: ParsedCommand): DependencyReaderTask<Message> => {
+}: ParsedCommand): ReaderTask<Dependencies, Message> => {
   switch (tag) {
     case "help":
       return helpResponse(params);
@@ -55,7 +56,7 @@ const executeCommand = ({
 
 const handleCommandError =
   (command: Command) =>
-  (e: Error): DependencyReaderTask<Message> => {
+  (e: Error): ReaderTask<Dependencies, Message> => {
     if (e instanceof UserError) {
       return RT.of(
         ResponseBuilder(command).privateResponse({

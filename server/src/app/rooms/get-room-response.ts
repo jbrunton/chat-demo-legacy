@@ -4,21 +4,18 @@ import { RequestAdapter } from "@app/dependencies/requests-adapters";
 import { selectRequest, sendResponse } from "@app/utils/api";
 import { Message } from "@domain/entities/messages";
 import { Room } from "@domain/entities/room";
-import { DependencyReaderTask } from "@domain/usecases/dependencies";
 import { getMessageHistory, getRoom } from "@domain/usecases/rooms/get-room";
 import { pipe } from "fp-ts/function";
 import { sequenceT } from "fp-ts/lib/Apply";
 import * as RT from "fp-ts/ReaderTask";
+import { ReaderTask } from "fp-ts/ReaderTask";
 
 export type RoomResponse = {
   room: Room;
   messages: Message[];
 };
 
-export const getRoomResponse = (): DependencyReaderTask<
-  void,
-  ReqDependencies
-> => {
+export const getRoomResponse = (): ReaderTask<ReqDependencies, void> => {
   return pipe(
     authenticate(),
     RT.apSecond(selectRequest("GET")),
@@ -31,7 +28,7 @@ export const getRoomResponse = (): DependencyReaderTask<
 
 const fetchRoomData = (
   id: string
-): DependencyReaderTask<[Room, Message[]], ReqDependencies> =>
+): ReaderTask<ReqDependencies, [Room, Message[]]> =>
   sequenceT(RT.ApplySeq)(getRoom(id), getMessageHistory(id));
 
 const buildRoomResponse = ([room, messages]: [

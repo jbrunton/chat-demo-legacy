@@ -1,6 +1,6 @@
 import { AppDependencies } from "@app/dependencies";
 import { AuditLogEntry, AuditLogType } from "@domain/entities/audit-log";
-import { DependencyReaderTask } from "@domain/usecases/dependencies";
+import { ReaderTask } from "fp-ts/lib/ReaderTask";
 import { pick } from "lodash";
 import SMTPTransport from "nodemailer/lib/smtp-transport";
 
@@ -17,7 +17,7 @@ export interface EmailParams {
 export const sendEmail =
   (
     params: EmailParams
-  ): DependencyReaderTask<SMTPTransport.SentMessageInfo, AppDependencies> =>
+  ): ReaderTask<AppDependencies, SMTPTransport.SentMessageInfo> =>
   ({ mailer, auditLogRepository }) =>
   async () => {
     const info = await mailer.sendMail(params);

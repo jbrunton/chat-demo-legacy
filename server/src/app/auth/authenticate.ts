@@ -2,11 +2,11 @@ import { ReqDependencies } from "@app/dependencies";
 import { toUser } from "@data/utils";
 import { UnauthorisedUser } from "@domain/entities/errors";
 import { User } from "@domain/entities/user";
-import { DependencyReaderTask } from "@domain/usecases/dependencies";
 import { pipe } from "fp-ts/function";
 import * as RT from "fp-ts/ReaderTask";
+import { ReaderTask } from "fp-ts/ReaderTask";
 
-export const authenticate = (): DependencyReaderTask<User, ReqDependencies> =>
+export const authenticate = (): ReaderTask<ReqDependencies, User> =>
   pipe(
     RT.ask<ReqDependencies>(),
     RT.chain(({ adapter, sessionRepository }) =>

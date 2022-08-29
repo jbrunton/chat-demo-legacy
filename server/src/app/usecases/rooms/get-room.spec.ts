@@ -47,4 +47,31 @@ describe("getRoom", () => {
       messages: testMessages,
     });
   });
+
+  it("responds with a 404 if the room does not exist", async () => {
+    const deps = pipe(
+      mockReqDependencies(),
+      stubAuth(testUser),
+      stubRequest({ method: "GET", query: { id: testRoom.id } })
+    );
+
+    await withDeps(deps).run(getRoomResponse());
+
+    expect(deps.res.sendResponse).toHaveBeenCalledWith(404, {
+      error: "Could not find room (id=test-room)",
+    });
+  });
+
+  it("authenticates the user", async () => {
+    const deps = pipe(
+      mockReqDependencies(),
+      stubRequest({ method: "GET", query: { id: testRoom.id } })
+    );
+
+    await withDeps(deps).run(getRoomResponse());
+
+    expect(deps.res.sendResponse).toHaveBeenCalledWith(401, {
+      error: "User must be authenticated",
+    });
+  });
 });

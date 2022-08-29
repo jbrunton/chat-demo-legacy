@@ -81,4 +81,21 @@ describe("handleMessage", () => {
     );
     expect(deps.dispatcher.sendMessage).toHaveBeenCalledWith(expectedResponse);
   });
+
+  it("authenticates the user", async () => {
+    const body: MessageRequestBody = {
+      content: "/not-a-command",
+      time: new Date().toISOString(),
+    };
+    const deps = pipe(
+      mockReqDependencies(),
+      stubRequest({ method: "POST", query, body })
+    );
+
+    await withDeps(deps).run(handleMessage());
+
+    expect(deps.res.sendResponse).toHaveBeenCalledWith(401, {
+      error: "User must be authenticated",
+    });
+  });
 });

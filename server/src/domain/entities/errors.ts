@@ -1,21 +1,37 @@
-export class UserError extends Error {
+export abstract class EntityError extends Error {
   constructor(message: string) {
     super(message);
   }
 }
 
-export class InvalidArgumentError extends UserError {
+// See https://stackoverflow.com/a/41102306/3604254 for why Object.setPrototypeOf is required
+
+export class InvalidArgumentError extends EntityError {
   constructor(message: string) {
     super(message);
-    // See https://stackoverflow.com/a/41102306/3604254
     Object.setPrototypeOf(this, InvalidArgumentError.prototype);
   }
+
+  static create({
+    argument,
+    parameter,
+    expected,
+  }: {
+    argument: string;
+    parameter: string;
+    expected: string;
+  }) {
+    let message = `Invalid argument ${argument} passed to ${parameter}`;
+    if (expected) {
+      message += `, expected ${expected}`;
+    }
+    return new InvalidArgumentError(message);
+  }
 }
 
-export class UnauthorisedUser extends UserError {
+export class UnauthorisedUser extends EntityError {
   constructor(message: string) {
     super(message);
-    // See https://stackoverflow.com/a/41102306/3604254
     Object.setPrototypeOf(this, UnauthorisedUser.prototype);
   }
 
@@ -26,10 +42,9 @@ export class UnauthorisedUser extends UserError {
   }
 }
 
-export class EntityNotFoundError extends UserError {
+export class EntityNotFoundError extends EntityError {
   constructor(message: string) {
     super(message);
-    // See https://stackoverflow.com/a/41102306/3604254
     Object.setPrototypeOf(this, EntityNotFoundError.prototype);
   }
 

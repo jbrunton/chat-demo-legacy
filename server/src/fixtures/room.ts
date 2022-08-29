@@ -1,5 +1,5 @@
 import { Message } from "@domain/entities/messages";
-import { Room } from "@domain/entities/room";
+import { CreateRoomParams, Room } from "@domain/entities/room";
 import { MockReqDependencies } from "./dependencies";
 
 export const stubRoom =
@@ -13,5 +13,15 @@ export const stubRoom =
         .mockResolvedValue(messages);
     }
 
+    return { roomRepository, ...deps };
+  };
+
+export const stubCreateRoom =
+  (params: CreateRoomParams, room: Room) =>
+  ({ roomRepository, ...deps }: MockReqDependencies) => {
+    console.log("stubbing room:", { params, room });
+    roomRepository.createRoom
+      .calledWith(expect.objectContaining(params))
+      .mockResolvedValue(room);
     return { roomRepository, ...deps };
   };

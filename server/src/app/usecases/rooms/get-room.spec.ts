@@ -2,14 +2,14 @@ import { User } from "@domain/entities/user";
 import { Room } from "@domain/entities/room";
 import { withDeps } from "@app/dependencies";
 import { mockReqDependencies } from "@fixtures/dependencies";
-import { getRoomResponse } from "./get-room-response";
+import { getRoomResponse } from "./get-room";
 import { Message } from "@domain/entities/messages";
 import { pipe } from "fp-ts/lib/function";
 import { stubAuth } from "@fixtures/auth";
 import { stubRoom } from "@fixtures/room";
 import { stubRequest } from "@fixtures/requests";
 
-describe("getRoomResponse", () => {
+describe("getRoom", () => {
   const now = new Date("2022-02-02T21:22:23.234Z");
 
   const testUser: User = {
@@ -31,10 +31,6 @@ describe("getRoomResponse", () => {
       sender: testUser,
     },
   ];
-
-  beforeEach(() => {
-    jest.useFakeTimers().setSystemTime(now);
-  });
 
   it("responds with the room details", async () => {
     const deps = pipe(

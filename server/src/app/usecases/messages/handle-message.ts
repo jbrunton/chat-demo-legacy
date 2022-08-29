@@ -6,7 +6,7 @@ import { ReaderTask } from "fp-ts/ReaderTask";
 import { ReqDependencies } from "@app/dependencies";
 import { processCommand } from "@domain/usecases/commands/process-command";
 import { authenticate } from "@app/auth/authenticate";
-import { selectRequest, sendResponse } from "@app/utils/api";
+import { buildRequestPipeline, selectRequest } from "@app/utils/api";
 import { ParsedMessage, parseMessage } from "./parse-message";
 import { sequenceT } from "fp-ts/lib/Apply";
 import { getRoom } from "@domain/usecases/rooms/get-room";
@@ -14,21 +14,6 @@ import { getRoom } from "@domain/usecases/rooms/get-room";
 export type MessageRequestBody = {
   content: string;
   time: string;
-};
-
-export const handleMessage = (): ReaderTask<ReqDependencies, void> => {
-  const parseRequest = pipe(
-    sequenceT(RT.ApplySeq)(authenticate(), selectRequest("POST")),
-    RT.map(parseMessage)
-  );
-
-  const processRequest = flow(
-    RT.chain(validateRoom),
-    RT.chain(processCommands),
-    RT.chain(dispatchMessage)
-  );
-
-  return pipe(parseRequest, processRequest, RT.chain(sendResponse));
 };
 
 const validateRoom = (
@@ -59,3 +44,19 @@ const dispatchMessage = (
       })
     )
   );
+
+const parseRequest = pipe(
+  sequenceT(RT.ApplySeq)(authenticate(), selectRequest("POST")),
+  RT.map(parseMessage)
+);
+
+const processRequest = flow(
+  RT.chain(validateRoom),
+  RT.chain(processCommands),
+  RT.chain(dispatchMessage)
+);
+
+export const handleMessage = buildRequestPipeline({
+  parseRequest,
+  processRequest,
+});

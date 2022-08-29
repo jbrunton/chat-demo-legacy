@@ -1,24 +1,22 @@
 import { Command, isCommand } from "@domain/entities/commands";
-import { isPrivate, Message, PublicMessage } from "@domain/entities/messages";
+import { Message, PublicMessage } from "@domain/entities/messages";
 import { flow, pipe } from "fp-ts/lib/function";
 import * as RT from "fp-ts/ReaderTask";
+import { ReaderTask } from "fp-ts/ReaderTask";
 import { ReqDependencies } from "@app/dependencies";
-import { DependencyReaderTask } from "@domain/usecases/dependencies";
 import { processCommand } from "@domain/usecases/commands/process-command";
 import { authenticate } from "@app/auth/authenticate";
 import { selectRequest, sendResponse } from "@app/utils/api";
-import { parseMessage } from "./parse-message";
+import { ParsedMessage, parseMessage } from "./parse-message";
 import { sequenceT } from "fp-ts/lib/Apply";
+import { getRoom } from "@domain/usecases/rooms/get-room";
 
 export type MessageRequestBody = {
   content: string;
   time: string;
 };
 
-export const handleMessage = (): DependencyReaderTask<
-  void,
-  ReqDependencies
-> => {
+export const handleMessage = (): ReaderTask<ReqDependencies, void> => {
   const parseRequest = pipe(
     sequenceT(RT.ApplySeq)(authenticate(), selectRequest("POST")),
     RT.map(parseMessage)
@@ -27,7 +25,7 @@ export const handleMessage = (): DependencyReaderTask<
   const processRequest = flow(
     RT.chain(validateRoom),
     RT.chain(processCommands),
-    RT.chain(processResponse)
+    RT.chain(dispatchMessage)
   );
 
   return pipe(parseRequest, processRequest, RT.chain(sendResponse));
@@ -35,23 +33,12 @@ export const handleMessage = (): DependencyReaderTask<
 
 const validateRoom = (
   message: PublicMessage | Command
-): DependencyReaderTask<PublicMessage | Command, ReqDependencies> =>
-  pipe(
-    RT.ask<ReqDependencies>(),
-    RT.chain(({ roomRepository }) =>
-      RT.fromTask(async () => {
-        const room = await roomRepository.getRoom(message.roomId);
-        if (!room) {
-          throw new Error(`Unexpected roomId: ${message.roomId}`);
-        }
-        return message;
-      })
-    )
-  );
+): ReaderTask<ReqDependencies, ParsedMessage> =>
+  pipe(getRoom(message.roomId), RT.apSecond(RT.of(message)));
 
 export const processCommands = (
-  message: PublicMessage | Command
-): DependencyReaderTask<Message, ReqDependencies> => {
+  message: ParsedMessage
+): ReaderTask<ReqDependencies, Message> => {
   if (isCommand(message)) {
     return processCommand(message);
   } else {
@@ -59,19 +46,15 @@ export const processCommands = (
   }
 };
 
-const processResponse = (
+const dispatchMessage = (
   response: Message
-): DependencyReaderTask<Message, ReqDependencies> =>
+): ReaderTask<ReqDependencies, Message> =>
   pipe(
     RT.ask<ReqDependencies>(),
     RT.chain(({ dispatcher, roomRepository }) =>
       RT.fromTask(async () => {
         await roomRepository.saveMessage(response);
-        if (isPrivate(response)) {
-          dispatcher.sendPrivateMessage(response);
-        } else {
-          dispatcher.sendPublicMessage(response);
-        }
+        dispatcher.sendMessage(response);
         return response;
       })
     )

@@ -19,7 +19,7 @@ import {
   RequestAdapter,
   ResponseAdapter,
 } from "./requests-adapters";
-import { ReaderTask } from "fp-ts/ReaderTask";
+import * as RT from "fp-ts/ReaderTask";
 
 const createMailer = () => {
   switch (process.env.EMAIL_TRANSPORT) {
@@ -55,8 +55,12 @@ export const getDefaultDeps = (): AppDependencies => ({
   mailer: createMailer(),
 });
 
+export const widenDependencies = <T, D1, D2 extends D1>(
+  task: RT.ReaderTask<D1, T>
+) => RT.local((d: D2) => d as D1)(task);
+
 export const withDeps = <D = Dependencies>(dependencies: D) => ({
-  run<T>(task: ReaderTask<D, T>) {
+  run<T>(task: RT.ReaderTask<D, T>) {
     return task(dependencies)();
   },
 });

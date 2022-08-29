@@ -12,7 +12,7 @@ export const createRoom =
   ({ roomRepository, nameGenerator }) =>
   async () => {
     return await roomRepository.createRoom({
-      name: name || nameGenerator.getPlaceName(),
       ownerId,
+      name: name || nameGenerator.getPlaceName(),
     });
   };

@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { Server as NetServer } from "http";
-import { SocketDispatcher } from "@app/messages/socket-dispatcher";
+import { SocketDispatcher } from "@app/dependencies/socket-dispatcher";
 import cookie from "cookie";
 import { Socket } from "socket.io";
 import { toUser } from "@data/utils";

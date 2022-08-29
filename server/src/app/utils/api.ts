@@ -1,8 +1,9 @@
-import { ReqDependencies } from "@app/dependencies";
+import { ReqDependencies, withReqDeps } from "@app/dependencies";
 import { RequestAdapter } from "@app/dependencies/requests-adapters";
 import { InvalidArgumentError } from "@domain/entities/errors";
 import { pipe } from "fp-ts/lib/function";
 import * as RT from "fp-ts/ReaderTask";
+import { NextApiRequest, NextApiResponse } from "next";
 
 export const selectRequest = (
   method?: string
@@ -26,3 +27,27 @@ export const sendResponse = <T>(
       res.sendResponse(201, response);
     })
   );
+
+export type RequestPipeline = () => RT.ReaderTask<ReqDependencies, void>;
+export type RequestParser<T> = RT.ReaderTask<ReqDependencies, T>;
+export type RequestProcessor<T, R> = (
+  req: RequestParser<T>
+) => RT.ReaderTask<ReqDependencies, R>;
+
+export interface RequestPipelineDefinition<T, R> {
+  parseRequest: RequestParser<T>;
+  processRequest: RequestProcessor<T, R>;
+}
+
+export const buildRequestPipeline = <T, R>({
+  parseRequest,
+  processRequest,
+}: RequestPipelineDefinition<T, R>): RequestPipeline => {
+  return () => pipe(parseRequest, processRequest, RT.chain(sendResponse));
+};
+
+export const buildRequestHandler = (pipeline: RequestPipeline) => {
+  return async (req: NextApiRequest, res: NextApiResponse) => {
+    await withReqDeps(req, res).run(pipeline());
+  };
+};

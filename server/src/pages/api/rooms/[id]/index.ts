@@ -1,10 +1,5 @@
-import { NextApiRequest, NextApiResponse } from "next";
 import "@app/sockets";
-import { withReqDeps } from "@app/dependencies";
-import { getRoomResponse } from "@app/rooms/get-room-response";
+import { getRoomResponse } from "@app/usecases/rooms/get-room";
+import { buildRequestHandler } from "@app/utils/api";
 
-const Get = async (req: NextApiRequest, res: NextApiResponse) => {
-  await withReqDeps(req, res).run(getRoomResponse());
-};
-
-export default Get;
+export default buildRequestHandler(getRoomResponse);

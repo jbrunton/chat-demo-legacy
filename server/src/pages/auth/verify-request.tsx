@@ -1,8 +1,8 @@
 import AppLayout from "@app/components/Layout";
 import { AppDependencies, withDefaultDeps } from "@app/dependencies";
 import { AuditLogEntry } from "@domain/entities/audit-log";
-import { DependencyReaderTask } from "@domain/usecases/dependencies";
 import { Button, Result } from "antd";
+import { ReaderTask } from "fp-ts/lib/ReaderTask";
 import { GetServerSideProps } from "next";
 
 export default function VerifyRequestPage({
@@ -28,7 +28,7 @@ export default function VerifyRequestPage({
 }
 
 const getRecentRequestEntry =
-  (): DependencyReaderTask<AuditLogEntry | null, AppDependencies> =>
+  (): ReaderTask<AppDependencies, AuditLogEntry | null> =>
   ({ auditLogRepository }) =>
   () => {
     return auditLogRepository.getRecentEntry("verification-request");

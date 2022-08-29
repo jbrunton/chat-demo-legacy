@@ -1,10 +1,7 @@
 import { Mailer } from "@app/email/mailer";
 import { createEtheralMailer } from "@app/email/mailers/ethereal";
 import { createSendgridMailer } from "@app/email/mailers/sendgrid";
-import {
-  Dependencies,
-  DependencyReaderTask,
-} from "@domain/usecases/dependencies";
+import { Dependencies } from "@domain/usecases/dependencies";
 import { Dispatcher } from "@domain/usecases/messages/dispatcher";
 import { NextApiRequest, NextApiResponse } from "next";
 import { Adapter } from "next-auth/adapters";
@@ -22,6 +19,7 @@ import {
   RequestAdapter,
   ResponseAdapter,
 } from "./requests-adapters";
+import { ReaderTask } from "fp-ts/ReaderTask";
 
 const createMailer = () => {
   switch (process.env.EMAIL_TRANSPORT) {
@@ -58,7 +56,7 @@ export const getDefaultDeps = (): AppDependencies => ({
 });
 
 export const withDeps = <D = Dependencies>(dependencies: D) => ({
-  run<T>(task: DependencyReaderTask<T, D>) {
+  run<T>(task: ReaderTask<D, T>) {
     return task(dependencies)();
   },
 });

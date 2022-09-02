@@ -1,7 +1,7 @@
 import { Command } from "@domain/entities/commands";
 import { Message } from "@domain/entities/messages";
 import { Dependencies } from "../dependencies";
-import { UserError } from "../../entities/errors";
+import { EntityError } from "../../entities/errors";
 import { renameRoom } from "../rooms/rename-room";
 import { renameUser } from "../users/rename-user";
 import { pipe } from "fp-ts/function";
@@ -57,7 +57,7 @@ const executeCommand = ({
 const handleCommandError =
   (command: Command) =>
   (e: Error): ReaderTask<Dependencies, Message> => {
-    if (e instanceof UserError) {
+    if (e instanceof EntityError) {
       return RT.of(
         ResponseBuilder(command).privateResponse({
           content: e.message,

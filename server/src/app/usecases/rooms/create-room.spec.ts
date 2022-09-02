@@ -35,4 +35,17 @@ describe("createRoom", () => {
 
     expect(deps.res.sendResponse).toHaveBeenCalledWith(201, newRoom);
   });
+
+  it("authenticates the user", async () => {
+    const deps = pipe(
+      mockReqDependencies(),
+      stubRequest({ method: "POST", query: {} })
+    );
+
+    await withDeps(deps).run(createRoom());
+
+    expect(deps.res.sendResponse).toHaveBeenCalledWith(401, {
+      error: "User must be authenticated",
+    });
+  });
 });

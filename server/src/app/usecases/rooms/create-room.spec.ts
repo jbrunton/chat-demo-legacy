@@ -1,6 +1,5 @@
 import { User } from "@domain/entities/user";
 import { Room } from "@domain/entities/room";
-import { withDeps } from "@app/dependencies";
 import { mockReqDependencies } from "@fixtures/dependencies";
 import { pipe } from "fp-ts/lib/function";
 import { stubAuth } from "@fixtures/auth";
@@ -8,6 +7,7 @@ import { stubCreateRoom } from "@fixtures/room";
 import { stubRequest } from "@fixtures/requests";
 import { createRoom } from "./create-room";
 import { stubNameGenerator } from "@fixtures/name-generator";
+import { withDeps } from "@domain/usecases/dependencies";
 
 describe("createRoom", () => {
   const testUser: User = {

@@ -1,4 +1,3 @@
-import { withDeps } from "@app/dependencies";
 import { User } from "@domain/entities/user";
 import { Session } from "next-auth";
 import { AdapterUser } from "next-auth/adapters";
@@ -7,6 +6,7 @@ import { authenticate } from "./authenticate";
 import { UnauthorisedUser } from "@domain/entities/errors";
 import { pipe } from "fp-ts/lib/function";
 import { stubAdapterUser, stubSession } from "@fixtures/auth";
+import { withDeps } from "@domain/usecases/dependencies";
 
 describe("authenticate", () => {
   const testUser: User = {

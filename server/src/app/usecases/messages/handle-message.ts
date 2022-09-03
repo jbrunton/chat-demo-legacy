@@ -1,5 +1,5 @@
-import { Command, isCommand } from "@domain/entities/commands";
-import { Message, PublicMessage } from "@domain/entities/messages";
+import { isCommand } from "@domain/entities/commands";
+import { Message } from "@domain/entities/messages";
 import { flow, pipe } from "fp-ts/lib/function";
 import * as RT from "fp-ts/ReaderTask";
 import { ReaderTask } from "fp-ts/ReaderTask";
@@ -9,7 +9,10 @@ import { authenticate } from "@app/auth/authenticate";
 import { buildRequestPipeline, selectRequest } from "@app/utils/api";
 import { ParsedMessage, parseMessage } from "./parse-message";
 import { sequenceT } from "fp-ts/lib/Apply";
-import { getRoom } from "@domain/usecases/rooms/get-room";
+import { getMembershipStatus, getRoom } from "@domain/usecases/rooms/get-room";
+import { MembershipStatus } from "@domain/entities/room";
+import { assertNotNil } from "@util/assert";
+import { UnauthorisedUser } from "@domain/entities/errors";
 
 export type MessageRequestBody = {
   content: string;
@@ -17,9 +20,29 @@ export type MessageRequestBody = {
 };
 
 const validateRoom = (
-  message: PublicMessage | Command
-): ReaderTask<ReqDependencies, ParsedMessage> =>
-  pipe(getRoom(message.roomId), RT.apSecond(RT.of(message)));
+  message: ParsedMessage
+): ReaderTask<ReqDependencies, ParsedMessage> => {
+  const sender = message.sender;
+  assertNotNil(sender);
+
+  const roomId = message.roomId;
+  const userId = sender.id;
+
+  return pipe(
+    getRoom(roomId),
+    RT.apSecond(getMembershipStatus({ roomId, userId })),
+    RT.map((membershipStatus) => {
+      if (membershipStatus !== MembershipStatus.Joined) {
+        throw UnauthorisedUser.create(
+          userId,
+          "send message",
+          `room (${roomId})`
+        );
+      }
+      return message;
+    })
+  );
+};
 
 export const processCommands = (
   message: ParsedMessage

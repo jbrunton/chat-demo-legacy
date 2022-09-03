@@ -1,4 +1,4 @@
-import { Room } from "@domain/entities/room";
+import { MembershipStatus, Room } from "@domain/entities/room";
 import { AuthDB } from "./auth-db";
 import { RoomDB } from "./room-db";
 import { LowRoomRepository } from "./room-repository";
@@ -16,11 +16,15 @@ describe("FsRoomRepository", () => {
     ownerId: testUserId,
   };
 
+  const now = new Date("2022-02-02T21:22:23.234Z");
+  const then = new Date("2022-01-02T21:22:23.234Z");
+
   beforeEach(() => {
     roomDB = RoomDB.createMemoryDB();
     authDB = AuthDB.createMemoryDB();
     repo = new LowRoomRepository(roomDB, authDB);
     roomDB.createRoom(testRoom);
+    jest.useFakeTimers().setSystemTime(now);
   });
 
   describe("createRoom", () => {
@@ -53,17 +57,103 @@ describe("FsRoomRepository", () => {
   describe("renameRoom", () => {
     it("renames the room", async () => {
       const name = "New Name";
+
       const updatedRoom = await repo.renameRoom({
         id: testRoom.id,
         name,
       });
-      const room = roomDB.rooms.find({ id: testRoom.id }).value();
 
+      const room = roomDB.rooms.find({ id: testRoom.id }).value();
       expect(room).toEqual(updatedRoom);
       expect(updatedRoom).toEqual({
         ...testRoom,
         name,
       });
+    });
+  });
+
+  describe("setMembershipStatus", () => {
+    const params = {
+      userId: testUserId,
+      roomId: testRoom.id,
+    };
+
+    it("adds a new row for a user without membership", async () => {
+      const status = MembershipStatus.Joined;
+
+      await repo.setMembershipStatus(params, status);
+
+      const memberships = roomDB.memberships.filter(params).value();
+      expect(memberships).toEqual([
+        {
+          ...params,
+          status,
+          from: now.toISOString(),
+        },
+      ]);
+    });
+
+    it("adds a new row and closes the previous one for a user with existing membership", async () => {
+      const initialStatus = MembershipStatus.PendingApproval;
+      roomDB.createMembership({
+        ...params,
+        status: initialStatus,
+        from: then.toISOString(),
+      });
+
+      const newStatus = MembershipStatus.Joined;
+      await repo.setMembershipStatus(params, newStatus);
+
+      const memberships = roomDB.memberships.filter(params).value();
+      expect(memberships).toEqual([
+        {
+          ...params,
+          status: initialStatus,
+          from: then.toISOString(),
+          until: now.toISOString(),
+        },
+        {
+          ...params,
+          status: newStatus,
+          from: now.toISOString(),
+        },
+      ]);
+    });
+  });
+
+  describe("getMembershipStatus", () => {
+    const params = {
+      userId: testUserId,
+      roomId: testRoom.id,
+    };
+
+    it("returns None if no membership exists", async () => {
+      const status = await repo.getMembershipStatus(params);
+      expect(status).toEqual(MembershipStatus.None);
+    });
+
+    it("returns the open status if there is one", async () => {
+      roomDB.createMembership({
+        ...params,
+        status: MembershipStatus.PendingApproval,
+        from: then.toISOString(),
+        until: now.toISOString(),
+      });
+      roomDB.createMembership({
+        ...params,
+        status: MembershipStatus.Joined,
+        from: now.toISOString(),
+      });
+      roomDB.createMembership({
+        ...params,
+        status: MembershipStatus.Revoked,
+        from: then.toISOString(),
+        until: now.toISOString(),
+      });
+
+      const status = await repo.getMembershipStatus(params);
+
+      expect(status).toEqual(MembershipStatus.Joined);
     });
   });
 });

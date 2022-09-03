@@ -1,6 +1,10 @@
 import { debug } from "@app/debug";
 import { Message } from "@domain/entities/messages";
-import { Room } from "@domain/entities/room";
+import {
+  FindMembershipStatusParams,
+  MembershipStatus,
+  Room,
+} from "@domain/entities/room";
 import { chain, ExpChain } from "lodash";
 import { JSONFileSync, LowSync, MemorySync, SyncAdapter } from "lowdb";
 
@@ -8,8 +12,17 @@ export type StoredMessage = Omit<Message, "sender"> & {
   senderId?: string;
 };
 
+type RoomMembership = {
+  roomId: string;
+  userId: string;
+  status: MembershipStatus;
+  from: string;
+  until?: string;
+};
+
 type Data = {
   rooms: Room[];
+  memberships: RoomMembership[];
   messages: StoredMessage[];
 };
 
@@ -19,6 +32,7 @@ export class RoomDB extends LowSync<Data> {
   chain: ExpChain<this["data"]> = chain(this).get("data");
 
   rooms: ExpChain<Data["rooms"]> = this.chain.get("rooms");
+  memberships: ExpChain<Data["memberships"]> = this.chain.get("memberships");
   messages: ExpChain<Data["messages"]> = this.chain.get("messages");
 
   static createFileSystemDB() {
@@ -36,6 +50,7 @@ export class RoomDB extends LowSync<Data> {
     if (!this.data) {
       this.data = {
         rooms: [],
+        memberships: [],
         messages: [],
       };
       this.write();
@@ -44,6 +59,11 @@ export class RoomDB extends LowSync<Data> {
 
   createRoom(room: Room) {
     this.data?.rooms.push(room);
+    this.write();
+  }
+
+  createMembership(membership: RoomMembership) {
+    this.data?.memberships.push(membership);
     this.write();
   }
 
@@ -59,5 +79,17 @@ export class RoomDB extends LowSync<Data> {
     this.write();
     debug.room(`updateRoom: updated room: %O`, updatedRoom);
     return updatedRoom;
+  }
+
+  findMembershipStatus(params: FindMembershipStatusParams) {
+    this.read();
+    const membership = this.memberships.find((membership) => {
+      return (
+        membership.roomId === params.roomId &&
+        membership.userId === params.userId &&
+        !membership.until
+      );
+    });
+    return membership;
   }
 }

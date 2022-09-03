@@ -1,17 +1,17 @@
 import React, { useState, useEffect, useRef } from "react";
-import { List, Input, Typography, InputRef, Button, Form } from "antd";
+import { List, Input, Typography, InputRef, Button, Form, Alert } from "antd";
 import { ArrowRightOutlined } from "@ant-design/icons";
 import { io } from "socket.io-client";
 import { useRouter } from "next/router";
 import { formatTime } from "@util/format";
 import Layout from "@app/components/Layout";
 import { NextPage } from "next";
-import { getRoom } from "@app/api/rooms";
+import { getRoom, joinRoom } from "@app/api/rooms";
 import { sendMessage } from "@app/api/chat";
 import { useContext } from "react";
 import { SessionContext } from "@app/components/AuthWrapper";
 import { Message, PublicMessage } from "@domain/entities/messages";
-import { Room } from "@domain/entities/room";
+import { MembershipStatus, Room } from "@domain/entities/room";
 
 const RoomPage: NextPage = () => {
   const inputRef = useRef<InputRef>(null);
@@ -24,12 +24,15 @@ const RoomPage: NextPage = () => {
   const [connected, setConnected] = useState(false);
   const [sendingMessage, setSendingMessage] = useState(false);
   const [room, setRoom] = useState<Room | null>(null);
+  const [membershipStatus, setMembershipStatus] =
+    useState<MembershipStatus | null>(null);
   const { refreshSession } = useContext(SessionContext);
 
   const loadRoom = async () => {
     const response = await getRoom(roomId);
     setRoom(response.room);
     setChat(response.messages);
+    setMembershipStatus(response.membershipStatus);
   };
 
   const createSocket = () => {
@@ -50,6 +53,12 @@ const RoomPage: NextPage = () => {
       loadRoom();
     }
     setChat((chat) => [...chat, message]);
+  };
+
+  const onJoinClicked = async () => {
+    if (!room) return;
+    await joinRoom(room.id);
+    loadRoom();
   };
 
   useEffect(() => {
@@ -92,6 +101,8 @@ const RoomPage: NextPage = () => {
     inputRef?.current?.focus();
   };
 
+  if (!room) return <Layout subTitle={"Loading Room"}>{}</Layout>;
+
   return (
     <Layout subTitle={room?.name}>
       <List
@@ -116,23 +127,36 @@ const RoomPage: NextPage = () => {
       />
       <Form layout="vertical" className="form">
         <Form.Item>
-          <Input.Search
-            className="input"
-            disabled={!connected}
-            value={content}
-            ref={inputRef}
-            placeholder="Type to chat"
-            onChange={(e) => setContent(e.target.value)}
-            onSearch={() => onSendMessage()}
-            enterButton={
-              <Button
-                type="primary"
-                disabled={!content.length}
-                loading={sendingMessage}
-                icon={<ArrowRightOutlined disabled={true} />}
-              />
-            }
-          />
+          {membershipStatus == MembershipStatus.Joined ? (
+            <Input.Search
+              className="input"
+              disabled={!connected}
+              value={content}
+              ref={inputRef}
+              placeholder="Type to chat"
+              onChange={(e) => setContent(e.target.value)}
+              onSearch={() => onSendMessage()}
+              enterButton={
+                <Button
+                  type="primary"
+                  disabled={!content.length}
+                  loading={sendingMessage}
+                  icon={<ArrowRightOutlined disabled={true} />}
+                />
+              }
+            />
+          ) : (
+            <Alert
+              message="Join Room"
+              description="You cannot post until you join this room"
+              type="info"
+              action={
+                <Button onClick={onJoinClicked} type="primary">
+                  Join Room
+                </Button>
+              }
+            />
+          )}
         </Form.Item>
       </Form>
     </Layout>

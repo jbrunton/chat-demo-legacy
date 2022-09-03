@@ -1,11 +1,11 @@
 import { handleMessage, MessageRequestBody } from "./handle-message";
 import { User } from "@domain/entities/user";
-import { Room } from "@domain/entities/room";
+import { MembershipStatus, Room } from "@domain/entities/room";
 import { mockReqDependencies } from "@fixtures/dependencies";
 import { pipe } from "fp-ts/lib/function";
 import { stubRequest } from "@fixtures/requests";
 import { stubAuth } from "@fixtures/auth";
-import { stubRoom } from "@fixtures/room";
+import { stubMembershipStatus, stubRoom } from "@fixtures/room";
 import { fakeDispatcher } from "@fixtures/dispatcher";
 import { withDeps } from "@domain/usecases/dependencies";
 
@@ -39,6 +39,10 @@ describe("handleMessage", () => {
       stubRequest({ method: "POST", query, body }),
       stubAuth(testUser),
       stubRoom(testRoom),
+      stubMembershipStatus(
+        { roomId: testRoom.id, userId: testUser.id },
+        MembershipStatus.Joined
+      ),
       fakeDispatcher()
     );
 
@@ -65,6 +69,10 @@ describe("handleMessage", () => {
       stubRequest({ method: "POST", query, body }),
       stubAuth(testUser),
       stubRoom(testRoom),
+      stubMembershipStatus(
+        { roomId: testRoom.id, userId: testUser.id },
+        MembershipStatus.Joined
+      ),
       fakeDispatcher()
     );
 
@@ -96,6 +104,31 @@ describe("handleMessage", () => {
 
     expect(deps.res.sendResponse).toHaveBeenCalledWith(401, {
       error: "User must be authenticated",
+    });
+  });
+
+  it("authorises the user", async () => {
+    const body: MessageRequestBody = {
+      content: "Hello, World!",
+      time: new Date().toISOString(),
+    };
+    const deps = pipe(
+      mockReqDependencies(),
+      stubRequest({ method: "POST", query, body }),
+      stubAuth(testUser),
+      stubRoom(testRoom),
+      stubMembershipStatus(
+        { roomId: testRoom.id, userId: testUser.id },
+        MembershipStatus.None
+      ),
+      fakeDispatcher()
+    );
+
+    await withDeps(deps).run(handleMessage());
+
+    expect(deps.res.sendResponse).toHaveBeenCalledWith(401, {
+      error:
+        "User test-user is not authorised to perform send message on room (test-room)",
     });
   });
 });

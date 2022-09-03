@@ -1,5 +1,10 @@
 import { Message } from "@domain/entities/messages";
-import { CreateRoomParams, Room } from "@domain/entities/room";
+import {
+  CreateRoomParams,
+  FindMembershipStatusParams,
+  MembershipStatus,
+  Room,
+} from "@domain/entities/room";
 import { MockReqDependencies } from "./dependencies";
 
 export const stubRoom =
@@ -22,5 +27,14 @@ export const stubCreateRoom =
     roomRepository.createRoom
       .calledWith(expect.objectContaining(params))
       .mockResolvedValue(room);
+    return { roomRepository, ...deps };
+  };
+
+export const stubMembershipStatus =
+  (params: FindMembershipStatusParams, status: MembershipStatus) =>
+  ({ roomRepository, ...deps }: MockReqDependencies) => {
+    roomRepository.getMembershipStatus
+      .calledWith(expect.objectContaining(params))
+      .mockResolvedValue(status);
     return { roomRepository, ...deps };
   };

@@ -1,15 +1,52 @@
 {
   "root": true,
   "parser": "@typescript-eslint/parser",
-  "plugins": ["@typescript-eslint"],
+  "plugins": ["@typescript-eslint", "boundaries"],
   "extends": [
     "eslint:recommended",
+    "plugin:boundaries/recommended",
     "plugin:@typescript-eslint/recommended",
     "prettier",
     "plugin:prettier/recommended",
     "next/core-web-vitals"
   ],
   "rules": {
-    "prettier/prettier": "error"
+    "prettier/prettier": "error",
+    "boundaries/element-types": [
+      2,
+      {
+        "default": "disallow",
+        "rules": [
+          {
+            "from": "domain",
+            "allow": ["domain"]
+          },
+          {
+            "from": "app",
+            "allow": ["app", "domain"]
+          },
+          {
+            "from": "pages",
+            "allow": ["pages", "app", "domain"]
+          }
+        ]
+      }
+    ]
+  },
+  "settings": {
+    "boundaries/elements": [
+      {
+        "type": "domain",
+        "pattern": "src/domain/*"
+      },
+      {
+        "type": "app",
+        "pattern": "src/app/*"
+      },
+      {
+        "type": "pages",
+        "pattern": "src/pages/*"
+      }
+    ]
   }
 }

@@ -1,7 +1,7 @@
 import { Mailer } from "@app/email/mailer";
 import { createEtheralMailer } from "@app/email/mailers/ethereal";
 import { createSendgridMailer } from "@app/email/mailers/sendgrid";
-import { Dependencies } from "@domain/usecases/dependencies";
+import { Dependencies, withDeps } from "@domain/usecases/dependencies";
 import { Dispatcher } from "@domain/usecases/messages/dispatcher";
 import { NextApiRequest, NextApiResponse } from "next";
 import { Adapter } from "next-auth/adapters";
@@ -59,12 +59,6 @@ export const getDefaultDeps = (): AppDependencies => ({
 export const widenDependencies = <T, D1, D2 extends D1>(
   task: RT.ReaderTask<D1, T>
 ) => RT.local((d: D2) => d as D1)(task);
-
-export const withDeps = <D = Dependencies>(dependencies: D) => ({
-  run<T>(task: RT.ReaderTask<D, T>) {
-    return task(dependencies)();
-  },
-});
 
 export const withDefaultDeps = () => withDeps(getDefaultDeps());
 

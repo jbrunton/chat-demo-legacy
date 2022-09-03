@@ -1,13 +1,13 @@
 import { handleMessage, MessageRequestBody } from "./handle-message";
 import { User } from "@domain/entities/user";
 import { Room } from "@domain/entities/room";
-import { withDeps } from "@app/dependencies";
 import { mockReqDependencies } from "@fixtures/dependencies";
 import { pipe } from "fp-ts/lib/function";
 import { stubRequest } from "@fixtures/requests";
 import { stubAuth } from "@fixtures/auth";
 import { stubRoom } from "@fixtures/room";
 import { fakeDispatcher } from "@fixtures/dispatcher";
+import { withDeps } from "@domain/usecases/dependencies";
 
 describe("handleMessage", () => {
   const now = new Date("2022-02-02T21:22:23.234Z");

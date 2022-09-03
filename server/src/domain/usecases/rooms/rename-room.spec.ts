@@ -1,5 +1,3 @@
-import { withDeps } from "@app/dependencies";
-import { nameGenerator } from "@app/dependencies/name-generator";
 import { AuditLogDB } from "@data/low/audit-log-db";
 import { LowAuditLogRepository } from "@data/low/audit-log-repository";
 import { LowAuthAdapter } from "@data/low/auth-adapter";
@@ -12,9 +10,11 @@ import {
   InvalidArgumentError,
   UnauthorisedUser,
 } from "@domain/entities/errors";
+import { NameGenerator } from "@domain/entities/name-generator";
 import { Room } from "@domain/entities/room";
 import { User } from "@domain/entities/user";
-import { Dependencies } from "../dependencies";
+import { mock } from "jest-mock-extended";
+import { Dependencies, withDeps } from "../dependencies";
 import { renameRoom } from "./rename-room";
 
 describe("renameRoom", () => {
@@ -39,6 +39,7 @@ describe("renameRoom", () => {
     const roomDB = RoomDB.createMemoryDB();
     const auditLogDB = AuditLogDB.createMemoryDB();
     const adapter = new LowAuthAdapter(authDB);
+    const nameGenerator = mock<NameGenerator>();
 
     roomDB.createRoom(testRoom);
 

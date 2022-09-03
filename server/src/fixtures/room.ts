@@ -19,7 +19,6 @@ export const stubRoom =
 export const stubCreateRoom =
   (params: CreateRoomParams, room: Room) =>
   ({ roomRepository, ...deps }: MockReqDependencies) => {
-    console.log("stubbing room:", { params, room });
     roomRepository.createRoom
       .calledWith(expect.objectContaining(params))
       .mockResolvedValue(room);

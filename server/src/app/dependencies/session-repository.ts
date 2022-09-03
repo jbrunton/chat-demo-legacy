@@ -1,4 +1,4 @@
-import { authOptions } from "@pages/api/auth/[...nextauth]";
+import { authOptions } from "@app/auth/next/auth-options";
 import { NextApiRequest, NextApiResponse } from "next";
 import { Session, unstable_getServerSession } from "next-auth";
 

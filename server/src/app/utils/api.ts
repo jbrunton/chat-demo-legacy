@@ -93,15 +93,15 @@ const handleError =
   (e: Error): RT.ReaderTask<ReqDependencies, void> => {
     return pipe(
       RT.ask<ReqDependencies>(),
-      RT.chain((deps) =>
+      RT.chain(({ res }) =>
         RT.fromTask(async () => {
-          const unhandledError = onError ? onError(e, deps.res) : e;
+          const unhandledError = onError ? onError(e, res) : e;
           if (unhandledError) {
             console.error(unhandledError);
             if (process.env.NODE_ENV === "development") {
-              deps.res.sendResponse(500, { error: e.message, trace: e.stack });
+              res.sendResponse(500, { error: e.message, trace: e.stack });
             } else {
-              deps.res.sendResponse(500, { error: "Unexpected error" });
+              res.sendResponse(500, { error: "Unexpected error" });
             }
           }
         })

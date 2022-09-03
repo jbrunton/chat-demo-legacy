@@ -30,4 +30,5 @@ export interface RoomRepository {
   getMembershipStatus(
     params: FindMembershipStatusParams
   ): Promise<MembershipStatus>;
+  getJoinedRooms(userId: string): Promise<Room[]>;
 }

@@ -1,11 +1,11 @@
 import type { NextPage } from "next";
-import Layout from "@app/components/Layout";
+import PageLayout from "@app/components/PageLayout";
 
 const Home: NextPage = () => {
   return (
-    <Layout>
+    <PageLayout showMenu={true}>
       <></>
-    </Layout>
+    </PageLayout>
   );
 };
 

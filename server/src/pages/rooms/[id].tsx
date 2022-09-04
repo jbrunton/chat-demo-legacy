@@ -4,7 +4,7 @@ import { ArrowRightOutlined } from "@ant-design/icons";
 import { io } from "socket.io-client";
 import { useRouter } from "next/router";
 import { formatTime } from "@util/format";
-import Layout from "@app/components/Layout";
+import PageLayout from "@app/components/PageLayout";
 import { NextPage } from "next";
 import { getRoom, joinRoom } from "@app/api/rooms";
 import { sendMessage } from "@app/api/chat";
@@ -101,10 +101,10 @@ const RoomPage: NextPage = () => {
     inputRef?.current?.focus();
   };
 
-  if (!room) return <Layout subTitle={"Loading Room"}>{}</Layout>;
+  if (!room) return <PageLayout subTitle={"Loading Room"}>{}</PageLayout>;
 
   return (
-    <Layout subTitle={room?.name}>
+    <PageLayout subTitle={room?.name} showMenu={true}>
       <List
         itemLayout="vertical"
         dataSource={chat}
@@ -159,7 +159,7 @@ const RoomPage: NextPage = () => {
           )}
         </Form.Item>
       </Form>
-    </Layout>
+    </PageLayout>
   );
 };
 

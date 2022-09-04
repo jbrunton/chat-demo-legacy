@@ -107,4 +107,17 @@ export class LowRoomRepository implements RoomRepository {
       status,
     });
   }
+
+  async getJoinedRooms(userId: string): Promise<Room[]> {
+    this.roomDB.read();
+    const roomIds = this.roomDB.memberships
+      .filter((membership) => {
+        return membership.userId === userId && !membership.until;
+      })
+      .map((membership) => membership.roomId)
+      .value();
+    return this.roomDB.rooms
+      .filter((room) => roomIds.includes(room.id))
+      .value();
+  }
 }

@@ -156,4 +156,23 @@ describe("FsRoomRepository", () => {
       expect(status).toEqual(MembershipStatus.Joined);
     });
   });
+
+  describe("getJoinedRooms", () => {
+    const params = {
+      userId: testUserId,
+      roomId: testRoom.id,
+    };
+
+    it("returns the rooms a user has joined", async () => {
+      roomDB.createMembership({
+        ...params,
+        status: MembershipStatus.Joined,
+        from: now.toISOString(),
+      });
+
+      const rooms = await repo.getJoinedRooms(testUserId);
+
+      expect(rooms).toEqual([testRoom]);
+    });
+  });
 });

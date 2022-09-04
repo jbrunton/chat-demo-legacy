@@ -1,4 +1,4 @@
-import AppLayout from "@app/components/Layout";
+import PageLayout from "@app/components/PageLayout";
 import { AppDependencies, withDefaultDeps } from "@app/dependencies";
 import { AuditLogEntry } from "@domain/entities/audit-log";
 import { Button, Result } from "antd";
@@ -21,9 +21,9 @@ export default function VerifyRequestPage({
     </>
   );
   return (
-    <AppLayout>
+    <PageLayout>
       <Result title="An email has been sent" extra={extra} />
-    </AppLayout>
+    </PageLayout>
   );
 }
 

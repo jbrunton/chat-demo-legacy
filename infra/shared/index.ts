@@ -4,7 +4,7 @@ import * as awsx from "@pulumi/awsx";
 
 const provider = new aws.Provider("aws", { region: "eu-west-2" });
 
-//const cluster = new aws.ecs.Cluster("chat-demo", undefined, { provider });
+const cluster = new aws.ecs.Cluster("chat-demo", undefined, { provider });
 
 //const vpc = aws.ec2.getVpc();
 
@@ -36,5 +36,5 @@ const loadBalancer = new aws.lb.LoadBalancer("chat-demo", {
 }, { provider });
 
 export const loadBalancerArn = loadBalancer.arn;
-// export const clusterArn = cluster.arn;
+export const clusterArn = cluster.arn;
 // export const listenerArn = listener.arn;

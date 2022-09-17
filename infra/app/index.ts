@@ -124,6 +124,18 @@ function createService(
     ],
   });
 
+  const zoneId = aws.route53.getZone({ name: "jbrunton-aws.com" }, { provider }).then(zone => zone.id);
+  const www = new aws.route53.Record("www", {
+    zoneId,
+    name: "example.dev.jbrunton-aws.com",
+    type: "A",
+    aliases: [{
+        name: lb.dnsName,
+        zoneId: lb.zoneId,
+        evaluateTargetHealth: true,
+    }],
+  }, { provider });
+
   return {
     dnsName: lb.dnsName,
   };

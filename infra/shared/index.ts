@@ -27,7 +27,7 @@ const subnetIds = vpc.getSubnets("public").then(subnets => subnets.map(subnet =>
 //   cidrBlock: "10.0.1.0/16",
 // }, { provider });
 
-const test = new aws.lb.LoadBalancer("test", {
+const loadBalancer = new aws.lb.LoadBalancer("chat-demo", {
   internal: false,
   loadBalancerType: "application",
   subnets: subnetIds
@@ -35,6 +35,6 @@ const test = new aws.lb.LoadBalancer("test", {
   // subnets: [subnet.id],
 }, { provider });
 
-//export const loadBalancerArn = loadBalancer.arn;
+export const loadBalancerArn = loadBalancer.arn;
 // export const clusterArn = cluster.arn;
 // export const listenerArn = listener.arn;

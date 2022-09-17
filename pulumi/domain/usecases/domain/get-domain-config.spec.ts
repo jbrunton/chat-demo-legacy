@@ -5,11 +5,12 @@ describe("getDomainConfig", () => {
     const config = getDomainConfig({
       environment: "production",
       stackName: "production",
+      rootDomain: "jbrunton-aws.com",
     });
     expect(config).toEqual({
-      domain: "chat-demo.jbrunton-do.com",
-      rootDomain: "jbrunton-do.com",
-      publicUrl: "https://chat-demo.jbrunton-do.com",
+      domain: "chat-demo.jbrunton-aws.com",
+      rootDomain: "jbrunton-aws.com",
+      publicUrl: "https://chat-demo.jbrunton-aws.com",
     });
   });
 
@@ -17,11 +18,12 @@ describe("getDomainConfig", () => {
     const config = getDomainConfig({
       environment: "staging",
       stackName: "staging",
+      rootDomain: "jbrunton-aws.com",
     });
     expect(config).toEqual({
-      domain: "chat-demo.staging.jbrunton-do.com",
-      rootDomain: "jbrunton-do.com",
-      publicUrl: "https://chat-demo.staging.jbrunton-do.com",
+      domain: "chat-demo.staging.jbrunton-aws.com",
+      rootDomain: "jbrunton-aws.com",
+      publicUrl: "https://chat-demo.staging.jbrunton-aws.com",
     });
   });
 
@@ -29,11 +31,12 @@ describe("getDomainConfig", () => {
     const config = getDomainConfig({
       environment: "development",
       stackName: "test",
+      rootDomain: "jbrunton-aws.com",
     });
     expect(config).toEqual({
-      domain: "test.chat-demo.dev.jbrunton-do.com",
-      rootDomain: "jbrunton-do.com",
-      publicUrl: "https://test.chat-demo.dev.jbrunton-do.com",
+      domain: "test.chat-demo.dev.jbrunton-aws.com",
+      rootDomain: "jbrunton-aws.com",
+      publicUrl: "https://test.chat-demo.dev.jbrunton-aws.com",
     });
   });
 });

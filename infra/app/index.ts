@@ -5,9 +5,6 @@ import * as awsx from "@pulumi/awsx";
 const provider = new aws.Provider("aws", { region: "eu-west-2" });
 
 const shared = new pulumi.StackReference("jbrunton/chat-demo-shared-infra/dev");
-const loadBalancerArn = shared.getOutput("loadBalancerArn");
-const clusterName = shared.getOutput("clusterName");
-const securityGroupName = shared.getOutput("securityGroupName");
 
 const vpc = aws.ec2.getVpcOutput({ default: true }, { provider });
 const subnets = aws.ec2.getSubnetsOutput(
@@ -22,21 +19,33 @@ const subnets = aws.ec2.getSubnetsOutput(
   { provider }
 );
 
-const result = pulumi
-  .all([loadBalancerArn, clusterName, securityGroupName])
-  .apply(([loadBalancerArn, clusterName, securityGroupName]) => {
-    return pulumi
-      .all([
+const result = getSharedResources().apply(([lb, cluster, securityGroup]) =>
+  createService(lb, cluster, securityGroup)
+);
+
+export const url = result.dnsName;
+
+function getSharedResources(): pulumi.Output<
+  [
+    aws.lb.GetLoadBalancerResult,
+    aws.ecs.GetClusterResult,
+    aws.ec2.GetSecurityGroupResult
+  ]
+> {
+  return pulumi
+    .all([
+      shared.getOutput("loadBalancerArn"),
+      shared.getOutput("clusterName"),
+      shared.getOutput("securityGroupName"),
+    ])
+    .apply(([loadBalancerArn, clusterName, securityGroupName]) =>
+      pulumi.all([
         aws.lb.getLoadBalancer({ arn: loadBalancerArn }, { provider }),
         aws.ecs.getCluster({ clusterName }, { provider }),
         aws.ec2.getSecurityGroup({ name: securityGroupName }),
       ])
-      .apply(([lb, cluster, securityGroup]) =>
-        createService(lb, cluster, securityGroup)
-      );
-  });
-
-export const url = result.dnsName;
+    );
+}
 
 function createService(
   lb: aws.lb.GetLoadBalancerResult,

@@ -36,5 +36,5 @@ const loadBalancer = new aws.lb.LoadBalancer("chat-demo", {
 }, { provider });
 
 export const loadBalancerArn = loadBalancer.arn;
-export const clusterArn = cluster.arn;
+export const clusterName = cluster.name;
 // export const listenerArn = listener.arn;

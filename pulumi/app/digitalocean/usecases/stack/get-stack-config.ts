@@ -12,7 +12,10 @@ export const getStackConfig: entities.GetStackConfig<StackConfig> = (
   inputs: entities.ApplicationInputs
 ): StackConfig => {
   const appConfig = usecases.getApplicationConfig(inputs);
-  const domainConfig = usecases.getDomainConfig(appConfig);
+  const domainConfig = usecases.getDomainConfig({
+    rootDomain: "jbrunton-do.com",
+    ...appConfig,
+  });
   const specId = getSpecId(appConfig);
   return {
     ...appConfig,

@@ -4,7 +4,7 @@ const rootDomain = "jbrunton-do.com";
 
 export const getDomainConfig: GetDomainConfig = (inputs: DomainInputs) => {
   const domain = getDomainName(inputs);
-  const publicUrl = `https://${domain}`;
+  const publicUrl = `http://${domain}`;
   return {
     domain,
     publicUrl,

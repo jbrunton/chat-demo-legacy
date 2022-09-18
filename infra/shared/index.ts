@@ -89,8 +89,24 @@ const certCertificateValidation = new aws.acm.CertificateValidation('chat-demo',
   validationRecordFqdns: [certValidation.fqdn],
 }, { provider });
 
+const defaultListener = new aws.lb.Listener("default-listener", {
+  loadBalancerArn: loadBalancer.arn,
+  port: 443,
+  protocol: "HTTPS",
+  certificateArn: certCertificate.arn,
+  defaultActions: [
+    {
+      type: "fixed-response",
+      fixedResponse: {
+        statusCode: "503",
+        contentType: "text/plain",
+      },
+    },
+  ],
+}, { provider });
+
 export const loadBalancerArn = loadBalancer.arn;
 export const clusterName = cluster.name;
 export const securityGroupName = securityGroup.name;
 export const certificateArn = certCertificate.arn;
-// export const listenerArn = listener.arn;
+export const listenerArn = defaultListener.arn;

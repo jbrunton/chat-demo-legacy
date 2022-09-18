@@ -25,14 +25,15 @@ export const applyStackConfig: ApplyStackConfig<StackConfig> = (
   config: StackConfig
 ) => {
   const result = getSharedResources().apply(
-    ([lb, cluster, securityGroup, certificate]) =>
-      createService(lb, cluster, securityGroup, certificate, config)
+    ([lb, listener, cluster, securityGroup, certificate]) =>
+      createService(lb, listener, cluster, securityGroup, certificate, config)
   );
 };
 
 function getSharedResources(): pulumi.Output<
   [
     aws.lb.GetLoadBalancerResult,
+    aws.lb.GetListenerResult,
     aws.ecs.GetClusterResult,
     aws.ec2.GetSecurityGroupResult,
     aws.acm.GetCertificateResult
@@ -41,12 +42,14 @@ function getSharedResources(): pulumi.Output<
   return pulumi
     .all([
       shared.getOutput("loadBalancerArn"),
+      shared.getOutput("listenerArn"),
       shared.getOutput("clusterName"),
       shared.getOutput("securityGroupName"),
     ])
-    .apply(([loadBalancerArn, clusterName, securityGroupName]) =>
+    .apply(([loadBalancerArn, listenerArn, clusterName, securityGroupName]) =>
       pulumi.all([
         aws.lb.getLoadBalancer({ arn: loadBalancerArn }, { provider }),
+        aws.lb.getListener({ arn: listenerArn }),
         aws.ecs.getCluster({ clusterName }, { provider }),
         aws.ec2.getSecurityGroup({ name: securityGroupName }),
         aws.acm.getCertificate({ domain: "*.chat-demo.dev.jbrunton-aws.com" }),
@@ -56,6 +59,7 @@ function getSharedResources(): pulumi.Output<
 
 function createService(
   lb: aws.lb.GetLoadBalancerResult,
+  listener: aws.lb.GetListenerResult,
   cluster: aws.ecs.GetClusterResult,
   securityGroup: aws.ec2.GetSecurityGroupResult,
   certificate: aws.acm.GetCertificateResult,
@@ -68,15 +72,20 @@ function createService(
     vpcId: vpc.id,
   });
 
-  const listenerA = new aws.lb.Listener(config.appName, {
-    loadBalancerArn: lb.arn,
-    port: 443,
-    protocol: "HTTPS",
-    certificateArn: certificate.arn,
-    defaultActions: [
+  new aws.lb.ListenerRule(config.appName, {
+    listenerArn: listener.arn,
+    //priority: 100,
+    actions: [
       {
         type: "forward",
         targetGroupArn: targetGroupA.arn,
+      },
+    ],
+    conditions: [
+      {
+        hostHeader: {
+          values: [config.domain],
+        },
       },
     ],
   });

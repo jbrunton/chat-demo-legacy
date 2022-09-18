@@ -47,6 +47,9 @@ jobs:
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      - uses: lhotari/action-upterm@v1
+        with:
+          limit-access-to-users: jbrunton
       - uses: pulumi/actions@v3
         with:
           command: up

@@ -88,45 +88,62 @@ function createService(
       "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy",
   });
 
-  const taskDefinition = new aws.ecs.TaskDefinition("example", {
-    family: "exampleA",
-    cpu: "256",
-    memory: "512",
-    networkMode: "awsvpc",
-    requiresCompatibilities: ["FARGATE"],
-    executionRoleArn: role.arn,
-    containerDefinitions: JSON.stringify([
-      {
-        name: "my-app",
-        image: "nginx",
-        portMappings: [
-          {
-            containerPort: 80,
-            hostPort: 80,
-            protocol: "tcp",
-          },
-        ],
-      },
-    ]),
-  });
-
-  const svcA = new aws.ecs.Service("example", {
-    cluster: cluster.arn,
-    desiredCount: 1,
-    launchType: "FARGATE",
-    taskDefinition: taskDefinition.arn,
-    networkConfiguration: {
-      assignPublicIp: true,
-      subnets: subnets.ids,
-      securityGroups: [securityGroup.id],
+  const webLogGroup = new aws.cloudwatch.LogGroup("/ecs/chat-demo-example", {
+    tags: {
+        Stack: "Test Stack",
+        Environment: "development",
     },
-    loadBalancers: [
-      {
-        targetGroupArn: targetGroupA.arn,
-        containerName: "my-app",
-        containerPort: 80,
+  }, { provider });
+
+  webLogGroup.name.apply(logGroupName => {
+    const taskDefinition = new aws.ecs.TaskDefinition("example", {
+      family: "exampleA",
+      cpu: "256",
+      memory: "512",
+      networkMode: "awsvpc",
+      requiresCompatibilities: ["FARGATE"],
+      executionRoleArn: role.arn,
+      containerDefinitions: JSON.stringify([
+        {
+          name: "my-app",
+          image: "nginx",
+          portMappings: [
+            {
+              containerPort: 80,
+              hostPort: 80,
+              protocol: "tcp",
+            },
+          ],
+          logConfiguration: {
+            logDriver: "awslogs",
+            options: {
+              "awslogs-group": logGroupName,
+              "awslogs-region": "eu-west-2",
+              "awslogs-stream-prefix": "ecs"
+            }
+          }
+        },
+      ]),
+    });
+  
+    const svcA = new aws.ecs.Service("example", {
+      cluster: cluster.arn,
+      desiredCount: 1,
+      launchType: "FARGATE",
+      taskDefinition: taskDefinition.arn,
+      networkConfiguration: {
+        assignPublicIp: true,
+        subnets: subnets.ids,
+        securityGroups: [securityGroup.id],
       },
-    ],
+      loadBalancers: [
+        {
+          targetGroupArn: targetGroupA.arn,
+          containerName: "my-app",
+          containerPort: 80,
+        },
+      ],
+    });  
   });
 
   const zoneId = aws.route53

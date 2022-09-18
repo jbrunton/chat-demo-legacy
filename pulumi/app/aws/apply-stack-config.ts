@@ -24,8 +24,9 @@ const subnets = aws.ec2.getSubnetsOutput(
 export const applyStackConfig: ApplyStackConfig<StackConfig> = (
   config: StackConfig
 ) => {
-  const result = getSharedResources().apply(([lb, cluster, securityGroup]) =>
-    createService(lb, cluster, securityGroup, config)
+  const result = getSharedResources().apply(
+    ([lb, cluster, securityGroup, certificate]) =>
+      createService(lb, cluster, securityGroup, certificate, config)
   );
 };
 
@@ -33,7 +34,8 @@ function getSharedResources(): pulumi.Output<
   [
     aws.lb.GetLoadBalancerResult,
     aws.ecs.GetClusterResult,
-    aws.ec2.GetSecurityGroupResult
+    aws.ec2.GetSecurityGroupResult,
+    aws.acm.GetCertificateResult
   ]
 > {
   return pulumi
@@ -47,6 +49,7 @@ function getSharedResources(): pulumi.Output<
         aws.lb.getLoadBalancer({ arn: loadBalancerArn }, { provider }),
         aws.ecs.getCluster({ clusterName }, { provider }),
         aws.ec2.getSecurityGroup({ name: securityGroupName }),
+        aws.acm.getCertificate({ domain: "*.chat-demo.dev.jbrunton-aws.com" }),
       ])
     );
 }
@@ -55,6 +58,7 @@ function createService(
   lb: aws.lb.GetLoadBalancerResult,
   cluster: aws.ecs.GetClusterResult,
   securityGroup: aws.ec2.GetSecurityGroupResult,
+  certificate: aws.acm.GetCertificateResult,
   config: StackConfig
 ) {
   const targetGroupA = new aws.lb.TargetGroup(config.appName, {
@@ -64,10 +68,11 @@ function createService(
     vpcId: vpc.id,
   });
 
-  // listener for port 80
   const listenerA = new aws.lb.Listener(config.appName, {
     loadBalancerArn: lb.arn,
-    port: 80,
+    port: 443,
+    protocol: "HTTPS",
+    certificateArn: certificate.arn,
     defaultActions: [
       {
         type: "forward",
@@ -88,83 +93,108 @@ function createService(
       "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy",
   });
 
-  const taskDefinition = new aws.ecs.TaskDefinition(config.appName, {
-    family: config.appName,
-    cpu: "256",
-    memory: "512",
-    networkMode: "awsvpc",
-    requiresCompatibilities: ["FARGATE"],
-    executionRoleArn: role.arn,
-    containerDefinitions: JSON.stringify([
-      {
-        name: "web",
-        image: `jbrunton/chat-demo-app:${config.tag}`,
-        portMappings: [
-          {
-            containerPort: 80,
-            hostPort: 80,
-            protocol: "tcp",
-          },
-        ],
-        environment: [
-          {
-            name: "NEXT_PUBLIC_DOMAIN",
-            value: config.publicUrl,
-          },
-          {
-            name: "ENVIRONMENT_TYPE",
-            value: config.environment,
-          },
-          {
-            name: "TAG",
-            value: config.tag,
-          },
-          {
-            name: "GOOGLE_CLIENT_ID",
-            value: process.env.GOOGLE_CLIENT_ID,
-          },
-          {
-            name: "GOOGLE_CLIENT_SECRET",
-            value: process.env.GOOGLE_CLIENT_SECRET,
-          },
-          {
-            name: "NEXTAUTH_URL",
-            value: config.publicUrl,
-          },
-          {
-            name: "NEXTAUTH_SECRET",
-            value: process.env.NEXTAUTH_SECRET,
-          },
-          {
-            name: "EMAIL_TRANSPORT",
-            value: "sendgrid",
-          },
-          {
-            name: "SENDGRID_API_KEY",
-            value: process.env.SENDGRID_API_KEY,
-          },
-        ],
+  const webLogGroup = new aws.cloudwatch.LogGroup(
+    `/ecs/${config.appName}`,
+    {
+      tags: {
+        Stack: config.stackName,
+        Environment: config.environment,
       },
-    ]),
-  });
-
-  const svcA = new aws.ecs.Service(config.appName, {
-    cluster: cluster.arn,
-    desiredCount: 1,
-    launchType: "FARGATE",
-    taskDefinition: taskDefinition.arn,
-    networkConfiguration: {
-      assignPublicIp: true,
-      subnets: subnets.ids,
-      securityGroups: [securityGroup.id],
     },
-    loadBalancers: [
-      {
-        targetGroupArn: targetGroupA.arn,
-        containerName: "web",
-        containerPort: 80,
+    { provider }
+  );
+
+  webLogGroup.name.apply((logGroupName) => {
+    const taskDefinition = new aws.ecs.TaskDefinition(config.appName, {
+      family: config.appName,
+      cpu: "256",
+      memory: "512",
+      networkMode: "awsvpc",
+      requiresCompatibilities: ["FARGATE"],
+      executionRoleArn: role.arn,
+      containerDefinitions: JSON.stringify([
+        {
+          name: "chat-demo-app",
+          image: `jbrunton/chat-demo-app:${config.tag}`,
+          portMappings: [
+            {
+              containerPort: 80,
+              hostPort: 80,
+              protocol: "tcp",
+            },
+          ],
+          environment: [
+            {
+              name: "NEXT_PUBLIC_DOMAIN",
+              value: config.publicUrl,
+            },
+            {
+              name: "PORT",
+              value: "80",
+            },
+            {
+              name: "ENVIRONMENT_TYPE",
+              value: config.environment,
+            },
+            {
+              name: "TAG",
+              value: config.tag,
+            },
+            {
+              name: "GOOGLE_CLIENT_ID",
+              value: process.env.GOOGLE_CLIENT_ID,
+            },
+            {
+              name: "GOOGLE_CLIENT_SECRET",
+              value: process.env.GOOGLE_CLIENT_SECRET,
+            },
+            {
+              name: "NEXTAUTH_URL",
+              value: config.publicUrl,
+            },
+            {
+              name: "NEXTAUTH_SECRET",
+              value: process.env.NEXTAUTH_SECRET,
+            },
+            {
+              name: "EMAIL_TRANSPORT",
+              value: "sendgrid",
+            },
+            {
+              name: "SENDGRID_API_KEY",
+              value: process.env.SENDGRID_API_KEY,
+            },
+          ],
+          logConfiguration: {
+            logDriver: "awslogs",
+            options: {
+              "awslogs-group": logGroupName,
+              "awslogs-region": "eu-west-2",
+              "awslogs-stream-prefix": "ecs",
+            },
+          },
+        },
+      ]),
+    });
+
+    const svcA = new aws.ecs.Service(config.appName, {
+      cluster: cluster.arn,
+      desiredCount: 1,
+      launchType: "FARGATE",
+      taskDefinition: taskDefinition.arn,
+      networkConfiguration: {
+        assignPublicIp: true,
+        subnets: subnets.ids,
+        securityGroups: [securityGroup.id],
       },
-    ],
+      loadBalancers: [
+        {
+          targetGroupArn: targetGroupA.arn,
+          containerName: "chat-demo-app",
+          containerPort: 80,
+        },
+      ],
+    });
   });
 
   const zoneId = aws.route53

@@ -72,7 +72,7 @@ const loadBalancer = new aws.lb.LoadBalancer("chat-demo", {
 const zoneId = aws.route53.getZone({ name: "jbrunton-aws.com" }, { provider }).then(zone => zone.id);
 
 const certCertificate = new aws.acm.Certificate('chat-demo', {
-  domainName: '*.dev.jbrunton-aws.com',
+  domainName: '*.chat-demo.dev.jbrunton-aws.com',
   validationMethod: 'DNS',
 }, { provider });
 

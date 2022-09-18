@@ -19,8 +19,9 @@ const subnets = aws.ec2.getSubnetsOutput(
   { provider }
 );
 
-const result = getSharedResources().apply(([lb, cluster, securityGroup, certificate]) =>
-  createService(lb, cluster, securityGroup, certificate)
+const result = getSharedResources().apply(
+  ([lb, cluster, securityGroup, certificate]) =>
+    createService(lb, cluster, securityGroup, certificate)
 );
 
 export const url = result.dnsName;
@@ -30,7 +31,7 @@ function getSharedResources(): pulumi.Output<
     aws.lb.GetLoadBalancerResult,
     aws.ecs.GetClusterResult,
     aws.ec2.GetSecurityGroupResult,
-    aws.acm.GetCertificateResult,
+    aws.acm.GetCertificateResult
   ]
 > {
   return pulumi
@@ -44,7 +45,7 @@ function getSharedResources(): pulumi.Output<
         aws.lb.getLoadBalancer({ arn: loadBalancerArn }, { provider }),
         aws.ecs.getCluster({ clusterName }, { provider }),
         aws.ec2.getSecurityGroup({ name: securityGroupName }),
-        aws.acm.getCertificate({ domain: '*.dev.jbrunton-aws.com' })
+        aws.acm.getCertificate({ domain: "*.dev.jbrunton-aws.com" }),
       ])
     );
 }
@@ -99,8 +100,6 @@ function createService(
         name: "my-app",
         image: "nginx",
         portMappings: [
-          //targetGroupA
-          //listenerA
           {
             containerPort: 80,
             hostPort: 80,
@@ -130,36 +129,25 @@ function createService(
     ],
   });
 
-  const zoneId = aws.route53.getZone({ name: "jbrunton-aws.com" }, { provider }).then(zone => zone.id);
-
-  // const certCertificate = new aws.acm.Certificate('cert', {
-  //   domainName: '*.dev.jbrunton-aws.com',
-  //   validationMethod: 'DNS',
-  // });
-
-  // const certValidation = new aws.route53.Record('cert_validation', {
-  //   name: certCertificate.domainValidationOptions[0].resourceRecordName,
-  //   records: [certCertificate.domainValidationOptions[0].resourceRecordValue],
-  //   ttl: 60,
-  //   type: certCertificate.domainValidationOptions[0].resourceRecordType,
-  //   zoneId,
-  // })
- 
-  // const certCertificateValidation = new aws.acm.CertificateValidation('cert', {
-  //   certificateArn: certCertificate.arn,
-  //   validationRecordFqdns: [certValidation.fqdn],
-  // })
-  
-  const www = new aws.route53.Record("www", {
-    zoneId,
-    name: "example.dev.jbrunton-aws.com",
-    type: "A",
-    aliases: [{
-        name: lb.dnsName,
-        zoneId: lb.zoneId,
-        evaluateTargetHealth: true,
-    }],
-  }, { provider });
+  const zoneId = aws.route53
+    .getZone({ name: "jbrunton-aws.com" }, { provider })
+    .then((zone) => zone.id);
+  const www = new aws.route53.Record(
+    "www",
+    {
+      zoneId,
+      name: "example.dev.jbrunton-aws.com",
+      type: "A",
+      aliases: [
+        {
+          name: lb.dnsName,
+          zoneId: lb.zoneId,
+          evaluateTargetHealth: true,
+        },
+      ],
+    },
+    { provider }
+  );
 
   return {
     dnsName: lb.dnsName,

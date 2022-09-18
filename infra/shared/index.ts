@@ -33,7 +33,7 @@ const subnets = aws.ec2.getSubnetsOutput({
 //   cidrBlock: "10.0.1.0/16",
 // }, { provider });
 
-const securityGroup = new aws.ec2.SecurityGroup("example", {
+const securityGroup = new aws.ec2.SecurityGroup("chat-demo", {
   vpcId: vpc.id,
   description: "HTTPS access",
   ingress: [
@@ -71,12 +71,12 @@ const loadBalancer = new aws.lb.LoadBalancer("chat-demo", {
 
 const zoneId = aws.route53.getZone({ name: "jbrunton-aws.com" }, { provider }).then(zone => zone.id);
 
-const certCertificate = new aws.acm.Certificate('cert', {
+const certCertificate = new aws.acm.Certificate('chat-demo', {
   domainName: '*.dev.jbrunton-aws.com',
   validationMethod: 'DNS',
 }, { provider });
 
-const certValidation = new aws.route53.Record('cert_validation', {
+const certValidation = new aws.route53.Record('chat-demo', {
   name: certCertificate.domainValidationOptions[0].resourceRecordName,
   records: [certCertificate.domainValidationOptions[0].resourceRecordValue],
   ttl: 60,
@@ -84,7 +84,7 @@ const certValidation = new aws.route53.Record('cert_validation', {
   zoneId,
 }, { provider });
 
-const certCertificateValidation = new aws.acm.CertificateValidation('cert', {
+const certCertificateValidation = new aws.acm.CertificateValidation('chat-demo', {
   certificateArn: certCertificate.arn,
   validationRecordFqdns: [certValidation.fqdn],
 }, { provider });

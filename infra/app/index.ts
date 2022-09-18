@@ -64,9 +64,9 @@ function createService(
 
   const listenerA = new aws.lb.Listener("example", {
     loadBalancerArn: lb.arn,
-    port: 80,
-    protocol: "HTTP",
-    //certificateArn: certificate.arn,
+    port: 443,
+    protocol: "HTTPS",
+    certificateArn: certificate.arn,
     defaultActions: [
       {
         type: "forward",

@@ -106,7 +106,7 @@ function createService(
       containerDefinitions: JSON.stringify([
         {
           name: "my-app",
-          image: "nginx",
+          image: "jbrunton/chat-demo-app:latest",
           portMappings: [
             {
               containerPort: 80,
@@ -114,6 +114,48 @@ function createService(
               protocol: "tcp",
             },
           ],
+          environment: [
+            {
+              name: "NEXT_PUBLIC_DOMAIN",
+              value: "https://example.dev.jbrunton-aws.com",
+            },
+            {
+              name: "PORT",
+              value: "80",
+            },
+            {
+              name: "ENVIRONMENT_TYPE",
+              value: "development",
+            },
+            {
+              name: "TAG",
+              value: "latest",
+            },
+            {
+              name: "GOOGLE_CLIENT_ID",
+              value: process.env.GOOGLE_CLIENT_ID,
+            },
+            {
+              name: "GOOGLE_CLIENT_SECRET",
+              value: process.env.GOOGLE_CLIENT_SECRET,
+            },
+            {
+              name: "NEXTAUTH_URL",
+              value: "https://example.dev.jbrunton-aws.com",
+            },
+            {
+              name: "NEXTAUTH_SECRET",
+              value: "zCLRP5+H748E62ufniamSLZ6rrGk+nggYCfB4Gj59qU=",
+            },
+            {
+              name: "EMAIL_TRANSPORT",
+              value: "sendgrid",
+            },
+            {
+              name: "SENDGRID_API_KEY",
+              value: process.env.SENDGRID_API_KEY,
+            },
+          ],  
           logConfiguration: {
             logDriver: "awslogs",
             options: {

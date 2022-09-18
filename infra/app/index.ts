@@ -19,8 +19,8 @@ const subnets = aws.ec2.getSubnetsOutput(
   { provider }
 );
 
-const result = getSharedResources().apply(([lb, cluster, securityGroup]) =>
-  createService(lb, cluster, securityGroup)
+const result = getSharedResources().apply(([lb, cluster, securityGroup, certificate]) =>
+  createService(lb, cluster, securityGroup, certificate)
 );
 
 export const url = result.dnsName;
@@ -29,7 +29,8 @@ function getSharedResources(): pulumi.Output<
   [
     aws.lb.GetLoadBalancerResult,
     aws.ecs.GetClusterResult,
-    aws.ec2.GetSecurityGroupResult
+    aws.ec2.GetSecurityGroupResult,
+    aws.acm.GetCertificateResult,
   ]
 > {
   return pulumi
@@ -43,6 +44,7 @@ function getSharedResources(): pulumi.Output<
         aws.lb.getLoadBalancer({ arn: loadBalancerArn }, { provider }),
         aws.ecs.getCluster({ clusterName }, { provider }),
         aws.ec2.getSecurityGroup({ name: securityGroupName }),
+        aws.acm.getCertificate({ domain: '*.dev.jbrunton-aws.com' })
       ])
     );
 }
@@ -50,7 +52,8 @@ function getSharedResources(): pulumi.Output<
 function createService(
   lb: aws.lb.GetLoadBalancerResult,
   cluster: aws.ecs.GetClusterResult,
-  securityGroup: aws.ec2.GetSecurityGroupResult
+  securityGroup: aws.ec2.GetSecurityGroupResult,
+  certificate: aws.acm.GetCertificateResult
 ) {
   const targetGroupA = new aws.lb.TargetGroup("example", {
     port: 80,
@@ -59,10 +62,11 @@ function createService(
     vpcId: vpc.id,
   });
 
-  // listener for port 80
   const listenerA = new aws.lb.Listener("example", {
     loadBalancerArn: lb.arn,
     port: 80,
+    protocol: "HTTP",
+    //certificateArn: certificate.arn,
     defaultActions: [
       {
         type: "forward",
@@ -95,6 +99,8 @@ function createService(
         name: "my-app",
         image: "nginx",
         portMappings: [
+          //targetGroupA
+          //listenerA
           {
             containerPort: 80,
             hostPort: 80,
@@ -125,6 +131,25 @@ function createService(
   });
 
   const zoneId = aws.route53.getZone({ name: "jbrunton-aws.com" }, { provider }).then(zone => zone.id);
+
+  // const certCertificate = new aws.acm.Certificate('cert', {
+  //   domainName: '*.dev.jbrunton-aws.com',
+  //   validationMethod: 'DNS',
+  // });
+
+  // const certValidation = new aws.route53.Record('cert_validation', {
+  //   name: certCertificate.domainValidationOptions[0].resourceRecordName,
+  //   records: [certCertificate.domainValidationOptions[0].resourceRecordValue],
+  //   ttl: 60,
+  //   type: certCertificate.domainValidationOptions[0].resourceRecordType,
+  //   zoneId,
+  // })
+ 
+  // const certCertificateValidation = new aws.acm.CertificateValidation('cert', {
+  //   certificateArn: certCertificate.arn,
+  //   validationRecordFqdns: [certValidation.fqdn],
+  // })
+  
   const www = new aws.route53.Record("www", {
     zoneId,
     name: "example.dev.jbrunton-aws.com",

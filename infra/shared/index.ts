@@ -35,7 +35,7 @@ const subnets = aws.ec2.getSubnetsOutput({
 
 const securityGroup = new aws.ec2.SecurityGroup("example", {
   vpcId: vpc.id,
-  description: "HTTP access",
+  description: "HTTPS access",
   ingress: [
     {
       protocol: "tcp",
@@ -43,6 +43,12 @@ const securityGroup = new aws.ec2.SecurityGroup("example", {
       toPort: 80,
       cidrBlocks: ["0.0.0.0/0"],
     },
+    {
+      protocol: "tcp",
+      fromPort: 443,
+      toPort: 443,
+      cidrBlocks: ["0.0.0.0/0"],
+    }
   ],
   egress: [
     {
@@ -63,7 +69,28 @@ const loadBalancer = new aws.lb.LoadBalancer("chat-demo", {
   // subnets: [subnet.id],
 }, { provider });
 
+const zoneId = aws.route53.getZone({ name: "jbrunton-aws.com" }, { provider }).then(zone => zone.id);
+
+const certCertificate = new aws.acm.Certificate('cert', {
+  domainName: '*.dev.jbrunton-aws.com',
+  validationMethod: 'DNS',
+}, { provider });
+
+const certValidation = new aws.route53.Record('cert_validation', {
+  name: certCertificate.domainValidationOptions[0].resourceRecordName,
+  records: [certCertificate.domainValidationOptions[0].resourceRecordValue],
+  ttl: 60,
+  type: certCertificate.domainValidationOptions[0].resourceRecordType,
+  zoneId,
+}, { provider });
+
+const certCertificateValidation = new aws.acm.CertificateValidation('cert', {
+  certificateArn: certCertificate.arn,
+  validationRecordFqdns: [certValidation.fqdn],
+}, { provider });
+
 export const loadBalancerArn = loadBalancer.arn;
 export const clusterName = cluster.name;
 export const securityGroupName = securityGroup.name;
+export const certificateArn = certCertificate.arn;
 // export const listenerArn = listener.arn;

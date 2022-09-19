@@ -106,7 +106,8 @@ const defaultListener = new aws.lb.Listener("default-listener", {
 }, { provider });
 
 export const loadBalancerArn = loadBalancer.arn;
-export const clusterName = cluster.name;
-export const securityGroupName = securityGroup.name;
+export const clusterArn = cluster.arn;
+export const securityGroupId = securityGroup.id;
 export const certificateArn = certCertificate.arn;
 export const listenerArn = defaultListener.arn;
+export const vpcId = vpc.id;

@@ -45,7 +45,7 @@ jobs:
           command: up
           stack-name: chat-demo-shared-infra-dev
           upsert: true
-          work-dir: pulumi
+          work-dir: infra/shared
           comment-on-pr: true
           github-token: ${{ secrets.CI_MINION_PAT }}
         env:

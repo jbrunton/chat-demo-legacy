@@ -43,7 +43,7 @@ jobs:
       - uses: pulumi/actions@v3
         with:
           command: up
-          stack-name: chat-demo-shared-infra-dev
+          stack-name: dev
           upsert: true
           work-dir: infra/shared
           comment-on-pr: true

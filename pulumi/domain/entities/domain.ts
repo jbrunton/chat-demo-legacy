@@ -7,6 +7,7 @@ export interface DomainConfig {
 }
 
 export interface DomainInputs {
+  rootDomain: string;
   environment: Environment;
   stackName: string;
 }

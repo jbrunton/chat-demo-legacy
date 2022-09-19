@@ -1,24 +1,22 @@
 import { DomainInputs, GetDomainConfig } from "@entities/domain";
 
-const rootDomain = "jbrunton-do.com";
-
 export const getDomainConfig: GetDomainConfig = (inputs: DomainInputs) => {
   const domain = getDomainName(inputs);
   const publicUrl = `https://${domain}`;
   return {
     domain,
     publicUrl,
-    rootDomain,
+    rootDomain: inputs.rootDomain,
   };
 };
 
 const getDomainName = (inputs: DomainInputs): string => {
   switch (inputs.environment) {
     case "production":
-      return `chat-demo.${rootDomain}`;
+      return `chat-demo.${inputs.rootDomain}`;
     case "staging":
-      return `chat-demo.staging.${rootDomain}`;
+      return `chat-demo.staging.${inputs.rootDomain}`;
     case "development":
-      return `${inputs.stackName}.chat-demo.dev.${rootDomain}`;
+      return `${inputs.stackName}.chat-demo.dev.${inputs.rootDomain}`;
   }
 };

@@ -19,6 +19,6 @@ const isLegacy = (stack: StackSummary) => {
     return false;
   }
 
-  const cutoff = subDays(new Date(), 14);
+  const cutoff = subDays(new Date(), 3);
   return stack.lastUpdate && new Date(stack.lastUpdate) < cutoff;
 };

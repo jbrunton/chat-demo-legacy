@@ -82,6 +82,7 @@ jobs:
 
   deploy-shared:
     runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/develop'
     steps:
       - uses: actions/checkout@v3
       - run: npm ci

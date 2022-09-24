@@ -12,7 +12,7 @@ export type SharedResources = {
 
 export const getSharedResources = (): pulumi.Output<SharedResources> => {
   const shared = new pulumi.StackReference(
-    "jbrunton/chat-demo-shared-infra/dev"
+    "jbrunton/chat-demo-shared-infra/production"
   );
   return pulumi
     .all([

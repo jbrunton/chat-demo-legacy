@@ -64,43 +64,51 @@ const zoneId = aws.route53
   .getZone({ name: "jbrunton-aws.com" }, { provider })
   .then((zone) => zone.id);
 
-const certCertificate = new aws.acm.Certificate(
+const certificate = new aws.acm.Certificate(
   "chat-demo",
   {
-    domainName: "*.chat-demo.dev.jbrunton-aws.com",
+    domainName: "chat-demo.jbrunton-aws.com",
     validationMethod: "DNS",
+    subjectAlternativeNames: [
+      "chat-demo.staging.jbrunton-aws.com",
+      "*.chat-demo.dev.jbrunton-aws.com"
+    ]
   },
   { provider }
 );
 
-const certValidation = new aws.route53.Record(
-  "chat-demo",
-  {
-    name: certCertificate.domainValidationOptions[0].resourceRecordName,
-    records: [certCertificate.domainValidationOptions[0].resourceRecordValue],
-    ttl: 60,
-    type: certCertificate.domainValidationOptions[0].resourceRecordType,
-    zoneId,
-  },
-  { provider }
+const records = certificate.domainValidationOptions.apply((options) =>
+  options.map(
+    (option) =>
+      new aws.route53.Record(option.resourceRecordName, {
+        allowOverwrite: true,
+        name: option.resourceRecordName,
+        records: [option.resourceRecordValue],
+        ttl: 60,
+        type: option.resourceRecordType,
+        zoneId,
+      }, { provider })
+  )
 );
 
 new aws.acm.CertificateValidation(
   "chat-demo",
   {
-    certificateArn: certCertificate.arn,
-    validationRecordFqdns: [certValidation.fqdn],
+    certificateArn: certificate.arn,
+    validationRecordFqdns: records.apply((record) =>
+      record.map((record) => record.fqdn)
+    ),
   },
   { provider }
-);
+)
 
-const defaultListener = new aws.lb.Listener(
-  "default-listener",
+const listener = new aws.lb.Listener(
+  "chat-demo",
   {
     loadBalancerArn: loadBalancer.arn,
     port: 443,
     protocol: "HTTPS",
-    certificateArn: certCertificate.arn,
+    certificateArn: certificate.arn,
     defaultActions: [
       {
         type: "fixed-response",
@@ -117,6 +125,6 @@ const defaultListener = new aws.lb.Listener(
 export const loadBalancerArn = loadBalancer.arn;
 export const clusterArn = cluster.arn;
 export const securityGroupId = securityGroup.id;
-export const certificateArn = certCertificate.arn;
-export const listenerArn = defaultListener.arn;
+export const certificateArn = certificate.arn;
+export const listenerArn = listener.arn;
 export const vpcId = vpc.id;

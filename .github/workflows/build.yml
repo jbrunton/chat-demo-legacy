@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        directory: ["pulumi", "server"]
+        directory: ["infra/app", "server"]
     defaults:
       run:
         working-directory: ${{ matrix.directory }}
@@ -24,7 +24,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        directory: ["pulumi", "server"]
+        directory: ["infra/app", "server"]
     defaults:
       run:
         working-directory: ${{ matrix.directory }}
@@ -108,13 +108,13 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - run: npm ci
-        working-directory: ./pulumi
+        working-directory: infra/app
       - run: npm install -g pulumi
       - uses: pulumi/actions@v3
         with:
           command: up
           stack-name: staging
-          work-dir: pulumi
+          work-dir: infra/app
         env:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
           DIGITALOCEAN_TOKEN: ${{ secrets.DIGITALOCEAN_TOKEN }}
@@ -135,13 +135,13 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - run: npm ci
-        working-directory: ./pulumi
+        working-directory: infra/app
       - run: npm install -g pulumi
       - uses: pulumi/actions@v3
         with:
           command: up
           stack-name: production
-          work-dir: pulumi
+          work-dir: infra/app
         env:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
           DIGITALOCEAN_TOKEN: ${{ secrets.DIGITALOCEAN_TOKEN }}

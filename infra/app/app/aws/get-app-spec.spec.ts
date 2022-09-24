@@ -54,28 +54,34 @@ describe("getTaskDefinitionSpec", () => {
               value: "latest",
             },
             {
-              name: "GOOGLE_CLIENT_ID",
-              value: "test-google-client-id",
-            },
-            {
-              name: "GOOGLE_CLIENT_SECRET",
-              value: "test-google-client-secret",
-            },
-            {
               name: "NEXTAUTH_URL",
               value: "https://test.chat-demo.dev.jbrunton-aws.com",
-            },
-            {
-              name: "NEXTAUTH_SECRET",
-              value: "test-next-auth-secret",
             },
             {
               name: "EMAIL_TRANSPORT",
               value: "sendgrid",
             },
+          ],
+          secrets: [
+            {
+              name: "GOOGLE_CLIENT_ID",
+              valueFrom:
+                "arn:aws:ssm:eu-west-2:030461922427:parameter/chat-demo/production/google-client-id",
+            },
+            {
+              name: "GOOGLE_CLIENT_SECRET",
+              valueFrom:
+                "arn:aws:ssm:eu-west-2:030461922427:parameter/chat-demo/production/google-client-secret",
+            },
+            {
+              name: "NEXTAUTH_SECRET",
+              valueFrom:
+                "arn:aws:ssm:eu-west-2:030461922427:parameter/chat-demo/production/next-auth-secret",
+            },
             {
               name: "SENDGRID_API_KEY",
-              value: "test-sendgrid-api-key",
+              valueFrom:
+                "arn:aws:ssm:eu-west-2:030461922427:parameter/chat-demo/production/sendgrid-api-key",
             },
           ],
           logConfiguration: {

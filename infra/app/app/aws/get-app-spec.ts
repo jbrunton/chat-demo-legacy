@@ -42,28 +42,30 @@ export const getTaskDefinitionSpec = (
             value: config.tag,
           },
           {
-            name: "GOOGLE_CLIENT_ID",
-            value: process.env.GOOGLE_CLIENT_ID,
-          },
-          {
-            name: "GOOGLE_CLIENT_SECRET",
-            value: process.env.GOOGLE_CLIENT_SECRET,
-          },
-          {
             name: "NEXTAUTH_URL",
             value: config.publicUrl,
-          },
-          {
-            name: "NEXTAUTH_SECRET",
-            value: process.env.NEXTAUTH_SECRET,
           },
           {
             name: "EMAIL_TRANSPORT",
             value: "sendgrid",
           },
+        ],
+        secrets: [
+          {
+            name: "GOOGLE_CLIENT_ID",
+            valueFrom: getParamArn("google-client-id"),
+          },
+          {
+            name: "GOOGLE_CLIENT_SECRET",
+            valueFrom: getParamArn("google-client-secret"),
+          },
+          {
+            name: "NEXTAUTH_SECRET",
+            valueFrom: getParamArn("next-auth-secret"),
+          },
           {
             name: "SENDGRID_API_KEY",
-            value: process.env.SENDGRID_API_KEY,
+            valueFrom: getParamArn("sendgrid-api-key"),
           },
         ],
         logConfiguration: {
@@ -78,3 +80,6 @@ export const getTaskDefinitionSpec = (
     ]),
   };
 };
+
+const getParamArn = (name: string) =>
+  `arn:aws:ssm:eu-west-2:030461922427:parameter/chat-demo/production/${name}`;

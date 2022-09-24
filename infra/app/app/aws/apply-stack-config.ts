@@ -62,6 +62,22 @@ function createResources(config: StackConfig, shared: SharedResources) {
     }),
   });
 
+  new aws.iam.RolePolicy(`${config.appName}-get-params`, {
+    role: role.name,
+    policy: {
+      Version: "2012-10-17",
+      Statement: [
+        {
+          Effect: "Allow",
+          Action: ["ssm:GetParameters", "kms:Decrypt"],
+          Resource: [
+            "arn:aws:ssm:eu-west-2:030461922427:parameter/chat-demo/production/*",
+          ],
+        },
+      ],
+    },
+  });
+
   new aws.iam.RolePolicyAttachment(config.appName, {
     role: role.name,
     policyArn:

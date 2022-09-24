@@ -11,7 +11,7 @@ This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next
 
 ## The demo application
 
-The project implements a very basic realtime chat app at [chat-demo.jbrunton-do.com](https://chat-demo.jbrunton-do.com/).
+The project implements a very basic realtime chat app at [chat-demo.jbrunton-aws.com](https://chat-demo.jbrunton-aws.com/).
 
 * From the home screen you can create "rooms". Each room has a unique URL. Anyone connecting to the room can chat over websockets.
 * Over time, the app will also respond to commands prefixed with a `/`. Right now, the only command is `/help`.

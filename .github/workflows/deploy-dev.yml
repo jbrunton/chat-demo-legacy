@@ -40,13 +40,13 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - run: npm ci
-        working-directory: pulumi
+        working-directory: infra/app
       - uses: pulumi/actions@v3
         with:
           command: up
           stack-name: ${{ github.event.inputs.stack_name || github.head_ref }}
           upsert: true
-          work-dir: pulumi
+          work-dir: infra/app
           comment-on-pr: true
           github-token: ${{ secrets.CI_MINION_PAT }}
         env:

@@ -80,7 +80,7 @@ jobs:
           DOCKER_PASSWORD: ${{ secrets.DOCKER_ACCESS_TOKEN }}
         run: npx semantic-release
 
-  deploy-shared:
+  provision-shared-infra:
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/develop'
     steps:
@@ -103,7 +103,7 @@ jobs:
 
   deploy-staging:
     environment: Staging
-    needs: [build, deploy-shared]
+    needs: [build, provision-shared-infra]
     if: ${{ needs.build.outputs.version }}
     runs-on: ubuntu-latest
     steps:

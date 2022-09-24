@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        directory: ["pulumi", "server"]
+        directory: ["infra/app", "server"]
     defaults:
       run:
         working-directory: ${{ matrix.directory }}
@@ -24,7 +24,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        directory: ["pulumi", "server"]
+        directory: ["infra/app", "server"]
     defaults:
       run:
         working-directory: ${{ matrix.directory }}
@@ -80,21 +80,42 @@ jobs:
           DOCKER_PASSWORD: ${{ secrets.DOCKER_ACCESS_TOKEN }}
         run: npx semantic-release
 
+  deploy-shared:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/develop'
+    steps:
+      - uses: actions/checkout@v3
+      - run: npm ci
+        working-directory: infra/shared
+      - uses: pulumi/actions@v3
+        with:
+          command: up
+          stack-name: production
+          upsert: true
+          work-dir: infra/shared
+          comment-on-pr: true
+          github-token: ${{ secrets.CI_MINION_PAT }}
+        env:
+          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: eu-west-2
+
   deploy-staging:
     environment: Staging
-    needs: build
+    needs: [build, deploy-shared]
     if: ${{ needs.build.outputs.version }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - run: npm ci
-        working-directory: ./pulumi
+        working-directory: infra/app
       - run: npm install -g pulumi
       - uses: pulumi/actions@v3
         with:
           command: up
           stack-name: staging
-          work-dir: pulumi
+          work-dir: infra/app
         env:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
           DIGITALOCEAN_TOKEN: ${{ secrets.DIGITALOCEAN_TOKEN }}
@@ -102,6 +123,9 @@ jobs:
           GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
           NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
           SENDGRID_API_KEY: ${{ secrets.SENDGRID_API_KEY }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: eu-west-2
           TAG: ${{ needs.build.outputs.version }}
 
 
@@ -112,13 +136,13 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - run: npm ci
-        working-directory: ./pulumi
+        working-directory: infra/app
       - run: npm install -g pulumi
       - uses: pulumi/actions@v3
         with:
           command: up
           stack-name: production
-          work-dir: pulumi
+          work-dir: infra/app
         env:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
           DIGITALOCEAN_TOKEN: ${{ secrets.DIGITALOCEAN_TOKEN }}
@@ -126,4 +150,7 @@ jobs:
           GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
           NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
           SENDGRID_API_KEY: ${{ secrets.SENDGRID_API_KEY }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: eu-west-2
           TAG: ${{ needs.build.outputs.version }}

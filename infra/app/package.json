@@ -21,6 +21,8 @@
     "tsconfig-paths": "4.1.0"
   },
   "dependencies": {
+    "@pulumi/aws": "5.14.0",
+    "@pulumi/awsx": "0.40.0",
     "@pulumi/pulumi": "3.39.2",
     "@pulumi/random": "4.8.2",
     "date-fns": "2.29.2",

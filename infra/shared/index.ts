@@ -2,8 +2,6 @@ import * as aws from "@pulumi/aws";
 
 const provider = new aws.Provider("aws", { region: "eu-west-2" });
 
-const cluster = new aws.ecs.Cluster("chat-demo", undefined, { provider });
-
 const vpc = aws.ec2.getVpcOutput({ default: true }, { provider });
 
 const subnets = aws.ec2.getSubnetsOutput(
@@ -123,7 +121,6 @@ const listener = new aws.lb.Listener(
 );
 
 export const loadBalancerArn = loadBalancer.arn;
-export const clusterArn = cluster.arn;
 export const securityGroupId = securityGroup.id;
 export const certificateArn = certificate.arn;
 export const listenerArn = listener.arn;

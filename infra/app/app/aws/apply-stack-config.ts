@@ -20,6 +20,8 @@ function createResources(config: StackConfig, shared: SharedResources) {
   // Pulumi adds `-` + 7 random chars for unique names.
   const shortName = config.appName.slice(0, 24);
 
+  const cluster = new aws.ecs.Cluster(shortName, undefined, { provider });
+
   const subnets = aws.ec2.getSubnetsOutput(
     {
       filters: [
@@ -108,7 +110,7 @@ function createResources(config: StackConfig, shared: SharedResources) {
     );
 
     new aws.ecs.Service(config.appName, {
-      cluster: shared.clusterArn,
+      cluster: cluster.arn,
       desiredCount: 1,
       launchType: "FARGATE",
       taskDefinition: taskDefinition.arn,

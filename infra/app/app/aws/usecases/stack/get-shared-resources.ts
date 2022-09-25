@@ -5,7 +5,6 @@ export type SharedResources = {
     arn: string;
     defaultListenerArn: string;
   };
-  clusterArn: string;
   securityGroupId: string;
   vpcId: string;
 };
@@ -18,22 +17,18 @@ export const getSharedResources = (): pulumi.Output<SharedResources> => {
     .all([
       shared.getOutput("loadBalancerArn"),
       shared.getOutput("listenerArn"),
-      shared.getOutput("clusterArn"),
       shared.getOutput("securityGroupId"),
       shared.getOutput("vpcId"),
     ])
-    .apply(
-      ([loadBalancerArn, listenerArn, clusterArn, securityGroupId, vpcId]) => {
-        const shared: SharedResources = {
-          loadBalancer: {
-            arn: loadBalancerArn,
-            defaultListenerArn: listenerArn,
-          },
-          clusterArn,
-          securityGroupId,
-          vpcId,
-        };
-        return shared;
-      }
-    );
+    .apply(([loadBalancerArn, listenerArn, securityGroupId, vpcId]) => {
+      const shared: SharedResources = {
+        loadBalancer: {
+          arn: loadBalancerArn,
+          defaultListenerArn: listenerArn,
+        },
+        securityGroupId,
+        vpcId,
+      };
+      return shared;
+    });
 };

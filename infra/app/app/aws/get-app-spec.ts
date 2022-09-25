@@ -69,6 +69,34 @@ export const getTaskDefinitionSpec = (
           },
         ],
         logConfiguration: {
+          logDriver: "awsfirelens",
+          options: {
+            Name: "Http",
+            Host: "listener.logz.io",
+            Port: "8071",
+            tls: "on",
+            "tls.verify": "off",
+            Format: "json_lines",
+          },
+          secretOptions: [
+            {
+              name: "URI",
+              valueFrom: getParamArn("logz-io-uri"),
+            },
+          ],
+        },
+      },
+      {
+        name: "logzio-log-router",
+        image: "amazon/aws-for-fluent-bit:latest",
+        essential: true,
+        firelensConfiguration: {
+          type: "fluentbit",
+          options: {
+            "enable-ecs-log-metadata": "true",
+          },
+        },
+        logConfiguration: {
           logDriver: "awslogs",
           options: {
             "awslogs-group": logGroupName,

@@ -13,6 +13,7 @@ import * as RTE from "fp-ts/ReaderTaskEither";
 import { ResponseBuilder } from "./response-builder";
 import { helpResponse } from "../help/help-response";
 import { ParsedCommand, parsers } from "./parsers";
+import { throwError } from "./throw-error-command";
 
 const unrecognisedResponse =
   "Unrecognised command, type <b>/help</b> for further assistance";
@@ -51,6 +52,8 @@ const executeCommand = ({
       return renameUser(params);
     case "renameRoom":
       return renameRoom(params);
+    case "throwError":
+      return throwError(params);
   }
 };
 

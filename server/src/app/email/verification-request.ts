@@ -12,7 +12,7 @@ export const sendVerificationRequest: EmailConfig["sendVerificationRequest"] =
 
     const logUrl =
       process.env.NODE_ENV === "development" ||
-      process.env.ENVIRONMENT_TYPE === "development";
+      process.env.ENVIRONMENT === "development";
     const auditLogMeta = logUrl ? { verificationUrl: url } : undefined;
 
     const params: EmailParams = {

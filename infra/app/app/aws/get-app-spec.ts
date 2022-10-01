@@ -34,7 +34,7 @@ export const getTaskDefinitionSpec = (
             value: "80",
           },
           {
-            name: "ENVIRONMENT_TYPE",
+            name: "ENVIRONMENT",
             value: config.environment,
           },
           {
@@ -88,12 +88,14 @@ export const getTaskDefinitionSpec = (
       },
       {
         name: "logzio-log-router",
-        image: "amazon/aws-for-fluent-bit:latest",
+        image: "jbrunton/aws-for-fluent-bit-multiline:latest",
         essential: true,
         firelensConfiguration: {
           type: "fluentbit",
           options: {
             "enable-ecs-log-metadata": "true",
+            "config-file-type": "file",
+            "config-file-value": "/extra.conf",
           },
         },
         logConfiguration: {
@@ -104,6 +106,12 @@ export const getTaskDefinitionSpec = (
             "awslogs-stream-prefix": "ecs",
           },
         },
+        environment: [
+          {
+            name: "ENVIRONMENT",
+            value: config.environment,
+          },
+        ],
       },
     ]),
   };

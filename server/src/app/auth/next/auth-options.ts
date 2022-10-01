@@ -7,7 +7,7 @@ import { adapter } from "@app/dependencies/auth-adapter";
 
 const isDevelopment =
   process.env.NODE_ENV === "development" ||
-  process.env.ENVIRONMENT_TYPE === "development";
+  process.env.ENVIRONMENT === "development";
 
 const pages = isDevelopment
   ? {

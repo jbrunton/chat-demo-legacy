@@ -12,6 +12,7 @@ import {
   PublicMessage,
 } from "@domain/entities/messages";
 import { NextApiResponse } from "next";
+import { omit } from "lodash";
 
 const authenticate = async (socket: Socket) => {
   const cookies = cookie.parse(socket.handshake.headers.cookie || "");
@@ -53,11 +54,13 @@ export class SocketDispatcher extends IOServer implements Dispatcher {
   }
 
   private emitPrivateMessage(message: PrivateMessage) {
+    logMessage("Sending message (private)", message);
     debug.messages("sending private message: %O", message);
     this.to(message.recipientId).emit("message", message);
   }
 
   private emitPublicMessage(message: PublicMessage) {
+    logMessage("Sending message (public)", message);
     debug.messages("sending public message: %O", message);
     this.to(message.roomId).emit("message", message);
   }
@@ -77,4 +80,9 @@ export const createSocketDispatcher = (res: NextApiResponse) => {
   }
 
   return dispatcher;
+};
+
+const logMessage = (log: string, message: PublicMessage) => {
+  const meta = omit(message, ["message", "sender.name"]);
+  console.info(`${log}: ${JSON.stringify(meta)}`);
 };

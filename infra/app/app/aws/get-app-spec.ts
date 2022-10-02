@@ -1,3 +1,4 @@
+import { Environment } from "@entities";
 import * as aws from "@pulumi/aws";
 import { StackConfig } from "./usecases/stack/get-stack-config";
 
@@ -81,7 +82,7 @@ export const getTaskDefinitionSpec = (
           secretOptions: [
             {
               name: "URI",
-              valueFrom: getParamArn("logz-io-uri"),
+              valueFrom: getParamArn("logz-io-uri", config.environment),
             },
           ],
         },
@@ -117,5 +118,5 @@ export const getTaskDefinitionSpec = (
   };
 };
 
-const getParamArn = (name: string) =>
-  `arn:aws:ssm:eu-west-2:030461922427:parameter/chat-demo/production/${name}`;
+const getParamArn = (name: string, env: Environment = "production") =>
+  `arn:aws:ssm:eu-west-2:030461922427:parameter/chat-demo/${env}/${name}`;

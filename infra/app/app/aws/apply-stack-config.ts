@@ -73,7 +73,7 @@ function createResources(config: StackConfig, shared: SharedResources) {
           Effect: "Allow",
           Action: ["ssm:GetParameters", "kms:Decrypt"],
           Resource: [
-            "arn:aws:ssm:eu-west-2:030461922427:parameter/chat-demo/production/*",
+            "arn:aws:ssm:eu-west-2:030461922427:parameter/chat-demo/*",
           ],
         },
       ],

@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { List, Input, Typography, InputRef, Button, Form, Alert } from "antd";
 import { ArrowRightOutlined } from "@ant-design/icons";
-import { io } from "socket.io-client";
 import { useRouter } from "next/router";
 import { formatTime } from "@util/format";
 import PageLayout from "@app/components/PageLayout";
@@ -35,15 +34,6 @@ const RoomPage: NextPage = () => {
     setMembershipStatus(response.membershipStatus);
   };
 
-  const createSocket = () => {
-    return io(process.env.NEXT_PUBLIC_DOMAIN || "http://localhost:3000", {
-      path: "/api/socketio",
-      query: {
-        roomId,
-      },
-    });
-  };
-
   const onMessage = (message: PublicMessage) => {
     if (message.updated?.includes("room")) {
       loadRoom();
@@ -63,13 +53,18 @@ const RoomPage: NextPage = () => {
 
   useEffect(() => {
     if (!roomId) return;
-    const socket = createSocket();
-    socket.on("connect", () => {
+    const eventSource = new EventSource(`/api/rooms/${roomId}/subscribe`);
+    eventSource.onopen = () => {
       setConnected(true);
-    });
-    socket.on("message", onMessage);
+    };
+
+    eventSource.onmessage = (e) => {
+      const message = JSON.parse(e.data);
+      onMessage(message);
+    };
+
     return () => {
-      socket.close();
+      eventSource.close();
     };
   }, [roomId]); // eslint-disable-line react-hooks/exhaustive-deps
 

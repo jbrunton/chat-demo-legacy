@@ -20,7 +20,7 @@ import {
   ResponseAdapter,
 } from "./requests-adapters";
 import * as RT from "fp-ts/ReaderTask";
-import { createSocketDispatcher } from "./socket-dispatcher";
+import { createSocketDispatcher } from "./EventDispatcher";
 
 const createMailer = () => {
   switch (process.env.EMAIL_TRANSPORT) {

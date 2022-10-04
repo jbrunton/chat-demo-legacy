@@ -12,7 +12,7 @@ describe('Navigation', () => {
   it('displays the welcome message and navigation options on all screen sizes', () => {
     sizes.forEach(size => {
       cy.viewport(size);
-      cy.waitForSocket();
+      cy.waitForConnection();
       cy.get('button').contains('New Room').should('exist');
       cy.getUser().then((user) => {
         cy.get('button').contains(user.name).should('exist');

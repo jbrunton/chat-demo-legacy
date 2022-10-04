@@ -5,7 +5,7 @@ describe('Sending messages', () => {
     cy.login();
     cy.createRoom();
     cy.visitRoom();
-    cy.waitForSocket();
+    cy.waitForConnection();
   })
 
   it('lets the user send a message', () => {

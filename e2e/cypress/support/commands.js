@@ -69,7 +69,7 @@ Cypress.Commands.add('visitRoom', () => {
   });
 });
 
-Cypress.Commands.add('waitForSocket', () => {
+Cypress.Commands.add('waitForConnection', () => {
   cy.getUser().then(user => {
     cy.get('input').should('not.be.disabled');
   });

@@ -7,7 +7,7 @@ describe('Sending commands', () => {
     cy.login();
     cy.createRoom();
     cy.visitRoom();
-    cy.waitForSocket();
+    cy.waitForConnection();
   })
 
   it('responds to /help command', () => {

@@ -3,8 +3,9 @@ import type { AppProps } from "next/app";
 import { SessionProvider } from "next-auth/react";
 import AuthWrapper from "@app/components/AuthWrapper";
 import { NextComponentType } from "next";
+import { Session } from "next-auth";
 
-type CustomAppProps = AppProps & {
+type CustomAppProps = AppProps<{ session: Session }> & {
   Component: NextComponentType & { requireAuth?: boolean };
 };
 

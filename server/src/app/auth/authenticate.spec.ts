@@ -16,6 +16,7 @@ describe("authenticate", () => {
 
   const testAdapterUser: AdapterUser = {
     ...testUser,
+    email: "test@example.com",
     emailVerified: new Date(),
   };
 

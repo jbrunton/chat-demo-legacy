@@ -15,7 +15,7 @@ const Session = async (req: NextApiRequest, res: NextApiResponse) => {
   if (user) {
     user = await adapter.updateUser({ ...user, name, email });
   } else {
-    user = await adapter.createUser({ name, email });
+    user = await adapter.createUser({ name, email, emailVerified: new Date() });
   }
   res.status(201).send(user);
 };

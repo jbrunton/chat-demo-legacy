@@ -23,7 +23,7 @@ describe("getLegacyStacks", () => {
   const legacyDev = makeStack("legacy-dev");
 
   it("only returns dev stacks", () => {
-    expect(getLegacyStacks([production, staging, legacyDev])).toEqual([
+    expect(getLegacyStacks([production, staging, legacyDev], 3)).toEqual([
       { name: "legacy-dev", requireDestroy: true },
     ]);
   });
@@ -33,7 +33,7 @@ describe("getLegacyStacks", () => {
       ...makeStack("recent-dev"),
       lastUpdate: yesterday.toISOString(),
     };
-    expect(getLegacyStacks([legacyDev, recentDev])).toEqual([
+    expect(getLegacyStacks([legacyDev, recentDev], 3)).toEqual([
       { name: "legacy-dev", requireDestroy: true },
     ]);
   });
@@ -43,7 +43,7 @@ describe("getLegacyStacks", () => {
       ...makeStack("empty-dev"),
       resourceCount: 0,
     };
-    expect(getLegacyStacks([legacyDev, emptyDev])).toEqual([
+    expect(getLegacyStacks([legacyDev, emptyDev], 3)).toEqual([
       { name: "legacy-dev", requireDestroy: true },
       { name: "empty-dev", requireDestroy: false },
     ]);

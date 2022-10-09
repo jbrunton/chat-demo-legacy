@@ -8,19 +8,20 @@ export interface StackCleaner {
 
 export const cleanupLegacyStacks = async (
   stacks: StackSummary[],
-  cleaner: StackCleaner
+  cleaner: StackCleaner,
+  cutoffDays: number
 ) => {
-  const legacyStacks = getLegacyStacks(stacks);
-  console.log(`Found ${legacyStacks.length} legacy dev stack(s)`);
+  const legacyStacks = getLegacyStacks(stacks, cutoffDays);
+  console.info(`Found ${legacyStacks.length} legacy dev stack(s)`);
 
   const cleanupStack = async ({ name, requireDestroy }: LegacyStack) => {
     if (requireDestroy) {
       await cleaner.destroyStack(name);
-      console.log(`Destroyed legacy stack: ${name}`);
+      console.info(`Destroyed legacy stack: ${name}`);
     }
 
     await cleaner.removeStack(name);
-    console.log(`Removed legacy stack: ${name}`);
+    console.info(`Removed legacy stack: ${name}`);
   };
 
   await Promise.all(legacyStacks.map(cleanupStack));

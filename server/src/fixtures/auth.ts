@@ -19,11 +19,14 @@ export const stubAdapterUser =
     return { adapter, ...deps };
   };
 
+let emailCount = 0;
+
 export const stubAuth =
   (user: User) =>
   ({ sessionRepository, adapter, ...deps }: MockReqDependencies) => {
     const adapterUser: AdapterUser = {
       ...user,
+      email: `test${++emailCount}@example.com`,
       emailVerified: subDays(new Date(), 30),
     };
 

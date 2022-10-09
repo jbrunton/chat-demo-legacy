@@ -1,7 +1,7 @@
 import { debug } from "@app/debug";
-import { Account } from "next-auth";
 import {
   Adapter,
+  AdapterAccount,
   AdapterSession,
   AdapterUser,
   VerificationToken,
@@ -10,7 +10,7 @@ import crypto from "crypto";
 import { bindMethods } from "@util/bind";
 import { AuthDB } from "./auth-db";
 
-export class LowAuthAdapter implements Adapter {
+export class LowAuthAdapter implements Adapter<true> {
   private readonly db: AuthDB;
 
   constructor(db: AuthDB) {
@@ -55,7 +55,7 @@ export class LowAuthAdapter implements Adapter {
     provider,
     providerAccountId,
   }: Pick<
-    Account,
+    AdapterAccount,
     "provider" | "providerAccountId"
   >): Promise<AdapterUser | null> {
     this.db.read();
@@ -82,7 +82,7 @@ export class LowAuthAdapter implements Adapter {
     return updatedUser;
   }
 
-  async linkAccount(account: Account): Promise<Account> {
+  async linkAccount(account: AdapterAccount): Promise<AdapterAccount> {
     this.db.read();
     this.db.createAccount(account);
     debug.auth(`linkAccount: linked account: %O`, account);

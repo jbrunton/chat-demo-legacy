@@ -1,6 +1,9 @@
 import { cleanupLegacyStacks } from "@app/cleanup/cleanup-legacy-stacks";
 
-cleanupLegacyStacks().catch((e) => {
+const cutoffDays = parseInt(process.env.CUTOFF_DAYS || "3", 10);
+console.info(`Cleaning up legacy stacks older than ${cutoffDays} days`);
+
+cleanupLegacyStacks(cutoffDays).catch((e) => {
   console.error(e);
   process.exit(1);
 });

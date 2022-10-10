@@ -3,11 +3,11 @@ import * as usecases from "@usecases";
 
 const workDir = ".";
 
-export const cleanupLegacyStacks = async () => {
+export const cleanupLegacyStacks = async (cutoffDays: number) => {
   const workspace = await LocalWorkspace.create({ workDir });
   const stacks = await workspace.listStacks();
   const cleaner = new StackCleaner(workspace);
-  await usecases.cleanupLegacyStacks(stacks, cleaner);
+  await usecases.cleanupLegacyStacks(stacks, cleaner, cutoffDays);
 };
 
 class StackCleaner implements usecases.StackCleaner {

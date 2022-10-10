@@ -5,15 +5,15 @@ import { makeStack } from "./get-legacy-stacks.spec";
 
 describe("cleanupLegacyStacks", () => {
   let cleaner: MockProxy<StackCleaner>;
-  let log: jest.SpyInstance<void, Parameters<typeof console["log"]>[0]>;
+  let logInfo: jest.SpyInstance<void, Parameters<typeof console["info"]>[0]>;
 
   beforeEach(() => {
     cleaner = mock<StackCleaner>();
-    log = jest.spyOn(console, "log").mockImplementation();
+    logInfo = jest.spyOn(console, "info").mockImplementation();
   });
 
   afterEach(() => {
-    log.mockReset();
+    logInfo.mockReset();
   });
 
   it("removes empty stacks", async () => {
@@ -24,13 +24,13 @@ describe("cleanupLegacyStacks", () => {
       },
     ];
 
-    await cleanupLegacyStacks(stacks, cleaner);
+    await cleanupLegacyStacks(stacks, cleaner, 3);
 
     expect(cleaner.removeStack).toHaveBeenCalledWith("empty-stack");
     expect(cleaner.destroyStack).not.toHaveBeenCalled();
 
-    expect(log).toHaveBeenCalledWith("Found 1 legacy dev stack(s)");
-    expect(log).toHaveBeenCalledWith("Removed legacy stack: empty-stack");
+    expect(logInfo).toHaveBeenCalledWith("Found 1 legacy dev stack(s)");
+    expect(logInfo).toHaveBeenCalledWith("Removed legacy stack: empty-stack");
   });
 
   it("destroys non-empty stacks", async () => {
@@ -41,13 +41,17 @@ describe("cleanupLegacyStacks", () => {
       },
     ];
 
-    await cleanupLegacyStacks(stacks, cleaner);
+    await cleanupLegacyStacks(stacks, cleaner, 3);
 
     expect(cleaner.destroyStack).toHaveBeenCalledWith("non-empty-stack");
     expect(cleaner.removeStack).toHaveBeenCalledWith("non-empty-stack");
 
-    expect(log).toHaveBeenCalledWith("Found 1 legacy dev stack(s)");
-    expect(log).toHaveBeenCalledWith("Destroyed legacy stack: non-empty-stack");
-    expect(log).toHaveBeenCalledWith("Removed legacy stack: non-empty-stack");
+    expect(logInfo).toHaveBeenCalledWith("Found 1 legacy dev stack(s)");
+    expect(logInfo).toHaveBeenCalledWith(
+      "Destroyed legacy stack: non-empty-stack"
+    );
+    expect(logInfo).toHaveBeenCalledWith(
+      "Removed legacy stack: non-empty-stack"
+    );
   });
 });

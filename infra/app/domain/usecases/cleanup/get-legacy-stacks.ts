@@ -7,18 +7,21 @@ export type LegacyStack = {
   requireDestroy: boolean;
 };
 
-export const getLegacyStacks = (stacks: StackSummary[]): LegacyStack[] => {
-  return stacks.filter(isLegacy).map(({ name, resourceCount }) => ({
+export const getLegacyStacks = (
+  stacks: StackSummary[],
+  cutoffDays: number
+): LegacyStack[] => {
+  return stacks.filter(isLegacy(cutoffDays)).map(({ name, resourceCount }) => ({
     name,
     requireDestroy: !!resourceCount,
   }));
 };
 
-const isLegacy = (stack: StackSummary) => {
+const isLegacy = (cutoffDays: number) => (stack: StackSummary) => {
   if (getEnvironment(stack.name) !== "development") {
     return false;
   }
 
-  const cutoff = subDays(new Date(), 3);
+  const cutoff = subDays(new Date(), cutoffDays);
   return stack.lastUpdate && new Date(stack.lastUpdate) < cutoff;
 };

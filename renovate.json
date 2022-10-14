@@ -4,6 +4,7 @@
   ],
   "branchPrefix": "deps-",
   "branchConcurrentLimit": 2,
+  "schedule": "every weekend",
   "packageRules": [
     {
       "matchPackagePatterns": [

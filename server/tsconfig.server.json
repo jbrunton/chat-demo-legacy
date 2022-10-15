@@ -1,0 +1,14 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "isolatedModules": false,
+    "outDir": "dist",
+    "noEmit": false,
+    "module": "esnext",
+    "moduleResolution": "node",
+    "target": "es6",
+    "esModuleInterop": true
+  },
+  "include": ["server"],
+  "ts-node": { "esm": true }
+}

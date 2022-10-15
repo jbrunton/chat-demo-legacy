@@ -23,7 +23,7 @@
   "dependencies": {
     "@pulumi/aws": "5.17.0",
     "@pulumi/awsx": "0.40.1",
-    "@pulumi/pulumi": "3.43.0",
+    "@pulumi/pulumi": "3.43.1",
     "@pulumi/random": "4.8.2",
     "date-fns": "2.29.3",
     "ts-node": "10.9.1"

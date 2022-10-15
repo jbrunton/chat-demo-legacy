@@ -1,10 +1,10 @@
-import { AuditLogDB } from "@data/low/audit-log-db";
-import { LowAuditLogRepository } from "@data/low/audit-log-repository";
-import { LowAuthAdapter } from "@data/low/auth-adapter";
-import { AuthDB } from "@data/low/auth-db";
-import { RoomDB } from "@data/low/room-db";
-import { LowRoomRepository } from "@data/low/room-repository";
-import { LowUserRepository } from "@data/low/user-repository";
+import { AuditLogDB } from "@data/quick/audit-log-db";
+import { LowAuditLogRepository } from "@data/quick/audit-log-repository";
+import { QuickDbAuthAdapter } from "@data/quick/auth-adapter";
+import { AuthDB } from "@data/quick/auth-db";
+import { RoomDB } from "@data/quick/room-db";
+import { LowRoomRepository } from "@data/quick/room-repository";
+import { LowUserRepository } from "@data/quick/user-repository";
 import {
   EntityNotFoundError,
   InvalidArgumentError,
@@ -38,7 +38,7 @@ describe("renameRoom", () => {
     const authDB = AuthDB.createMemoryDB();
     const roomDB = RoomDB.createMemoryDB();
     const auditLogDB = AuditLogDB.createMemoryDB();
-    const adapter = new LowAuthAdapter(authDB);
+    const adapter = new QuickDbAuthAdapter(authDB);
     const nameGenerator = mock<NameGenerator>();
 
     roomDB.createRoom(testRoom);

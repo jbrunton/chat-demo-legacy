@@ -12,14 +12,14 @@ module.exports = {
     "^@fixtures/(.*)$": ["<rootDir>/src/fixtures/$1"],
   },
   transform: {
-    "^.+\\.[tj]s$": "ts-jest",
+    "^.+\\.[tj]s$": [
+      "ts-jest",
+      {
+        tsconfig: {
+          allowJs: true,
+        },
+      },
+    ],
   },
   transformIgnorePatterns: ["<rootDir>/node_modules/(?!lowdb|steno)"],
-  globals: {
-    "ts-jest": {
-      tsconfig: {
-        allowJs: true,
-      },
-    },
-  },
 };

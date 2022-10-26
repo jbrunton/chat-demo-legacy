@@ -82,7 +82,7 @@ export const getTaskDefinitionSpec = (
           secretOptions: [
             {
               name: "URI",
-              valueFrom: getParamArn("logz-io-uri", config.environment),
+              valueFrom: getParamArn("logz-io-uri"),
             },
           ],
         },

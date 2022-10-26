@@ -98,7 +98,7 @@ describe("getTaskDefinitionSpec", () => {
               {
                 name: "URI",
                 valueFrom:
-                  "arn:aws:ssm:eu-west-2:030461922427:parameter/chat-demo/development/logz-io-uri",
+                  "arn:aws:ssm:eu-west-2:030461922427:parameter/chat-demo/production/logz-io-uri",
               },
             ],
           },

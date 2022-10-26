@@ -1,12 +1,15 @@
 import { debug } from "@app/debug";
+import { QuickDbFileAdapter } from "@data/quickdb/adapters/file-adapter";
+import { QuickDbMemoryAdapter } from "@data/quickdb/adapters/memory-adapter";
+import { QuickDb } from "@data/quickdb/quick-db";
+import { QuickDbAdapter, QuickDbStore } from "@data/quickdb/types";
 import { Message } from "@domain/entities/messages";
 import {
   FindMembershipStatusParams,
   MembershipStatus,
   Room,
 } from "@domain/entities/room";
-import { chain, ExpChain } from "lodash";
-import { JSONFileSync, LowSync, MemorySync, SyncAdapter } from "lowdb";
+import { ExpChain } from "lodash";
 
 export type StoredMessage = Omit<Message, "sender"> & {
   senderId?: string;
@@ -20,55 +23,62 @@ type RoomMembership = {
   until?: string;
 };
 
-type Data = {
-  rooms: Room[];
-  memberships: RoomMembership[];
-  messages: StoredMessage[];
+type RoomSchema = {
+  rooms: Room;
+  memberships: RoomMembership;
+  messages: StoredMessage;
 };
+
+type RoomStore = QuickDbStore<RoomSchema>;
 
 export type UpdateRoomParams = Partial<Omit<Room, "id">> & Pick<Room, "id">;
 
-export class RoomDB extends LowSync<Data> {
-  chain: ExpChain<this["data"]> = chain(this).get("data");
+export class RoomDB extends QuickDb<RoomSchema> {
+  get rooms(): ExpChain<RoomStore["rooms"]> {
+    return this.get("rooms");
+  }
 
-  rooms: ExpChain<Data["rooms"]> = this.chain.get("rooms");
-  memberships: ExpChain<Data["memberships"]> = this.chain.get("memberships");
-  messages: ExpChain<Data["messages"]> = this.chain.get("messages");
+  get memberships(): ExpChain<RoomStore["memberships"]> {
+    return this.get("memberships");
+  }
+
+  get messages(): ExpChain<RoomStore["messages"]> {
+    return this.get("messages");
+  }
 
   static createFileSystemDB() {
-    return new RoomDB(new JSONFileSync("db/rooms.json"));
+    return new RoomDB(new QuickDbFileAdapter("db/rooms.json"));
   }
 
   static createMemoryDB() {
-    return new RoomDB(new MemorySync());
+    return new RoomDB(new QuickDbMemoryAdapter());
   }
 
-  constructor(adapter: SyncAdapter<Data>) {
-    super(adapter);
-
-    this.read();
-    if (!this.data) {
-      this.data = {
-        rooms: [],
-        memberships: [],
-        messages: [],
-      };
-      this.write();
-    }
+  constructor(adapter: QuickDbAdapter<RoomSchema>) {
+    super({
+      adapter,
+      initStore() {
+        return {
+          rooms: [],
+          memberships: [],
+          messages: [],
+        };
+      },
+    });
   }
 
   createRoom(room: Room) {
-    this.data?.rooms.push(room);
+    this.rooms.push(room).commit();
     this.write();
   }
 
   createMembership(membership: RoomMembership) {
-    this.data?.memberships.push(membership);
+    this.memberships.push(membership).commit();
     this.write();
   }
 
   createMessage(message: StoredMessage) {
-    this.data?.messages.push(message);
+    this.messages.push(message).commit();
     this.write();
   }
 

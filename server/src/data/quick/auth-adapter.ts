@@ -10,7 +10,7 @@ import crypto from "crypto";
 import { bindMethods } from "@util/bind";
 import { AuthDB } from "./auth-db";
 
-export class LowAuthAdapter implements Adapter<true> {
+export class QuickDbAuthAdapter implements Adapter<true> {
   private readonly db: AuthDB;
 
   constructor(db: AuthDB) {

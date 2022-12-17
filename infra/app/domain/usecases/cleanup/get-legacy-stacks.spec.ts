@@ -24,6 +24,7 @@ describe("getLegacyStacks", () => {
 
   it("only returns dev stacks", () => {
     expect(getLegacyStacks([production, staging, legacyDev], 3)).toEqual([
+      { name: "staging", requireDestroy: true },
       { name: "legacy-dev", requireDestroy: true },
     ]);
   });

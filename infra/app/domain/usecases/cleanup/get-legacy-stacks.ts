@@ -18,7 +18,7 @@ export const getLegacyStacks = (
 };
 
 const isLegacy = (cutoffDays: number) => (stack: StackSummary) => {
-  if (getEnvironment(stack.name) !== "development") {
+  if (getEnvironment(stack.name) === "production") {
     return false;
   }
 

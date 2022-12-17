@@ -80,30 +80,9 @@ jobs:
           DOCKER_PASSWORD: ${{ secrets.DOCKER_ACCESS_TOKEN }}
         run: npx semantic-release
 
-  provision-shared-infra:
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/develop'
-    steps:
-      - uses: actions/checkout@v3
-      - run: npm ci
-        working-directory: infra/shared
-      - uses: pulumi/actions@v3
-        with:
-          command: up
-          stack-name: production
-          upsert: true
-          work-dir: infra/shared
-          comment-on-pr: true
-          github-token: ${{ secrets.CI_MINION_PAT }}
-        env:
-          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: eu-west-2
-
   deploy-staging:
     environment: Staging
-    needs: [build, provision-shared-infra]
+    needs: [build]
     if: ${{ needs.build.outputs.version }}
     runs-on: ubuntu-latest
     steps:
@@ -121,7 +100,7 @@ jobs:
           DIGITALOCEAN_TOKEN: ${{ secrets.DIGITALOCEAN_TOKEN }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: eu-west-2
+          AWS_REGION: us-east-1
           TAG: ${{ needs.build.outputs.version }}
 
 
@@ -144,5 +123,5 @@ jobs:
           DIGITALOCEAN_TOKEN: ${{ secrets.DIGITALOCEAN_TOKEN }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: eu-west-2
+          AWS_REGION: us-east-1
           TAG: ${{ needs.build.outputs.version }}

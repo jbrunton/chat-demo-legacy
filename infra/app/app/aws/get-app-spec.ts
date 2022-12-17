@@ -103,7 +103,7 @@ export const getTaskDefinitionSpec = (
           logDriver: "awslogs",
           options: {
             "awslogs-group": logGroupName,
-            "awslogs-region": "eu-west-2",
+            "awslogs-region": "us-east-1",
             "awslogs-stream-prefix": "ecs",
           },
         },
@@ -119,4 +119,4 @@ export const getTaskDefinitionSpec = (
 };
 
 const getParamArn = (name: string, env: Environment = "production") =>
-  `arn:aws:ssm:eu-west-2:030461922427:parameter/chat-demo/${env}/${name}`;
+  `arn:aws:ssm:us-east-1:030461922427:parameter/chat-demo/${env}/${name}`;

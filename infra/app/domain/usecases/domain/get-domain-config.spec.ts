@@ -34,9 +34,9 @@ describe("getDomainConfig", () => {
       rootDomain: "jbrunton-aws.com",
     });
     expect(config).toEqual({
-      domain: "test.chat-demo.dev.jbrunton-aws.com",
+      domain: "chat-demo-test.dev.jbrunton-aws.com",
       rootDomain: "jbrunton-aws.com",
-      publicUrl: "https://test.chat-demo.dev.jbrunton-aws.com",
+      publicUrl: "https://chat-demo-test.dev.jbrunton-aws.com",
     });
   });
 });

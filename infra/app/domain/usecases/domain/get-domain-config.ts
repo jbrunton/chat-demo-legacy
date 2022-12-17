@@ -17,6 +17,6 @@ const getDomainName = (inputs: DomainInputs): string => {
     case "staging":
       return `chat-demo.staging.${inputs.rootDomain}`;
     case "development":
-      return `${inputs.stackName}.chat-demo.dev.${inputs.rootDomain}`;
+      return `chat-demo-${inputs.stackName}.dev.${inputs.rootDomain}`;
   }
 };

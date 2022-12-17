@@ -8,7 +8,7 @@ import {
   SharedResources,
 } from "./usecases/stack/get-shared-resources";
 
-const provider = new aws.Provider("aws", { region: "eu-west-2" });
+const provider = new aws.Provider("aws", { region: "us-east-1" });
 
 export const applyStackConfig: ApplyStackConfig<StackConfig> = (
   config: StackConfig
@@ -73,7 +73,7 @@ function createResources(config: StackConfig, shared: SharedResources) {
           Effect: "Allow",
           Action: ["ssm:GetParameters", "kms:Decrypt"],
           Resource: [
-            "arn:aws:ssm:eu-west-2:030461922427:parameter/chat-demo/*",
+            "arn:aws:ssm:us-east-1:030461922427:parameter/chat-demo/*",
           ],
         },
       ],

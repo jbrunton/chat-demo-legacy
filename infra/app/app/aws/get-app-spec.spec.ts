@@ -66,22 +66,22 @@ describe("getTaskDefinitionSpec", () => {
             {
               name: "GOOGLE_CLIENT_ID",
               valueFrom:
-                "arn:aws:ssm:eu-west-2:030461922427:parameter/chat-demo/production/google-client-id",
+                "arn:aws:ssm:us-east-1:030461922427:parameter/chat-demo/production/google-client-id",
             },
             {
               name: "GOOGLE_CLIENT_SECRET",
               valueFrom:
-                "arn:aws:ssm:eu-west-2:030461922427:parameter/chat-demo/production/google-client-secret",
+                "arn:aws:ssm:us-east-1:030461922427:parameter/chat-demo/production/google-client-secret",
             },
             {
               name: "NEXTAUTH_SECRET",
               valueFrom:
-                "arn:aws:ssm:eu-west-2:030461922427:parameter/chat-demo/production/next-auth-secret",
+                "arn:aws:ssm:us-east-1:030461922427:parameter/chat-demo/production/next-auth-secret",
             },
             {
               name: "SENDGRID_API_KEY",
               valueFrom:
-                "arn:aws:ssm:eu-west-2:030461922427:parameter/chat-demo/production/sendgrid-api-key",
+                "arn:aws:ssm:us-east-1:030461922427:parameter/chat-demo/production/sendgrid-api-key",
             },
           ],
           logConfiguration: {
@@ -98,7 +98,7 @@ describe("getTaskDefinitionSpec", () => {
               {
                 name: "URI",
                 valueFrom:
-                  "arn:aws:ssm:eu-west-2:030461922427:parameter/chat-demo/production/logz-io-uri",
+                  "arn:aws:ssm:us-east-1:030461922427:parameter/chat-demo/production/logz-io-uri",
               },
             ],
           },
@@ -119,7 +119,7 @@ describe("getTaskDefinitionSpec", () => {
             logDriver: "awslogs",
             options: {
               "awslogs-group": "/ecs/chat-demo-logs",
-              "awslogs-region": "eu-west-2",
+              "awslogs-region": "us-east-1",
               "awslogs-stream-prefix": "ecs",
             },
           },

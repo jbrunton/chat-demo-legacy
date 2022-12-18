@@ -29,8 +29,13 @@ describe("cleanupLegacyStacks", () => {
     expect(cleaner.removeStack).toHaveBeenCalledWith("empty-stack");
     expect(cleaner.destroyStack).not.toHaveBeenCalled();
 
-    expect(logInfo).toHaveBeenCalledWith("Found 1 legacy dev stack(s)");
+    expect(logInfo).toHaveBeenCalledWith(
+      "Found 1 legacy dev stack(s) out of 1 total"
+    );
     expect(logInfo).toHaveBeenCalledWith("Removed legacy stack: empty-stack");
+    expect(logInfo).toHaveBeenCalledWith(
+      "Removed 1 legacy stacks, 0 remaining"
+    );
   });
 
   it("destroys non-empty stacks", async () => {
@@ -46,12 +51,17 @@ describe("cleanupLegacyStacks", () => {
     expect(cleaner.destroyStack).toHaveBeenCalledWith("non-empty-stack");
     expect(cleaner.removeStack).toHaveBeenCalledWith("non-empty-stack");
 
-    expect(logInfo).toHaveBeenCalledWith("Found 1 legacy dev stack(s)");
+    expect(logInfo).toHaveBeenCalledWith(
+      "Found 1 legacy dev stack(s) out of 1 total"
+    );
     expect(logInfo).toHaveBeenCalledWith(
       "Destroyed legacy stack: non-empty-stack"
     );
     expect(logInfo).toHaveBeenCalledWith(
       "Removed legacy stack: non-empty-stack"
+    );
+    expect(logInfo).toHaveBeenCalledWith(
+      "Removed 1 legacy stacks, 0 remaining"
     );
   });
 });

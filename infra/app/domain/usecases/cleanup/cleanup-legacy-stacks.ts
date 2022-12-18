@@ -12,7 +12,9 @@ export const cleanupLegacyStacks = async (
   cutoffDays: number
 ) => {
   const legacyStacks = getLegacyStacks(stacks, cutoffDays);
-  console.info(`Found ${legacyStacks.length} legacy dev stack(s)`);
+  console.info(
+    `Found ${legacyStacks.length} legacy dev stack(s) out of ${stacks.length} total`
+  );
 
   const cleanupStack = async ({ name, requireDestroy }: LegacyStack) => {
     if (requireDestroy) {
@@ -25,4 +27,9 @@ export const cleanupLegacyStacks = async (
   };
 
   await Promise.all(legacyStacks.map(cleanupStack));
+  console.info(
+    `Removed ${legacyStacks.length} legacy stacks, ${
+      stacks.length - legacyStacks.length
+    } remaining`
+  );
 };

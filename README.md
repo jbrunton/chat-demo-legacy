@@ -1,4 +1,8 @@
-# ChatDemo
+# Archived
+
+This project has been archived. See [jbrunton/chat-demo](https://github.com/jbrunton/chat-demo) for a better example.
+
+# ChatDemo (Legacy)
 
 This project is an exercise in developing good CI/CD practices and automation. It includes:
 
